@@ -19,8 +19,10 @@ class DeepSeekClient:
     def __init__(self, settings: Settings):
         self.settings = settings
 
-    async def chat(self, messages: list[dict]) -> ModelCallResult:
-        payload = {"model": self.settings.deepseek_model, "messages": messages, "temperature": 0.3, "stream": False}
+    async def chat(self, messages: list[dict], json_mode: bool = False) -> ModelCallResult:
+        payload = {"model": self.settings.deepseek_model, "messages": messages, "temperature":0.6, "stream": False}
+        if json_mode:
+            payload["response_format"] = {"type": "json_object"}
         try:
             async with httpx.AsyncClient(timeout=self.settings.deepseek_timeout_seconds) as client:
                 response = await client.post(

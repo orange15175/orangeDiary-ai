@@ -17,3 +17,5 @@ class ChatResponseData(BaseModel):
     reply: str
     model: str
     context_used: bool
+    action: str | None = None
+    recordPreview: dict | None = None

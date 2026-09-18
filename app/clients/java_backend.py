@@ -15,44 +15,115 @@ class JavaBackendClient:
     def __init__(self, settings: Settings):
         self.settings = settings
 
-    async def load_current_user_context(self, authorization: str | None) -> dict | None:
-        if not authorization:
-            return None
-        if not authorization.startswith("Bearer "):
-            raise HTTPException(status_code=401, detail="Authorization 请求头格式应为 Bearer Token")
-        headers, today = {"Authorization": authorization}, date.today().isoformat()
+    async def validate_token(self, authorization: str | None) -> None:
+        """让 Java 成为唯一的 JWT、Redis 会话和账号状态校验方。"""
+        if not authorization or not authorization.startswith("Bearer "):
+            raise HTTPException(status_code=401, detail="请先登录")
+        await self._get_json("/api/users/validate", authorization)
+
+    async def get_today_summary(self, authorization: str) -> dict:
+        """查询今日热量汇总。"""
+        today = date.today().isoformat()
+        body = await self._get_json("/api/daily-summaries", authorization, {"date": today})
+        return {"date": today, "summary": body.get("data") or {}}
+
+    async def get_today_diet_detail(self, authorization: str) -> dict:
+        """查询今日饮食明细。"""
+        today = date.today().isoformat()
+        body = await self._get_json("/api/diet-records", authorization, {"date": today})
+        return {"date": today, "records": body.get("data") or []}
+
+    async def get_weight_progress(self, authorization: str) -> dict:
+        """查询当前体重、目标体重和累计减重。"""
+        body = await self._get_json("/api/weight-records/progress", authorization)
+        return {"progress": body.get("data") or {}}
+
+    async def get_user_goal(self, authorization: str) -> dict:
+        """查询用户资料和当前目标，只保留目标相关字段。"""
+        body = await self._get_json("/api/users/me", authorization)
+        user = body.get("data") or {}
+        profile, goal = user.get("profile") or {}, user.get("activeGoal") or {}
+        return {
+            "goal": {
+                "goalType": goal.get("goalType"),
+                "dailyIntakeTarget": goal.get("dailyIntakeTarget"),
+                "dailyBurnTarget": goal.get("dailyBurnTarget"),
+                "startDate": goal.get("startDate"),
+                "endDate": goal.get("endDate"),
+            },
+            "profile": {
+                "currentWeightKg": profile.get("currentWeightKg"),
+                "targetWeightKg": profile.get("targetWeightKg"),
+            },
+        }
+
+    async def search_food_nutrition(
+            self,
+            authorization: str,
+            food_name: str,
+            amount_g: float | None = None,
+            nutrition_metric: str | None = None,
+    ) -> dict:
+        """按用户提供的明确名称查食物，最多返回十个候选，避免向模型传整张食物表。"""
+        body = await self._get_json("/api/foods", authorization, {"keyword": food_name, "limit": 10})
+        return {
+            "foodName": food_name,
+            "amountG": amount_g,
+            "nutritionMetric": nutrition_metric,
+            "candidates": body.get("data") or [],
+        }
+
+    async def match_food(self, authorization: str, food_name: str) -> dict:
+        """由 Java 用别名、精确名和模糊候选确认模型识别到的食物。"""
+        body = await self._get_json("/api/foods/match", authorization, {"name": food_name})
+        return body.get("data") or {"matchType": "NOT_FOUND", "candidates": []}
+
+    async def search_exercise_calorie(
+            self,
+            authorization: str,
+            exercise_name: str,
+            duration_min: int,
+    ) -> dict:
+        """查询运动候选和当前体重，为现有 Java 公式提供所需的真实输入。"""
+        body, user_body = await asyncio.gather(
+            self._get_json("/api/exercises", authorization, {"keyword": exercise_name, "limit": 10}),
+            self._get_json("/api/users/me", authorization),
+        )
+        user = user_body.get("data") or {}
+        profile = user.get("profile") or {}
+        return {
+            "exerciseName": exercise_name,
+            "durationMin": duration_min,
+            "currentWeightKg": profile.get("currentWeightKg"),
+            "candidates": body.get("data") or [],
+        }
+
+    async def _get_json(self, path: str, authorization: str, params: dict | None = None) -> dict:
+        """统一处理 Java 查询接口的鉴权、HTTP 错误和业务错误。"""
+        headers = {"Authorization": authorization}
         try:
-            async with httpx.AsyncClient(timeout=self.settings.java_backend_timeout_seconds) as client:
-                # 两个查询相互独立，并发执行可减少聊天接口等待时间。
-                user_response, summary_response = await asyncio.gather(
-                    client.get(f"{self.settings.java_backend_base_url}/api/users/me", headers=headers),
-                    client.get(f"{self.settings.java_backend_base_url}/api/daily-summaries", headers=headers, params={"date": today}),
+            # Java 服务运行在本机，不能被 VPN/系统 HTTP_PROXY 转发，否则会误报 502。
+            async with httpx.AsyncClient(
+                    timeout=self.settings.java_backend_timeout_seconds,
+                    trust_env=False,
+            ) as client:
+                response = await client.get(
+                    f"{self.settings.java_backend_base_url}{path}",
+                    headers=headers,
+                    params=params,
                 )
-            if user_response.status_code == 401 or summary_response.status_code == 401:
+            if response.status_code == 401:
                 raise HTTPException(status_code=401, detail="登录已过期，请重新登录")
-            user_response.raise_for_status()
-            summary_response.raise_for_status()
-            user_body, summary_body = user_response.json(), summary_response.json()
-            if user_body.get("code") != 0 or summary_body.get("code") != 0:
+            response.raise_for_status()
+            body = response.json()
+            if body.get("code") != 0:
                 raise ValueError("Java 业务服务返回失败")
-            return self._build_context(today, user_body.get("data") or {}, summary_body.get("data") or {})
+            return body
         except HTTPException:
             raise
         except httpx.HTTPError as exc:
-            logger.exception("Java backend request failed")
+            logger.exception("Java backend request failed: %s", path)
             raise HTTPException(status_code=502, detail="无法读取用户健康数据") from exc
         except (KeyError, ValueError, TypeError) as exc:
-            logger.exception("Java backend returned an unexpected response")
+            logger.exception("Java backend returned an unexpected response: %s", path)
             raise HTTPException(status_code=502, detail="用户健康数据格式异常") from exc
-
-    @staticmethod
-    def _build_context(today: str, user: dict, summary: dict) -> dict:
-        profile, goal = user.get("profile") or {}, user.get("activeGoal") or {}
-        # 只保留模型生成饮食建议需要的数据，避免泄露手机号、JWT、数据库 ID。
-        return {
-            "date": today,
-            "nickname": user.get("nickname"),
-            "profile": {"gender": profile.get("gender"), "heightCm": profile.get("heightCm"), "currentWeightKg": profile.get("currentWeightKg"), "targetWeightKg": profile.get("targetWeightKg"), "activityLevel": profile.get("activityLevel")},
-            "goal": {"goalType": goal.get("goalType"), "dailyIntakeTarget": goal.get("dailyIntakeTarget"), "dailyBurnTarget": goal.get("dailyBurnTarget")},
-            "todaySummary": {"totalIntakeCalorie": summary.get("totalIntakeCalorie"), "totalBurnCalorie": summary.get("totalBurnCalorie"), "availableIntakeCalorie": summary.get("availableIntakeCalorie"), "dietCount": summary.get("dietCount"), "exerciseCount": summary.get("exerciseCount"), "weightKg": summary.get("weightKg")},
-        }

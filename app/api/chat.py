@@ -22,7 +22,8 @@ async def chat(
         if credentials:
             authorization = f"{credentials.scheme} {credentials.credentials}"
         data = await ChatService(Settings.from_env()).chat(request, authorization)
-        return {"code": 200, "message": "success", "data": data.model_dump()}
+        # 与现有 Uni-app 前端的 ApiResponse 协议保持一致：成功必须是 code: 0。
+        return {"code": 0, "message": "success", "data": data.model_dump()}
     except HTTPException:
         raise
     except RuntimeError as exc:
