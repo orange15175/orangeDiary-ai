@@ -16,13 +16,21 @@ class SemanticResult:
     meal_type: str | None = None
     amount_text: str | None = None
     amount_g: float | None = None
+    # 下面三个字段由统一意图层消费，不直接决定 Java 工具调用。
+    metrics: tuple[str, ...] = ()
+    missing_slots: tuple[str, ...] = ()
+    slots: dict[str, object] | None = None
     reply: str | None = None
 
 
 class SemanticParser:
     """规则无法准确处理时，让模型做意图分类与单食物实体提取。"""
 
-    _ALLOWED_INTENTS = {"food_record", "health_advice", "out_of_scope", "clarification"}
+    _ALLOWED_INTENTS = {
+        "daily_summary", "diet_detail", "food_nutrition", "food_record",
+        "weight_progress", "user_goal", "exercise_calorie", "exercise_record",
+        "health_advice", "out_of_scope", "clarification",
+    }
     _ALLOWED_MEALS = {"breakfast", "lunch", "dinner", "snack"}
 
     def __init__(self, deepseek: DeepSeekClient):
@@ -34,13 +42,22 @@ class SemanticParser:
                 "role": "system",
                 "content": (
                     "你是健康饮食应用的意图分类器。只输出 JSON，不要 Markdown。"
-                    "只能选择 intent: food_record, health_advice, out_of_scope, clarification。"
+                    "只能选择 intent: daily_summary, diet_detail, food_nutrition, food_record, "
+                    "weight_progress, user_goal, exercise_calorie, exercise_record, health_advice, out_of_scope, clarification。"
                     "food_record 仅限用户明确表示已经吃了或喝了一个食物；一次只允许一个食物。"
                     "若一句话含多个食物，intent 必须是 clarification。"
-                    "health_advice 用于健康饮食建议，但不读取任何个人数据。"
+                    "daily_summary 用于查询今日摄入、目标或剩余热量；diet_detail 用于查询饮食明细；"
+                    "food_nutrition 用于查询食物营养；weight_progress 用于查询体重变化；"
+                    "user_goal 用于查询用户目标；exercise_calorie 用于查询运动消耗；exercise_record 用于用户明确已完成运动并希望记录。"
+                    "health_advice 用于通用健康饮食建议，不读取个人数据，除非请求同时包含查询行为。"
+                    "若用户要求根据今天、当前、我的饮食或热量给建议，优先选择对应的查询意图，"
+                    "后续系统会读取真实数据再生成建议。"
                     "out_of_scope 用于与健康饮食、运动、体重、目标无关的问题。"
-                    "字段固定为 intent, confidence, foodName, mealType, amountText, amountG, reply。"
+                    "字段固定为 intent, confidence, foodName, mealType, amountText, amountG, metrics, slots, missingSlots, reply。"
                     "mealType 只能是 breakfast/lunch/dinner/snack 或 null；amountG 只能是数字或 null。"
+                    "metrics 只能包含 intake_calorie, remaining_calorie, target_calorie；没有时返回空数组。"
+                    "slots 只能使用 food_name, amount_g, nutrition_metric, exercise_name, duration_min；没有时返回空对象。"
+                    "missingSlots 返回当前意图缺少的必要参数名称。"
                     "reply 仅在 health_advice 或 out_of_scope 时填写一到两句简短回答，其他情况为 null。"
                     "不确定时使用 clarification，并在 reply 中简短追问。"
                 ),
@@ -68,6 +85,15 @@ class SemanticParser:
             amount_g = float(amount_g)
             if amount_g <= 0 or amount_g > 99999.99:
                 amount_g = None
+        metrics = body.get("metrics")
+        if not isinstance(metrics, list):
+            metrics = []
+        # 过滤模型编造的指标，后续只接受代码支持的枚举值。
+        metrics = tuple(item for item in metrics if item in {"intake_calorie", "remaining_calorie", "target_calorie"})
+        missing_slots = body.get("missingSlots")
+        if not isinstance(missing_slots, list):
+            missing_slots = []
+        missing_slots = tuple(item.strip() for item in missing_slots if isinstance(item, str) and item.strip())
         return SemanticResult(
             intent=intent,
             confidence=confidence,
@@ -75,6 +101,9 @@ class SemanticParser:
             meal_type=meal_type,
             amount_text=self._optional_text(body.get("amountText")),
             amount_g=amount_g,
+            metrics=metrics,
+            missing_slots=missing_slots,
+            slots=body.get("slots") if isinstance(body.get("slots"), dict) else None,
             reply=self._optional_text(body.get("reply")),
         )
 

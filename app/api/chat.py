@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from app.config import Settings
+from app.dependencies import get_chat_service
 from app.schemas.chat import ChatRequest
 from app.services.chat_service import ChatService
 
@@ -14,6 +14,7 @@ bearer_scheme = HTTPBearer(auto_error=False)
 async def chat(
     request: ChatRequest,
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+    chat_service: ChatService = Depends(get_chat_service),
 ):
     """Controller 层只接收 HTTP 请求，业务逻辑交给 ChatService。"""
     try:
@@ -21,7 +22,7 @@ async def chat(
         authorization = None
         if credentials:
             authorization = f"{credentials.scheme} {credentials.credentials}"
-        data = await ChatService(Settings.from_env()).chat(request, authorization)
+        data = await chat_service.chat(request, authorization)
         # 与现有 Uni-app 前端的 ApiResponse 协议保持一致：成功必须是 code: 0。
         return {"code": 0, "message": "success", "data": data.model_dump()}
     except HTTPException:

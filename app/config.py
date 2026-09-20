@@ -1,5 +1,12 @@
 import os
 from dataclasses import dataclass
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+
+# Local development reads orangeDiary-ai/.env; deployed containers still use injected environment variables.
+load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
 
 @dataclass(frozen=True)
@@ -13,6 +20,11 @@ class Settings:
     java_backend_timeout_seconds: float
     deepseek_input_price_per_million: float
     deepseek_output_price_per_million: float
+    mysql_host: str
+    mysql_port: int
+    mysql_database: str
+    mysql_username: str
+    mysql_password: str
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -29,4 +41,9 @@ class Settings:
             deepseek_output_price_per_million=float(
                 os.getenv("DEEPSEEK_OUTPUT_PRICE_PER_MILLION", "0")
             ),
+            mysql_host=os.getenv("MYSQL_HOST", "127.0.0.1").strip(),
+            mysql_port=int(os.getenv("MYSQL_PORT", "3306")),
+            mysql_database=os.getenv("MYSQL_DATABASE", "calorie_tracker").strip(),
+            mysql_username=os.getenv("MYSQL_USERNAME", "").strip(),
+            mysql_password=os.getenv("MYSQL_PASSWORD", ""),
         )

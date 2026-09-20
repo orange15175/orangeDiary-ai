@@ -15,11 +15,15 @@ class JavaBackendClient:
     def __init__(self, settings: Settings):
         self.settings = settings
 
-    async def validate_token(self, authorization: str | None) -> None:
-        """让 Java 成为唯一的 JWT、Redis 会话和账号状态校验方。"""
+    async def validate_token(self, authorization: str | None) -> int:
+        """让 Java 成为唯一的 JWT、Redis 会话和账号状态校验方，并返回可信用户 ID。"""
         if not authorization or not authorization.startswith("Bearer "):
             raise HTTPException(status_code=401, detail="请先登录")
-        await self._get_json("/api/users/validate", authorization)
+        body = await self._get_json("/api/users/me", authorization)
+        user_id = (body.get("data") or {}).get("id")
+        if not isinstance(user_id, int) or user_id <= 0:
+            raise HTTPException(status_code=502, detail="无法识别当前登录用户")
+        return user_id
 
     async def get_today_summary(self, authorization: str) -> dict:
         """查询今日热量汇总。"""
@@ -85,6 +89,7 @@ class JavaBackendClient:
             duration_min: int,
     ) -> dict:
         """查询运动候选和当前体重，为现有 Java 公式提供所需的真实输入。"""
+        # 运动候选与当前体重互不依赖，允许并行读取以缩短响应时间。
         body, user_body = await asyncio.gather(
             self._get_json("/api/exercises", authorization, {"keyword": exercise_name, "limit": 10}),
             self._get_json("/api/users/me", authorization),
@@ -113,10 +118,12 @@ class JavaBackendClient:
                     params=params,
                 )
             if response.status_code == 401:
+                # Java 是会话的唯一裁决方；Python 不自行解释或刷新登录状态。
                 raise HTTPException(status_code=401, detail="登录已过期，请重新登录")
             response.raise_for_status()
             body = response.json()
             if body.get("code") != 0:
+                # HTTP 成功不代表 Java 业务成功，仍须检查统一业务码。
                 raise ValueError("Java 业务服务返回失败")
             return body
         except HTTPException:

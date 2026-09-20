@@ -20,9 +20,23 @@ class IntentRouterTest(unittest.TestCase):
         self.assertEqual(intents[0].name, "exercise_calorie")
         self.assertEqual(build_clarification(intents), "你大约进行了多少分钟？")
 
+    def test_completed_exercise_with_duration_is_an_action(self):
+        intents = detect_intents("晚上跑步30分钟")
+        self.assertEqual([intent.name for intent in intents], ["exercise_record"])
+        self.assertEqual(intents[0].params["exercise_name"], "跑步")
+        self.assertEqual(intents[0].params["duration_min"], 30)
+
     def test_daily_question_does_not_be_mistaken_for_food_lookup(self):
         intents = detect_intents("我今天还能吃多少热量？")
         self.assertEqual([intent.name for intent in intents], ["daily_summary"])
+
+    def test_daily_intake_and_remaining_are_one_summary_intent(self):
+        intents = detect_intents("查一下我今天能吃多少热量，吃了多少热量")
+        self.assertEqual([intent.name for intent in intents], ["daily_summary"])
+        self.assertEqual(
+            intents[0].params["metrics"],
+            ("intake_calorie", "remaining_calorie"),
+        )
 
     def test_no_intent_returns_empty_list(self):
         self.assertEqual(detect_intents("你好"), [])

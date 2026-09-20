@@ -19,3 +19,4 @@ class ChatResponseData(BaseModel):
     context_used: bool
     action: str | None = None
     recordPreview: dict | None = None
+    exercisePreview: dict | None = None

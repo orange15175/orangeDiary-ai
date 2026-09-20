@@ -2,3 +2,5 @@ fastapi
 uvicorn[standard]
 httpx
 pydantic-settings
+PyMySQL
+python-dotenv
