@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 
 class ChatMessage(BaseModel):
     """一条允许带入模型上下文的历史消息。"""
+    # 只允许历史对话角色，防止客户端伪造 system 消息。
     role: str = Field(pattern="^(user|assistant)$")
     content: str = Field(min_length=1, max_length=8000)
 

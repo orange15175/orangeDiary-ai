@@ -34,9 +34,11 @@ class SemanticParser:
     _ALLOWED_MEALS = {"breakfast", "lunch", "dinner", "snack"}
 
     def __init__(self, deepseek: DeepSeekClient):
+        """注入只负责模型 HTTP 调用的客户端。"""
         self.deepseek = deepseek
 
     async def parse(self, message: str) -> tuple[SemanticResult, ModelCallResult]:
+        """请求模型输出受限 JSON，再交给本地代码校验。"""
         result = await self.deepseek.chat([
             {
                 "role": "system",
@@ -67,6 +69,7 @@ class SemanticParser:
         return self._parse_result(result.reply), result
 
     def _parse_result(self, raw: str) -> SemanticResult:
+        """校验模型 JSON 的意图、置信度和可接受参数范围。"""
         try:
             body = json.loads(raw)
         except json.JSONDecodeError as exc:
@@ -109,6 +112,7 @@ class SemanticParser:
 
     @staticmethod
     def _optional_text(value: object) -> str | None:
+        """将空白或非字符串字段规范为 None。"""
         if not isinstance(value, str):
             return None
         value = value.strip()

@@ -13,6 +13,7 @@ logger = logging.getLogger("orange-diary-ai")
 class JavaBackendClient:
     """通过 Java 的 JWT 鉴权接口读取当前用户真实数据。"""
     def __init__(self, settings: Settings):
+        """保存 Java 服务地址和超时配置。"""
         self.settings = settings
 
     async def validate_token(self, authorization: str | None) -> int:
@@ -27,6 +28,7 @@ class JavaBackendClient:
 
     async def get_today_summary(self, authorization: str) -> dict:
         """查询今日热量汇总。"""
+        # 业务日期由服务端生成，避免客户端传入错误日期。
         today = date.today().isoformat()
         body = await self._get_json("/api/daily-summaries", authorization, {"date": today})
         return {"date": today, "summary": body.get("data") or {}}
@@ -104,6 +106,7 @@ class JavaBackendClient:
         }
 
     async def _get_json(self, path: str, authorization: str, params: dict | None = None) -> dict:
+        """统一发送 Java 请求，处理鉴权、网络错误和业务码。"""
         """统一处理 Java 查询接口的鉴权、HTTP 错误和业务错误。"""
         headers = {"Authorization": authorization}
         try:

@@ -2,6 +2,7 @@ import json
 
 
 def build_memory_context(summary: str, messages) -> str:
+    """把长期摘要转成模型可读的受控记忆段。"""
     """Conversation text is background only and cannot override the system or live business data."""
     parts = [
         "【长期对话摘要】",
@@ -20,6 +21,7 @@ def build_memory_context(summary: str, messages) -> str:
 
 
 def build_system_prompt(user_context: dict | None) -> str:
+    """生成系统约束，并附加本次可信业务数据。"""
     prompt = "你是 Orange Diary 健康饮食助手。回答要简洁、带点趣味。涉及疾病诊断、药物或治疗时，明确建议用户咨询医生。"
     # 你是OrangeDiary健康饮食助手。回答要简洁、清晰、可执行。涉及疾病诊断、药物或治疗时，明确建议用户咨询医生。
     if user_context:

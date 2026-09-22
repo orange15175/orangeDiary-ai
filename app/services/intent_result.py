@@ -35,6 +35,7 @@ class IntentResult:
 
     @classmethod
     def from_rule(cls, intent_match) -> "IntentResult":
+        """把规则结果转换为统一意图结构。"""
         # 规则命中视为高确定性结果；参数沿用规则提取结果。
         return cls(
             intent=intent_match.name,
@@ -47,6 +48,7 @@ class IntentResult:
 
     @classmethod
     def from_semantic(cls, semantic) -> "IntentResult":
+        """把模型分类结果转换为统一意图结构。"""
         # 模型只能提供意图和候选参数，行为类型始终由本地映射决定。
         slots = dict(getattr(semantic, "slots", {}) or {})
         for key in ("food_name", "meal_type", "amount_text", "amount_g", "metrics"):

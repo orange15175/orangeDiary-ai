@@ -24,19 +24,23 @@ class MemoryService:
     MAX_SUMMARY_LENGTH = 800
 
     def __init__(self, repository: ConversationRepository, deepseek: DeepSeekClient):
+        """组合会话仓储和摘要模型客户端。"""
         self.repository = repository
         self.deepseek = deepseek
 
     async def load_context(self, user_id: int) -> MemoryContext:
+        """读取用户长期摘要和未覆盖的最近消息。"""
         conversation = await asyncio.to_thread(self.repository.get_or_create, user_id)
         conversation, messages = await self._load_validated_messages(conversation)
         return MemoryContext(conversation, tuple(messages))
 
     async def save_completed_turn(self, context: MemoryContext, user_message: str, assistant_message: str) -> None:
+        """保存完整问答，并在达到阈值时异步压缩旧消息。"""
         await asyncio.to_thread(self.repository.append_turn, context.conversation.id, user_message, assistant_message)
         await self._summarize_if_needed(context.conversation.id)
 
     async def _summarize_if_needed(self, conversation_id: int) -> None:
+        """达到消息阈值时总结最早的一批未摘要消息。"""
         # Reload under the latest coverage marker because another request may have just summarized first.
         conversation = await asyncio.to_thread(self._find_conversation, conversation_id)
         if conversation is None:
@@ -65,6 +69,7 @@ class MemoryService:
             logger.exception("AI memory summarization failed, conversationId=%s", conversation_id)
 
     def _find_conversation(self, conversation_id: int) -> Conversation | None:
+        """供线程池中的摘要流程重新读取会话状态。"""
         return self.repository.get_by_id(conversation_id)
 
     async def _load_validated_messages(
@@ -109,6 +114,7 @@ class MemoryService:
 
     @classmethod
     def _summary_instruction(cls) -> str:
+        """限定长期摘要只保存稳定偏好、目标和未完成事项。"""
         return (
             "你是健康助手的对话记忆整理器。只输出一段不超过800个中文字符的摘要。"
             "仅保留用户稳定饮食偏好、长期目标、回答偏好和未完成计划。"
@@ -118,6 +124,7 @@ class MemoryService:
 
     @staticmethod
     def _summary_input(old_summary: str, messages: list[ConversationMessage]) -> str:
+        """将旧摘要和待压缩消息组织成一次摘要输入。"""
         lines = ["【旧摘要】", old_summary or "暂无。", "", "【新增历史消息】"]
         for message in messages:
             role = "用户" if message.role == "user" else "助手"
@@ -126,4 +133,5 @@ class MemoryService:
 
     @classmethod
     def _truncate(cls, summary: str) -> str:
+        """限制摘要长度，控制后续每次模型请求的上下文成本。"""
         return summary[:cls.MAX_SUMMARY_LENGTH]

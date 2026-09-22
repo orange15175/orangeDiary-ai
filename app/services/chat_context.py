@@ -19,4 +19,5 @@ class ChatExecutionContext:
 
     @classmethod
     def create(cls, request: ChatRequest, authorization: str, user_id: int, memory_context: MemoryContext):
+        """封装单次请求的共享数据、追踪编号和计时起点。"""
         return cls(request, authorization, user_id, memory_context, uuid.uuid4().hex, time.perf_counter())

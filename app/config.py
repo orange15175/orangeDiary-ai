@@ -28,6 +28,7 @@ class Settings:
 
     @classmethod
     def from_env(cls) -> "Settings":
+        """从环境变量构造不可变配置，部署时由 Compose 注入密钥。"""
         return cls(
             deepseek_api_key=os.getenv("DEEPSEEK_API_KEY", "").strip(),
             deepseek_base_url=os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com").rstrip("/"),

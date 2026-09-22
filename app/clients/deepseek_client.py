@@ -17,9 +17,11 @@ class ModelCallResult:
 class DeepSeekClient:
     """只负责 DeepSeek HTTP 调用，不承担聊天业务流程。"""
     def __init__(self, settings: Settings):
+        """保存模型配置，不在客户端保存请求状态。"""
         self.settings = settings
 
     async def chat(self, messages: list[dict], json_mode: bool = False) -> ModelCallResult:
+        """发送一次模型请求，并统一解析回复和 Token 用量。"""
         payload = {"model": self.settings.deepseek_model, "messages": messages, "temperature":0.6, "stream": False}
         if json_mode:
             payload["response_format"] = {"type": "json_object"}

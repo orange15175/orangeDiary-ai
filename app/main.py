@@ -9,6 +9,7 @@ from app.config import Settings
 
 def configure_logging() -> None:
     """为业务日志配置独立的控制台输出。"""
+    # 日志配置集中在应用启动阶段，避免每次请求重复添加 Handler。
     logger = logging.getLogger("orange-diary-ai")
     logger.setLevel(logging.INFO)
     logger.propagate = False
@@ -23,6 +24,7 @@ def configure_logging() -> None:
 
 
 def create_app() -> FastAPI:
+    """创建 FastAPI 应用并注册跨域、聊天和健康检查路由。"""
     configure_logging()
     logging.getLogger("orange-diary-ai").info("AI 业务日志已启用")
     app = FastAPI(title="Orange Diary AI Service", version="0.1.0")
@@ -43,6 +45,7 @@ def create_app() -> FastAPI:
 
     @app.get("/health", tags=["系统"])
     def health():
+        """返回进程状态和模型配置状态，不执行模型调用。"""
         settings = Settings.from_env()
         return {"code": 200, "message": "Python AI service is running", "data": {"deepseekConfigured": bool(settings.deepseek_api_key), "model": settings.deepseek_model}}
 

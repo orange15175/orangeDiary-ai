@@ -50,10 +50,12 @@ _EXERCISE_RECORD_PATTERN = re.compile(
 
 
 def _empty_params(_: str) -> dict[str, ParamValue]:
+    """供不需要参数的规则复用。"""
     return {}
 
 
 def _food_params(message: str) -> dict[str, ParamValue]:
+    """提取食物查询需要的名称、重量和营养指标。"""
     matched = _FOOD_PATTERN.search(message)
     if not matched:
         return {}
@@ -75,6 +77,7 @@ def _food_params(message: str) -> dict[str, ParamValue]:
 
 
 def _daily_summary_params(message: str) -> dict[str, ParamValue]:
+    """提取今日汇总问题关心的热量指标。"""
     # 同一次汇总查询可返回多个指标，避免为“吃了多少/还剩多少”重复请求 Java。
     metrics: list[str] = []
     if re.search(r"(?:吃了|摄入|已经吃|已摄入).*(?:多少|多少热量|多少卡|多少大卡|多少千卡)", message):
@@ -87,6 +90,7 @@ def _daily_summary_params(message: str) -> dict[str, ParamValue]:
 
 
 def _exercise_params(message: str) -> dict[str, ParamValue]:
+    """提取运动消耗查询的项目和时长。"""
     matched = _EXERCISE_PATTERN.search(message)
     if not matched:
         return {}
@@ -104,6 +108,7 @@ def _exercise_params(message: str) -> dict[str, ParamValue]:
 
 
 def _exercise_record_params(message: str) -> dict[str, ParamValue]:
+    """提取运动记录预览需要的项目和时长。"""
     matched = _EXERCISE_RECORD_PATTERN.search(message)
     exercise_name = matched.group("exercise").strip("了的") if matched else ""
     # "我刚刚跑步了" 的动作本身就是项目；避免把时间词当成运动名。
@@ -150,11 +155,13 @@ INTENT_RULES = (
 
 
 def normalize_message(message: str) -> str:
+    """统一空白和大小写，减少规则表达式的重复分支。"""
     return re.sub(r"\s+", "", message.strip().lower())
 
 
 def detect_intents(message: str) -> list[IntentMatch]:
     """返回所有互不冲突的意图；真正不同的任务会被保留以便并行查询。"""
+    # 规则层先给出低成本、确定性的候选意图。
     normalized = normalize_message(message)
     candidates: list[IntentMatch] = []
     for rule in INTENT_RULES:

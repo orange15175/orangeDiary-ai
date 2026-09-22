@@ -17,6 +17,7 @@ async def chat(
     chat_service: ChatService = Depends(get_chat_service),
 ):
     """Controller 层只接收 HTTP 请求，业务逻辑交给 ChatService。"""
+    # 入口只负责协议转换，业务分支从这里进入 ChatService。
     try:
         # Swagger 会在用户填入 Token 后自动补上 Bearer 前缀。
         authorization = None
