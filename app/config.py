@@ -18,7 +18,7 @@ class Settings:
         return cls(
             deepseek_api_key=os.getenv("DEEPSEEK_API_KEY", "").strip(),
             deepseek_base_url=os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com").rstrip("/"),
-            deepseek_model=os.getenv("DEEPSEEK_MODEL", "deepseek-v4-flash").strip(),
+            deepseek_model=os.getenv("DEEPSEEK_MODEL", "deepseek-chat").strip(),
             deepseek_timeout_seconds=float(os.getenv("DEEPSEEK_TIMEOUT_SECONDS", "60")),
             deepseek_input_price_per_million=float(
                 os.getenv("DEEPSEEK_INPUT_PRICE_PER_MILLION", "0")

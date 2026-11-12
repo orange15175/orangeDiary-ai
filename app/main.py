@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.gateway import router as gateway_router
+from app.api.intent import router as intent_router
 from app.config import Settings
 
 
@@ -41,6 +42,7 @@ def create_app() -> FastAPI:
     )
     # Public business APIs are served by Java; this router requires service credentials.
     app.include_router(gateway_router)
+    app.include_router(intent_router)
 
     @app.get("/health", tags=["系统"])
     def health():
