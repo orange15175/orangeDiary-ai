@@ -55,11 +55,13 @@ class SemanticParser:
                     "若用户要求根据今天、当前、我的饮食或热量给建议，优先选择对应的查询意图，"
                     "后续系统会读取真实数据再生成建议。"
                     "out_of_scope 用于与健康饮食、运动、体重、目标无关的问题。"
-                    "字段固定为 intent, confidence, foodName, mealType, amountText, amountG, metrics, slots, missingSlots, reply。"
-                    "mealType 只能是 breakfast/lunch/dinner/snack 或 null；amountG 只能是数字或 null。"
+                    "字段固定为 intent, confidence, food_name, meal_type, amount_text, amount_g, metrics, slots, missing_slots, reply；字段名必须是 snake_case。"
+                    "meal_type 只能是 breakfast/lunch/dinner/snack 或 null；amount_g 只能是数字或 null。"
                     "metrics 只能包含 intake_calorie, remaining_calorie, target_calorie；没有时返回空数组。"
-                    "slots 只能使用 food_name, amount_g, nutrition_metric, exercise_name, duration_min；没有时返回空对象。"
-                    "missingSlots 返回当前意图缺少的必要参数名称。"
+                    "slots 只能使用 food_name, quantity, unit, amount_g, amount_text, nutrition_metric, exercise_name, duration_min；没有时返回空对象。"
+                    "计数单位（个、碗、份、杯等）不能换算为克；没有质量单位时把 amount_g 放入 missing_slots。"
+                    "nutrition_metric 只能取 calorie, protein, fat, carbohydrate。"
+                    "missing_slots 返回当前意图缺少的必要参数名称。"
                     "reply 仅在 health_advice 或 out_of_scope 时填写一到两句简短回答，其他情况为 null。"
                     "不确定时使用 clarification，并在 reply 中简短追问。"
                 ),
@@ -80,29 +82,33 @@ class SemanticParser:
         confidence = float(body.get("confidence", 0))
         if not 0 <= confidence <= 1:
             raise ValueError("模型置信度不合法")
-        meal_type = body.get("mealType")
+        # 内部统一 snake_case；旧 camelCase 字段只在这个边界读取一次。
+        meal_type = body.get("meal_type", body.get("mealType"))
         if meal_type is not None and meal_type not in self._ALLOWED_MEALS:
             meal_type = None
-        amount_g = body.get("amountG")
+        amount_g = body.get("amount_g", body.get("amountG"))
         if amount_g is not None:
-            amount_g = float(amount_g)
-            if amount_g <= 0 or amount_g > 99999.99:
+            if isinstance(amount_g, bool) or not isinstance(amount_g, (int, float)):
                 amount_g = None
+            else:
+                amount_g = float(amount_g)
+                if amount_g <= 0 or amount_g > 99999.99 or amount_g != amount_g:
+                    amount_g = None
         metrics = body.get("metrics")
         if not isinstance(metrics, list):
             metrics = []
         # 过滤模型编造的指标，后续只接受代码支持的枚举值。
         metrics = tuple(item for item in metrics if item in {"intake_calorie", "remaining_calorie", "target_calorie"})
-        missing_slots = body.get("missingSlots")
+        missing_slots = body.get("missing_slots", body.get("missingSlots"))
         if not isinstance(missing_slots, list):
             missing_slots = []
         missing_slots = tuple(item.strip() for item in missing_slots if isinstance(item, str) and item.strip())
         return SemanticResult(
             intent=intent,
             confidence=confidence,
-            food_name=self._optional_text(body.get("foodName")),
+            food_name=self._optional_text(body.get("food_name", body.get("foodName"))),
             meal_type=meal_type,
-            amount_text=self._optional_text(body.get("amountText")),
+            amount_text=self._optional_text(body.get("amount_text", body.get("amountText"))),
             amount_g=amount_g,
             metrics=metrics,
             missing_slots=missing_slots,

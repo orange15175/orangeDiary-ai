@@ -31,10 +31,27 @@ class IntentRule:
     required_fields: tuple[str, ...] = ()
 
 
+# 单位只做“同类换算”。计数单位（个/碗/份）没有可靠份量表时不能变成克。
+_MASS_UNITS: dict[str, float] = {
+    "克": 1.0, "g": 1.0, "公克": 1.0,
+    "千克": 1000.0, "公斤": 1000.0, "kg": 1000.0,
+    "斤": 500.0, "两": 50.0,
+}
+_COUNT_UNITS = ("个", "只", "碗", "份", "杯", "瓶", "盒", "袋", "片", "根", "块", "勺", "盘", "条", "颗", "串", "听", "罐", "张", "把")
+# 体积换算成质量需要密度，不能默认 1ml = 1g。
+_VOLUME_UNITS = ("毫升", "ml", "升", "l")
+_UNIT_PATTERN = "公斤|千克|公克|毫升|克|斤|两|kg|g|ml|个|只|碗|份|杯|瓶|盒|袋|片|根|块|勺|盘|条|颗|串|听|罐|张|把"
+
+_CN_DIGITS = {"零": 0, "一": 1, "二": 2, "两": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9}
+
+# 食物名前面常带的问句前缀；只在这些固定词出现时剥离，避免误伤“我的自制沙拉”。
+_FOOD_PREFIXES = ("我想知道", "我想问一下", "我想问", "请问", "帮我查一下", "帮我看看", "查一下", "了解一下", "想问一下")
+_FOOD_STOPWORDS = ("什么", "啥", "多少", "几", "哪些", "东西", "食物", "早餐", "午餐", "晚餐", "加餐", "记录")
+
 _FOOD_PATTERN = re.compile(
-    r"(?:(?P<amount>\d+(?:\.\d+)?)\s*(?:克|g|G)\s*)?"
-    r"(?P<food>[\u4e00-\u9fff]{2,12}?)(?:\s*(?P<amount_after>\d+(?:\.\d+)?)\s*(?:克|g|G))?"
-    r"(?:的|有|含有)?\s*(?:多少)?(?P<metric>热量|卡路里|大卡|千卡|蛋白质|脂肪|碳水(?:化合物)?)"
+    r"(?:(?P<amount>\d+(?:\.\d+)?)\s*(?:公斤|千克|斤|克|g|G)\s*)?"
+    r"(?P<food>[\u4e00-\u9fff]{2,12}?)(?:\s*(?P<amount_after>\d+(?:\.\d+)?)\s*(?:公斤|千克|斤|克|g|G))?"
+    r"(?:的|有|含有)?\s*(?:多少)?(?P<metric>热量|卡路里|大卡|千卡|能量|蛋白质|脂肪|碳水(?:化合物)?)"
 )
 _EXERCISE_PATTERN = re.compile(
     r"(?P<exercise>[\u4e00-\u9fff]{2,12}?)(?:\s*(?P<duration>\d+)\s*(?:分钟|min))?\s*(?:能)?(?:消耗|燃烧)"
@@ -47,6 +64,59 @@ _EXERCISE_RECORD_PATTERN = re.compile(
     r"(?:我|刚刚|刚才|晚上|今天)?(?:进行了|做了|完成了|跑了|练了|运动了)"
     r"(?P<exercise>[\u4e00-\u9fff]{0,12}?)(?:\s*(?P<duration>\d+)\s*(?:分钟|min))?"
 )
+# 记录语句优先匹配“数量 + 单位”；单位可选但必须显式识别，不能默认当克。
+_FOOD_RECORD_PATTERN = re.compile(
+    r"(?:吃了|喝了|进食了|记录了)\s*"
+    r"(?P<quantity>\d+(?:\.\d+)?|[零一二两三四五六七八九十半]+)\s*"
+    rf"(?P<unit>{_UNIT_PATTERN})?\s*"
+    r"(?P<food>[\u4e00-\u9fffA-Za-z][\u4e00-\u9fffA-Za-z0-9]{0,15})"
+)
+# 没有数量时仍要能识别“我吃了鸡蛋”，交给缺参追问而不是忽略。
+_FOOD_RECORD_NO_AMOUNT = re.compile(
+    r"(?:吃了|喝了|进食了)\s*(?P<food>[\u4e00-\u9fffA-Za-z][\u4e00-\u9fffA-Za-z0-9]{0,15})"
+)
+
+
+def parse_quantity(text: str | None) -> float | None:
+    """把“2 / 半 / 两 / 十二”等写法解析为数值，无法解析时返回 None。"""
+    if not text:
+        return None
+    value = text.strip()
+    if not value:
+        return None
+    try:
+        return float(value)
+    except ValueError:
+        pass
+    if value == "半":
+        return 0.5
+    if value in _CN_DIGITS:
+        return float(_CN_DIGITS[value])
+    if "十" in value:
+        head, _, tail = value.partition("十")
+        tens = _CN_DIGITS.get(head, 1) if head else 1
+        if not tail:
+            return float(tens * 10)
+        if tail in _CN_DIGITS:
+            return float(tens * 10 + _CN_DIGITS[tail])
+    return None
+
+
+def normalize_food_name(raw: str | None) -> str | None:
+    """清理食物名中的问句前缀和语气词，过滤纯疑问词。"""
+    if not raw:
+        return None
+    name = raw.strip()
+    for prefix in _FOOD_PREFIXES:
+        if name.startswith(prefix):
+            name = name[len(prefix):]
+            break
+    name = name.strip("的了")
+    if len(name) < 1:
+        return None
+    if any(stop in name for stop in _FOOD_STOPWORDS):
+        return None
+    return name
 
 
 def _empty_params(_: str) -> dict[str, ParamValue]:
@@ -54,18 +124,39 @@ def _empty_params(_: str) -> dict[str, ParamValue]:
     return {}
 
 
+def _mass_to_grams(quantity: float, unit: str | None) -> float | None:
+    """只有质量单位才给出克数；计数、体积单位返回 None 以便追问。"""
+    if unit is None:
+        return None
+    factor = _MASS_UNITS.get(unit.lower())
+    if factor is None:
+        return None
+    return round(quantity * factor, 2)
+
+
 def _food_record_params(message: str) -> dict[str, ParamValue]:
-    """Extract the explicit food and amount from a record statement."""
-    matched = re.search(
-        r"(?:吃了|喝了|进食了|记录了)\s*(?P<amount>\d+(?:\.\d+)?)\s*(?:克|g|G|公斤|千克)?\s*(?P<food>[\u4e00-\u9fffA-Za-z][\u4e00-\u9fffA-Za-z0-9]{0,15})",
-        message,
-    )
-    if not matched:
+    """显式识别“数量 + 单位 + 食物”，不把计数单位当成克。"""
+    matched = _FOOD_RECORD_PATTERN.search(message)
+    if matched:
+        food_name = normalize_food_name(matched.group("food"))
+        quantity = parse_quantity(matched.group("quantity"))
+        unit = matched.group("unit")
+        if food_name and quantity is not None:
+            params: dict[str, ParamValue] = {"food_name": food_name, "quantity": quantity}
+            if unit:
+                params["unit"] = unit
+            grams = _mass_to_grams(quantity, unit)
+            if grams is not None:
+                params["amount_g"] = grams
+            return params
+        if food_name:
+            return {"food_name": food_name}
         return {}
-    amount = float(matched.group("amount"))
-    if "公斤" in matched.group(0) or "千克" in matched.group(0):
-        amount *= 1000
-    return {"food_name": matched.group("food"), "amount_g": amount}
+    fallback = _FOOD_RECORD_NO_AMOUNT.search(message)
+    if fallback:
+        food_name = normalize_food_name(fallback.group("food"))
+        return {"food_name": food_name} if food_name else {}
+    return {}
 
 
 def _food_params(message: str) -> dict[str, ParamValue]:
@@ -73,9 +164,9 @@ def _food_params(message: str) -> dict[str, ParamValue]:
     matched = _FOOD_PATTERN.search(message)
     if not matched:
         return {}
-    food_name = matched.group("food").rstrip("的有含")
+    food_name = normalize_food_name(matched.group("food").rstrip("的有含"))
     # 单字通常是正则回溯产生的残片，不应作为食物名查询。
-    if len(food_name) < 2:
+    if not food_name:
         return {}
     # 这些是“个人汇总/运动”语境，不是可以送往食物库检索的食物名称。
     if any(marker in food_name for marker in ("我的", "今天", "今日", "额度", "还能吃", "还可以吃", "剩余", "摄入", "消耗", "燃烧", "达标", "超标")):
@@ -84,9 +175,15 @@ def _food_params(message: str) -> dict[str, ParamValue]:
         "food_name": food_name,
         "nutrition_metric": matched.group("metric"),
     }
+    amount_text = matched.group(0)
     amount = matched.group("amount") or matched.group("amount_after")
     if amount:
-        params["amount_g"] = float(amount)
+        quantity = parse_quantity(amount)
+        if quantity is not None:
+            unit = next((u for u in ("公斤", "千克", "斤", "克", "g", "G") if u in amount_text), "克")
+            grams = _mass_to_grams(quantity, unit.lower())
+            if grams is not None:
+                params["amount_g"] = grams
     return params
 
 
@@ -145,7 +242,7 @@ def _exercise_record_params(message: str) -> dict[str, ParamValue]:
 # 新增简单意图时优先只补这一项；Router 不需要增加新的 if 分支。
 INTENT_RULES = (
     IntentRule("food_nutrition", "search_food_nutrition", 100, "nutrition_lookup",
-               (r"(?:热量|卡路里|大卡|千卡|蛋白质|脂肪|碳水(?:化合物)?)",), _food_params, ("food_name",)),
+               (r"(?:热量|卡路里|大卡|千卡|能量|蛋白质|脂肪|碳水(?:化合物)?)",), _food_params, ("food_name",)),
     IntentRule("food_record", "prepare_diet_record", 95, "nutrition_lookup",
                (r"吃了(?!什么|啥|多少|几)", r"喝了(?!什么|啥|多少|几)", r"进食了"), _food_record_params,
                ("food_name", "amount_g")),
@@ -213,15 +310,48 @@ def _merge_intents(candidates: list[IntentMatch]) -> list[IntentMatch]:
     return sorted(selected.values(), key=lambda item: item.priority, reverse=True)
 
 
-def build_clarification(intents: list[IntentMatch]) -> str | None:
+def _format_quantity(value: object) -> str:
+    """把 2.0 显示成 2，把 0.5 显示成 0.5。"""
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return str(value)
+    return str(int(number)) if number.is_integer() else str(number)
+
+
+def clarification_for_slots(slots: dict, missing: tuple[str, ...] | list[str]) -> str | None:
+    """按缺参类型给出自然追问；有数量+单位时只问克数，不重复问食物。"""
+    missing_set = set(missing or ())
+    if not missing_set:
+        return None
+    food_name = slots.get("food_name")
+    quantity = slots.get("quantity")
+    unit = slots.get("unit")
+    exercise_name = slots.get("exercise_name")
+
+    if "amount_g" in missing_set and food_name:
+        if quantity is not None and unit:
+            amount_text = slots.get("quantity_text") or _format_quantity(quantity)
+            return f"你说的「{amount_text}{unit}{food_name}」大约有多少克？"
+        return f"「{food_name}」大约吃了多少克？"
+    if "duration_min" in missing_set:
+        if exercise_name:
+            return f"你这次「{exercise_name}」大约进行了多少分钟？"
+        return "你大约进行了多少分钟？"
+    if "exercise_name" in missing_set:
+        return "你想查询哪一种运动的热量消耗？"
+    if "food_name" in missing_set:
+        return "你想查询哪一种食物的营养信息？"
+    return "请补充更具体的信息，我才能准确回答。"
+
+
+def build_clarification(intents) -> str | None:
     """缺少必要参数时统一追问，避免用猜测的食物或运动数据回答。"""
-    missing = {field for intent in intents for field in intent.missing_fields}
+    missing = {field for intent in intents for field in intent.missing_slots}
     if not missing:
         return None
-    if "duration_min" in missing:
-        return "你大约进行了多少分钟？"
-    if "exercise_name" in missing:
-        return "你想查询哪一种运动的热量消耗？"
-    if "food_name" in missing:
-        return "你想查询哪一种食物的营养信息？"
+    for intent in intents:
+        reply = clarification_for_slots(dict(intent.slots), intent.missing_slots)
+        if reply:
+            return reply
     return "请补充更具体的信息，我才能准确回答。"

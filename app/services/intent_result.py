@@ -36,30 +36,38 @@ class IntentResult:
     @classmethod
     def from_rule(cls, intent_match) -> "IntentResult":
         """把规则结果转换为统一意图结构。"""
-        # 规则命中视为高确定性结果；参数沿用规则提取结果。
+        # 规则结果与模型结果走同一套槽位校验；非法值丢弃后自动转为缺参追问。
+        from app.services.intent_validator import canonicalize_slots
+
+        slots, missing_slots = canonicalize_slots(intent_match.name, dict(intent_match.params))
         return cls(
             intent=intent_match.name,
             behavior=INTENT_BEHAVIORS.get(intent_match.name, "chat"),
             confidence=1.0,
-            slots=dict(intent_match.params),
-            missing_slots=intent_match.missing_fields,
+            slots=slots,
+            missing_slots=missing_slots,
             source="rule",
         )
 
     @classmethod
     def from_semantic(cls, semantic) -> "IntentResult":
         """把模型分类结果转换为统一意图结构。"""
+        from app.services.intent_validator import canonicalize_slots
+
         # 模型只能提供意图和候选参数，行为类型始终由本地映射决定。
         slots = dict(getattr(semantic, "slots", {}) or {})
         for key in ("food_name", "meal_type", "amount_text", "amount_g", "metrics"):
             value = getattr(semantic, key, None)
             if value is not None:
                 slots[key] = value
+        slots, canonical_missing = canonicalize_slots(semantic.intent, slots)
+        model_missing = tuple(getattr(semantic, "missing_slots", ()) or ())
+        missing_slots = tuple(dict.fromkeys([*model_missing, *canonical_missing]))
         return cls(
             intent=semantic.intent,
             behavior=INTENT_BEHAVIORS.get(semantic.intent, "chat"),
             confidence=semantic.confidence,
             slots=slots,
-            missing_slots=tuple(getattr(semantic, "missing_slots", ()) or ()),
+            missing_slots=missing_slots,
             source="semantic",
         )
