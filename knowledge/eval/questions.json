@@ -1,0 +1,555 @@
+{
+  "version": "eval-v2",
+  "index_version": "knowledge-v2",
+  "notes": "人工编写的召回评估集。expected_doc_ids 为可接受来源（命中任一即算文档命中）；evidence_keywords 为证据词（命中任一即认为片段含可支撑答案的内容）。answerable=false 的题为负例：off_topic 表示知识库完全不涉及，检索层应直接拒绝；professional_advice 表示需要用药/诊断等专业判断，检索层可能命中同主题资料，这类问题靠检索阈值无法可靠拒绝，必须由意图层与提示词层兜底。",
+  "questions": [
+    {
+      "id": "q01",
+      "category": "钠盐",
+      "query": "成年人每天盐摄入量应该控制在多少",
+      "expected_doc_ids": [
+        "who-sodium",
+        "cns-pagoda-2022",
+        "cns-cdg-2022-eight"
+      ],
+      "evidence_keywords": [
+        "5克",
+        "5 g",
+        "食盐"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "q02",
+      "category": "钠盐",
+      "query": "1克盐相当于多少毫克钠",
+      "expected_doc_ids": [
+        "who-sodium"
+      ],
+      "evidence_keywords": [
+        "400毫克"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "q03",
+      "category": "蔬果",
+      "query": "每天应该吃多少蔬菜和水果",
+      "expected_doc_ids": [
+        "cns-pagoda-2022",
+        "cns-cdg-2022-eight"
+      ],
+      "evidence_keywords": [
+        "300g",
+        "水果",
+        "蔬菜"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "q04",
+      "category": "谷薯",
+      "query": "每天主食谷类吃多少克合适",
+      "expected_doc_ids": [
+        "cns-pagoda-2022",
+        "cns-cdg-2022-eight",
+        "nhc-obesity-diet-2024"
+      ],
+      "evidence_keywords": [
+        "200~300",
+        "谷类"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "q05",
+      "category": "油盐",
+      "query": "每天烹调油的建议上限是多少",
+      "expected_doc_ids": [
+        "cns-pagoda-2022",
+        "cns-cdg-2022-eight"
+      ],
+      "evidence_keywords": [
+        "烹调油"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "q06",
+      "category": "反式脂肪",
+      "query": "反式脂肪对健康有什么危害",
+      "expected_doc_ids": [
+        "who-trans-fat"
+      ],
+      "evidence_keywords": [
+        "反式脂肪"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "q07",
+      "category": "反式脂肪",
+      "query": "哪些食物可能含有反式脂肪酸",
+      "expected_doc_ids": [
+        "who-trans-fat",
+        "nhc-hyperglycemia-2024"
+      ],
+      "evidence_keywords": [
+        "部分氢化",
+        "起酥油",
+        "氢化"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "q08",
+      "category": "糖",
+      "query": "游离糖每天摄入上限是多少",
+      "expected_doc_ids": [
+        "who-free-sugars-2015",
+        "who-healthy-diet"
+      ],
+      "evidence_keywords": [
+        "10%",
+        "游离糖"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "q09",
+      "category": "糖",
+      "query": "把游离糖降到总能量5%以下有什么额外好处",
+      "expected_doc_ids": [
+        "who-free-sugars-2015"
+      ],
+      "evidence_keywords": [
+        "5%",
+        "龋齿"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "q10",
+      "category": "代糖",
+      "query": "用代糖能帮助减肥吗",
+      "expected_doc_ids": [
+        "who-non-sugar-sweeteners-2023"
+      ],
+      "evidence_keywords": [
+        "非糖甜味剂",
+        "体重"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "q11",
+      "category": "代糖",
+      "query": "阿斯巴甜和三氯蔗糖属于非糖甜味剂吗",
+      "expected_doc_ids": [
+        "who-non-sugar-sweeteners-2023"
+      ],
+      "evidence_keywords": [
+        "阿斯巴甜",
+        "三氯蔗糖"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "q12",
+      "category": "代糖",
+      "query": "糖醇算不算非糖甜味剂",
+      "expected_doc_ids": [
+        "who-non-sugar-sweeteners-2023"
+      ],
+      "evidence_keywords": [
+        "糖醇"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "q13",
+      "category": "身体活动",
+      "query": "成年人每周应该做多少分钟中等强度运动",
+      "expected_doc_ids": [
+        "who-physical-activity",
+        "cns-cdg-2022-eight"
+      ],
+      "evidence_keywords": [
+        "150",
+        "分钟"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "q14",
+      "category": "身体活动",
+      "query": "久坐对身体有什么影响，需要多久起来活动一次",
+      "expected_doc_ids": [
+        "who-physical-activity"
+      ],
+      "evidence_keywords": [
+        "久坐"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "q15",
+      "category": "身体活动",
+      "query": "规律身体活动有哪些健康好处",
+      "expected_doc_ids": [
+        "who-physical-activity"
+      ],
+      "evidence_keywords": [
+        "身体活动"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "q16",
+      "category": "体重",
+      "query": "怎么判断自己是不是超重或肥胖",
+      "expected_doc_ids": [
+        "who-obesity"
+      ],
+      "evidence_keywords": [
+        "BMI",
+        "体质指数"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "q17",
+      "category": "体重",
+      "query": "造成超重和肥胖的原因是什么",
+      "expected_doc_ids": [
+        "who-obesity",
+        "who-malnutrition"
+      ],
+      "evidence_keywords": [
+        "能量",
+        "肥胖"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "q18",
+      "category": "减重",
+      "query": "减重期间每天应该减少多少能量摄入",
+      "expected_doc_ids": [
+        "nhc-obesity-diet-2024",
+        "nhc-hyperglycemia-2024"
+      ],
+      "evidence_keywords": [
+        "500kcal",
+        "能量"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "q19",
+      "category": "减重",
+      "query": "减重期间主食应该吃多少克",
+      "expected_doc_ids": [
+        "nhc-obesity-diet-2024"
+      ],
+      "evidence_keywords": [
+        "谷薯",
+        "主食"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "q20",
+      "category": "血糖",
+      "query": "血糖生成指数GI是什么意思",
+      "expected_doc_ids": [
+        "nhc-hyperglycemia-2024"
+      ],
+      "evidence_keywords": [
+        "血糖生成指数"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "q21",
+      "category": "血糖",
+      "query": "烤红薯和西瓜的升糖指数高吗",
+      "expected_doc_ids": [
+        "nhc-hyperglycemia-2024"
+      ],
+      "evidence_keywords": [
+        "烤红薯",
+        "西瓜"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "q22",
+      "category": "血糖",
+      "query": "高血糖的人每天膳食纤维吃多少",
+      "expected_doc_ids": [
+        "nhc-hyperglycemia-2024"
+      ],
+      "evidence_keywords": [
+        "膳食纤维"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "q23",
+      "category": "营养不良",
+      "query": "营养不良有哪些类型",
+      "expected_doc_ids": [
+        "who-malnutrition"
+      ],
+      "evidence_keywords": [
+        "营养不良"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "q24",
+      "category": "营养不良",
+      "query": "缺铁和缺乏维生素A属于哪一类营养不良",
+      "expected_doc_ids": [
+        "who-malnutrition"
+      ],
+      "evidence_keywords": [
+        "微量营养素"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "q25",
+      "category": "膳食原则",
+      "query": "健康饮食应该怎么吃",
+      "expected_doc_ids": [
+        "who-healthy-diet",
+        "cns-cdg-2022-eight"
+      ],
+      "evidence_keywords": [
+        "健康饮食",
+        "食物多样"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "q26",
+      "category": "膳食原则",
+      "query": "蛋白质每天应该吃多少",
+      "expected_doc_ids": [
+        "who-healthy-diet"
+      ],
+      "evidence_keywords": [
+        "蛋白质"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "q27",
+      "category": "膳食原则",
+      "query": "每天应该喝多少水",
+      "expected_doc_ids": [
+        "cns-cdg-2022-eight",
+        "cns-pagoda-2022"
+      ],
+      "evidence_keywords": [
+        "饮水",
+        "水"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "q28",
+      "category": "钠盐",
+      "query": "儿童每天盐摄入量怎么控制",
+      "expected_doc_ids": [
+        "who-sodium"
+      ],
+      "evidence_keywords": [
+        "儿童"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "u01",
+      "category": "拒答",
+      "query": "今天天气怎么样",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "off_topic"
+    },
+    {
+      "id": "u02",
+      "category": "拒答",
+      "query": "股票怎么买",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "off_topic"
+    },
+    {
+      "id": "u03",
+      "category": "拒答",
+      "query": "帮我写一首关于春天的诗",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "off_topic"
+    },
+    {
+      "id": "u04",
+      "category": "拒答",
+      "query": "感冒了应该吃什么药",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "off_topic"
+    },
+    {
+      "id": "u05",
+      "category": "拒答",
+      "query": "汽车保养多久做一次",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "off_topic"
+    },
+    {
+      "id": "u06",
+      "category": "拒答",
+      "query": "世界杯上一届冠军是谁",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "off_topic"
+    },
+    {
+      "id": "u07",
+      "category": "拒答",
+      "query": "红烧肉的正宗做法是什么",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "off_topic"
+    },
+    {
+      "id": "u08",
+      "category": "拒答",
+      "query": "附近有哪些健身房",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "off_topic"
+    },
+    {
+      "id": "u09",
+      "category": "拒答",
+      "query": "如何申请信用卡",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "off_topic"
+    },
+    {
+      "id": "u10",
+      "category": "拒答",
+      "query": "Python 怎么读取 Excel 文件",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "off_topic"
+    },
+    {
+      "id": "u11",
+      "category": "拒答",
+      "query": "推荐一部好看的电影",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "off_topic"
+    },
+    {
+      "id": "u12",
+      "category": "拒答",
+      "query": "考研应该怎么复习",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "off_topic"
+    },
+    {
+      "id": "u13",
+      "category": "拒答",
+      "query": "北京到上海坐高铁要多久",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "off_topic"
+    },
+    {
+      "id": "u14",
+      "category": "拒答",
+      "query": "手机电池不耐用怎么办",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "off_topic"
+    },
+    {
+      "id": "u15",
+      "category": "拒答",
+      "query": "我血压高应该吃什么降压药",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "professional_advice"
+    },
+    {
+      "id": "u16",
+      "category": "拒答",
+      "query": "哪种减肥药效果最好",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "professional_advice"
+    },
+    {
+      "id": "u17",
+      "category": "拒答",
+      "query": "空腹血糖 7.5 需要打胰岛素吗",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "professional_advice"
+    },
+    {
+      "id": "u18",
+      "category": "拒答",
+      "query": "体检查出脂肪肝要怎么治疗",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "professional_advice"
+    },
+    {
+      "id": "u19",
+      "category": "拒答",
+      "query": "孩子挑食需要吃维生素补充剂吗",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "professional_advice"
+    },
+    {
+      "id": "u20",
+      "category": "拒答",
+      "query": "我正在吃华法林，饮食上要注意什么",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "professional_advice"
+    }
+  ]
+}
