@@ -1,0 +1,4 @@
+# rerank 依赖（可选）。不装也能跑：RERANK_PROVIDER=none 时检索照常工作。
+# 安装体积约 200MB（torch CPU 轮子）+ 模型 1.1GB（由 scripts/fetch_reranker.py 下载）。
+torch
+transformers
