@@ -1,0 +1,20 @@
+# 本地配置与凭据
+.env
+.env.local
+
+# Python 产物
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+
+# 编辑器本地文件
+.idea/workspace.xml
+.idea/httpRequests/
+.vscode/
+
+# RAG 构建产物（可由 scripts/ingest.py 重新生成）
+knowledge/index/
+
+# rerank 模型权重（约 1.1GB，由 scripts/fetch_reranker.py 下载）
+knowledge/models/
