@@ -40,6 +40,7 @@ class IngestResult:
     documents_total: int = 0
     documents_processed: int = 0
     documents_skipped: int = 0
+    documents_removed: int = 0
     chunks_written: int = 0
     points_in_collection: int = 0
     bm25_chunks: int = 0
@@ -107,6 +108,50 @@ class IngestPipeline:
         )
 
     def run(self, index_version: str, rebuild: bool = False) -> IngestResult:
+        """带任务状态的入口：running → succeeded / failed，状态写进 build_state。
+
+        状态是给人看排障用的：失败时至少能知道是哪一版、什么错误，而不是只有一份半成品索引。
+        """
+        self._mark_status(index_version, "running")
+        try:
+            result = self._run(index_version, rebuild)
+        except Exception as error:
+            self._mark_status(
+                index_version,
+                "failed",
+                error=f"{type(error).__name__}: {error}"[:500],
+            )
+            raise
+        self._mark_status(
+            index_version,
+            "succeeded",
+            detail={
+                "documents_total": result.documents_total,
+                "documents_processed": result.documents_processed,
+                "documents_skipped": result.documents_skipped,
+                "documents_removed": result.documents_removed,
+                "chunks_written": result.chunks_written,
+                "errors": result.errors[:10],
+            },
+        )
+        return result
+
+    def _mark_status(self, index_version: str, status: str, error: str | None = None,
+                     detail: dict | None = None) -> None:
+        state = load_build_state(self.state_path)
+        entry = {
+            "status": status,
+            "index_version": index_version,
+            "at": datetime.now(timezone.utc).isoformat(),
+        }
+        if error:
+            entry["error"] = error
+        if detail:
+            entry.update(detail)
+        state["last_run"] = entry
+        save_build_state(self.state_path, state)
+
+    def _run(self, index_version: str, rebuild: bool = False) -> IngestResult:
         documents = load_manifest(self.manifest_path)
         result = IngestResult(index_version=index_version, collection=self.collection, documents_total=len(documents))
         state = load_build_state(self.state_path)
@@ -174,6 +219,18 @@ class IngestPipeline:
             result.chunks_written += written
             all_chunks.extend((chunk.chunk_id, chunk.index_text) for chunk in chunks)
             log.info("已入库 %s：%s 片段", meta.document_id, written)
+
+        # 源文件被删除（或从清单里移除）后，旧片段必须清掉，否则它会一直出现在检索结果里。
+        current_ids = {meta.document_id for meta in documents}
+        stale_ids = [doc_id for doc_id in state.get("documents", {}) if doc_id not in current_ids]
+        for doc_id in stale_ids:
+            self.store.delete_document(self.collection, doc_id)
+            cached = self._chunk_cache_path(doc_id)
+            if cached.is_file():
+                cached.unlink()
+            state["documents"].pop(doc_id, None)
+            result.documents_removed += 1
+            log.info("已清理不在清单中的文档 %s", doc_id)
 
         bm25 = BM25Index()
         bm25.build(all_chunks)

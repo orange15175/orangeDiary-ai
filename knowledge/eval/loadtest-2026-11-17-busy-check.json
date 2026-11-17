@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-11-17 21:43:11",
+  "label": "busy-check",
+  "base_url": "http://127.0.0.1:8004",
+  "requests_per_level": 10,
+  "levels": [
+    {
+      "concurrency": 10,
+      "requests": 10,
+      "wall_seconds": 3.06,
+      "throughput_rps": 3.26,
+      "latency_p50_ms": 2028.9,
+      "latency_p95_ms": 3059.5,
+      "latency_p99_ms": 3059.5,
+      "latency_max_ms": 3059.5,
+      "error_rate": 0.8,
+      "statuses": {
+        "429": 8,
+        "200": 2
+      },
+      "cache": {
+        "bypass": 2
+      }
+    }
+  ]
+}

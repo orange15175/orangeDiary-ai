@@ -1,7 +1,7 @@
 {
-  "version": "eval-v2",
+  "version": "2.0-80q",
   "index_version": "knowledge-v2",
-  "notes": "人工编写的召回评估集。expected_doc_ids 为可接受来源（命中任一即算文档命中）；evidence_keywords 为证据词（命中任一即认为片段含可支撑答案的内容）。answerable=false 的题为负例：off_topic 表示知识库完全不涉及，检索层应直接拒绝；professional_advice 表示需要用药/诊断等专业判断，检索层可能命中同主题资料，这类问题靠检索阈值无法可靠拒绝，必须由意图层与提示词层兜底。",
+  "notes": "split=tune 的 48 题用于调参与阈值扫描；split=holdout 的 32 题（18 可答 + 14 不可答）只用于最终报告，不参与任何参数调整。改动前请先看 docs/M6 报告的评估纪律。",
   "questions": [
     {
       "id": "q01",
@@ -17,7 +17,8 @@
         "5 g",
         "食盐"
       ],
-      "answerable": true
+      "answerable": true,
+      "split": "tune"
     },
     {
       "id": "q02",
@@ -29,7 +30,8 @@
       "evidence_keywords": [
         "400毫克"
       ],
-      "answerable": true
+      "answerable": true,
+      "split": "tune"
     },
     {
       "id": "q03",
@@ -44,7 +46,8 @@
         "水果",
         "蔬菜"
       ],
-      "answerable": true
+      "answerable": true,
+      "split": "tune"
     },
     {
       "id": "q04",
@@ -59,7 +62,8 @@
         "200~300",
         "谷类"
       ],
-      "answerable": true
+      "answerable": true,
+      "split": "tune"
     },
     {
       "id": "q05",
@@ -72,7 +76,8 @@
       "evidence_keywords": [
         "烹调油"
       ],
-      "answerable": true
+      "answerable": true,
+      "split": "tune"
     },
     {
       "id": "q06",
@@ -84,7 +89,8 @@
       "evidence_keywords": [
         "反式脂肪"
       ],
-      "answerable": true
+      "answerable": true,
+      "split": "tune"
     },
     {
       "id": "q07",
@@ -99,7 +105,8 @@
         "起酥油",
         "氢化"
       ],
-      "answerable": true
+      "answerable": true,
+      "split": "tune"
     },
     {
       "id": "q08",
@@ -113,7 +120,8 @@
         "10%",
         "游离糖"
       ],
-      "answerable": true
+      "answerable": true,
+      "split": "tune"
     },
     {
       "id": "q09",
@@ -126,7 +134,8 @@
         "5%",
         "龋齿"
       ],
-      "answerable": true
+      "answerable": true,
+      "split": "tune"
     },
     {
       "id": "q10",
@@ -139,7 +148,8 @@
         "非糖甜味剂",
         "体重"
       ],
-      "answerable": true
+      "answerable": true,
+      "split": "tune"
     },
     {
       "id": "q11",
@@ -152,7 +162,8 @@
         "阿斯巴甜",
         "三氯蔗糖"
       ],
-      "answerable": true
+      "answerable": true,
+      "split": "tune"
     },
     {
       "id": "q12",
@@ -164,7 +175,8 @@
       "evidence_keywords": [
         "糖醇"
       ],
-      "answerable": true
+      "answerable": true,
+      "split": "tune"
     },
     {
       "id": "q13",
@@ -178,7 +190,8 @@
         "150",
         "分钟"
       ],
-      "answerable": true
+      "answerable": true,
+      "split": "tune"
     },
     {
       "id": "q14",
@@ -190,7 +203,8 @@
       "evidence_keywords": [
         "久坐"
       ],
-      "answerable": true
+      "answerable": true,
+      "split": "tune"
     },
     {
       "id": "q15",
@@ -202,7 +216,8 @@
       "evidence_keywords": [
         "身体活动"
       ],
-      "answerable": true
+      "answerable": true,
+      "split": "tune"
     },
     {
       "id": "q16",
@@ -215,7 +230,8 @@
         "BMI",
         "体质指数"
       ],
-      "answerable": true
+      "answerable": true,
+      "split": "tune"
     },
     {
       "id": "q17",
@@ -229,7 +245,8 @@
         "能量",
         "肥胖"
       ],
-      "answerable": true
+      "answerable": true,
+      "split": "tune"
     },
     {
       "id": "q18",
@@ -243,7 +260,8 @@
         "500kcal",
         "能量"
       ],
-      "answerable": true
+      "answerable": true,
+      "split": "tune"
     },
     {
       "id": "q19",
@@ -256,7 +274,8 @@
         "谷薯",
         "主食"
       ],
-      "answerable": true
+      "answerable": true,
+      "split": "tune"
     },
     {
       "id": "q20",
@@ -268,7 +287,8 @@
       "evidence_keywords": [
         "血糖生成指数"
       ],
-      "answerable": true
+      "answerable": true,
+      "split": "tune"
     },
     {
       "id": "q21",
@@ -281,7 +301,8 @@
         "烤红薯",
         "西瓜"
       ],
-      "answerable": true
+      "answerable": true,
+      "split": "tune"
     },
     {
       "id": "q22",
@@ -293,7 +314,8 @@
       "evidence_keywords": [
         "膳食纤维"
       ],
-      "answerable": true
+      "answerable": true,
+      "split": "tune"
     },
     {
       "id": "q23",
@@ -305,7 +327,8 @@
       "evidence_keywords": [
         "营养不良"
       ],
-      "answerable": true
+      "answerable": true,
+      "split": "tune"
     },
     {
       "id": "q24",
@@ -317,7 +340,8 @@
       "evidence_keywords": [
         "微量营养素"
       ],
-      "answerable": true
+      "answerable": true,
+      "split": "tune"
     },
     {
       "id": "q25",
@@ -331,7 +355,8 @@
         "健康饮食",
         "食物多样"
       ],
-      "answerable": true
+      "answerable": true,
+      "split": "tune"
     },
     {
       "id": "q26",
@@ -343,7 +368,8 @@
       "evidence_keywords": [
         "蛋白质"
       ],
-      "answerable": true
+      "answerable": true,
+      "split": "tune"
     },
     {
       "id": "q27",
@@ -357,7 +383,8 @@
         "饮水",
         "水"
       ],
-      "answerable": true
+      "answerable": true,
+      "split": "tune"
     },
     {
       "id": "q28",
@@ -369,7 +396,8 @@
       "evidence_keywords": [
         "儿童"
       ],
-      "answerable": true
+      "answerable": true,
+      "split": "tune"
     },
     {
       "id": "u01",
@@ -378,7 +406,8 @@
       "expected_doc_ids": [],
       "evidence_keywords": [],
       "answerable": false,
-      "refusal_type": "off_topic"
+      "refusal_type": "off_topic",
+      "split": "tune"
     },
     {
       "id": "u02",
@@ -387,7 +416,8 @@
       "expected_doc_ids": [],
       "evidence_keywords": [],
       "answerable": false,
-      "refusal_type": "off_topic"
+      "refusal_type": "off_topic",
+      "split": "tune"
     },
     {
       "id": "u03",
@@ -396,7 +426,8 @@
       "expected_doc_ids": [],
       "evidence_keywords": [],
       "answerable": false,
-      "refusal_type": "off_topic"
+      "refusal_type": "off_topic",
+      "split": "tune"
     },
     {
       "id": "u04",
@@ -405,7 +436,8 @@
       "expected_doc_ids": [],
       "evidence_keywords": [],
       "answerable": false,
-      "refusal_type": "off_topic"
+      "refusal_type": "off_topic",
+      "split": "tune"
     },
     {
       "id": "u05",
@@ -414,7 +446,8 @@
       "expected_doc_ids": [],
       "evidence_keywords": [],
       "answerable": false,
-      "refusal_type": "off_topic"
+      "refusal_type": "off_topic",
+      "split": "tune"
     },
     {
       "id": "u06",
@@ -423,7 +456,8 @@
       "expected_doc_ids": [],
       "evidence_keywords": [],
       "answerable": false,
-      "refusal_type": "off_topic"
+      "refusal_type": "off_topic",
+      "split": "tune"
     },
     {
       "id": "u07",
@@ -432,7 +466,8 @@
       "expected_doc_ids": [],
       "evidence_keywords": [],
       "answerable": false,
-      "refusal_type": "off_topic"
+      "refusal_type": "off_topic",
+      "split": "tune"
     },
     {
       "id": "u08",
@@ -441,7 +476,8 @@
       "expected_doc_ids": [],
       "evidence_keywords": [],
       "answerable": false,
-      "refusal_type": "off_topic"
+      "refusal_type": "off_topic",
+      "split": "tune"
     },
     {
       "id": "u09",
@@ -450,7 +486,8 @@
       "expected_doc_ids": [],
       "evidence_keywords": [],
       "answerable": false,
-      "refusal_type": "off_topic"
+      "refusal_type": "off_topic",
+      "split": "tune"
     },
     {
       "id": "u10",
@@ -459,7 +496,8 @@
       "expected_doc_ids": [],
       "evidence_keywords": [],
       "answerable": false,
-      "refusal_type": "off_topic"
+      "refusal_type": "off_topic",
+      "split": "tune"
     },
     {
       "id": "u11",
@@ -468,7 +506,8 @@
       "expected_doc_ids": [],
       "evidence_keywords": [],
       "answerable": false,
-      "refusal_type": "off_topic"
+      "refusal_type": "off_topic",
+      "split": "tune"
     },
     {
       "id": "u12",
@@ -477,7 +516,8 @@
       "expected_doc_ids": [],
       "evidence_keywords": [],
       "answerable": false,
-      "refusal_type": "off_topic"
+      "refusal_type": "off_topic",
+      "split": "tune"
     },
     {
       "id": "u13",
@@ -486,7 +526,8 @@
       "expected_doc_ids": [],
       "evidence_keywords": [],
       "answerable": false,
-      "refusal_type": "off_topic"
+      "refusal_type": "off_topic",
+      "split": "tune"
     },
     {
       "id": "u14",
@@ -495,7 +536,8 @@
       "expected_doc_ids": [],
       "evidence_keywords": [],
       "answerable": false,
-      "refusal_type": "off_topic"
+      "refusal_type": "off_topic",
+      "split": "tune"
     },
     {
       "id": "u15",
@@ -504,7 +546,8 @@
       "expected_doc_ids": [],
       "evidence_keywords": [],
       "answerable": false,
-      "refusal_type": "professional_advice"
+      "refusal_type": "professional_advice",
+      "split": "tune"
     },
     {
       "id": "u16",
@@ -513,7 +556,8 @@
       "expected_doc_ids": [],
       "evidence_keywords": [],
       "answerable": false,
-      "refusal_type": "professional_advice"
+      "refusal_type": "professional_advice",
+      "split": "tune"
     },
     {
       "id": "u17",
@@ -522,7 +566,8 @@
       "expected_doc_ids": [],
       "evidence_keywords": [],
       "answerable": false,
-      "refusal_type": "professional_advice"
+      "refusal_type": "professional_advice",
+      "split": "tune"
     },
     {
       "id": "u18",
@@ -531,7 +576,8 @@
       "expected_doc_ids": [],
       "evidence_keywords": [],
       "answerable": false,
-      "refusal_type": "professional_advice"
+      "refusal_type": "professional_advice",
+      "split": "tune"
     },
     {
       "id": "u19",
@@ -540,12 +586,417 @@
       "expected_doc_ids": [],
       "evidence_keywords": [],
       "answerable": false,
-      "refusal_type": "professional_advice"
+      "refusal_type": "professional_advice",
+      "split": "tune"
     },
     {
       "id": "u20",
       "category": "拒答",
       "query": "我正在吃华法林，饮食上要注意什么",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "professional_advice",
+      "split": "tune"
+    },
+    {
+      "id": "h01",
+      "split": "holdout",
+      "category": "蔬果",
+      "query": "每天蔬菜至少吃多少克",
+      "expected_doc_ids": [
+        "cns-pagoda-2022",
+        "who-healthy-diet",
+        "nhc-hyperglycemia-2024"
+      ],
+      "evidence_keywords": [
+        "300g",
+        "500g"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "h02",
+      "split": "holdout",
+      "category": "蔬果",
+      "query": "每天水果建议吃多少",
+      "expected_doc_ids": [
+        "cns-pagoda-2022",
+        "who-healthy-diet"
+      ],
+      "evidence_keywords": [
+        "200~350g",
+        "200克"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "h03",
+      "split": "holdout",
+      "category": "谷薯",
+      "query": "薯类每天吃多少合适",
+      "expected_doc_ids": [
+        "cns-pagoda-2022",
+        "cns-cdg-2022-eight",
+        "nhc-obesity-diet-2024"
+      ],
+      "evidence_keywords": [
+        "50~100g",
+        "50克"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "h04",
+      "split": "holdout",
+      "category": "膳食原则",
+      "query": "每天要吃多少种食物",
+      "expected_doc_ids": [
+        "cns-cdg-2022-eight"
+      ],
+      "evidence_keywords": [
+        "12种",
+        "25种"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "h05",
+      "split": "holdout",
+      "category": "膳食原则",
+      "query": "每天膳食纤维摄入多少合适",
+      "expected_doc_ids": [
+        "who-healthy-diet",
+        "nhc-hyperglycemia-2024"
+      ],
+      "evidence_keywords": [
+        "25g",
+        "25克"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "h06",
+      "split": "holdout",
+      "category": "谷薯",
+      "query": "全谷物和杂豆每天吃多少",
+      "expected_doc_ids": [
+        "cns-pagoda-2022",
+        "cns-cdg-2022-eight",
+        "nhc-obesity-diet-2024"
+      ],
+      "evidence_keywords": [
+        "50~150g",
+        "50克"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "h07",
+      "split": "holdout",
+      "category": "钠盐",
+      "query": "成年人每天钠摄入不超过多少毫克",
+      "expected_doc_ids": [
+        "who-sodium"
+      ],
+      "evidence_keywords": [
+        "2000毫克",
+        "2000 mg"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "h08",
+      "split": "holdout",
+      "category": "糖",
+      "query": "游离糖每天最好控制在多少克",
+      "expected_doc_ids": [
+        "who-free-sugars-2015",
+        "who-healthy-diet"
+      ],
+      "evidence_keywords": [
+        "25克",
+        "25 g"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "h09",
+      "split": "holdout",
+      "category": "身体活动",
+      "query": "每周中等强度运动至少多少分钟",
+      "expected_doc_ids": [
+        "who-physical-activity",
+        "cns-cdg-2022-eight"
+      ],
+      "evidence_keywords": [
+        "150分钟"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "h10",
+      "split": "holdout",
+      "category": "身体活动",
+      "query": "每周至少几天中等强度运动",
+      "expected_doc_ids": [
+        "cns-cdg-2022-eight"
+      ],
+      "evidence_keywords": [
+        "5天"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "h11",
+      "split": "holdout",
+      "category": "体重",
+      "query": "BMI 是怎么算的",
+      "expected_doc_ids": [
+        "who-obesity"
+      ],
+      "evidence_keywords": [
+        "体重指数",
+        "BMI"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "h12",
+      "split": "holdout",
+      "category": "减重",
+      "query": "减重时每天要少摄入多少热量",
+      "expected_doc_ids": [
+        "nhc-obesity-diet-2024",
+        "nhc-hyperglycemia-2024"
+      ],
+      "evidence_keywords": [
+        "500~1000kcal",
+        "500kcal"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "h13",
+      "split": "holdout",
+      "category": "血糖",
+      "query": "血糖高的人主食吃多少、怎么搭配",
+      "expected_doc_ids": [
+        "nhc-hyperglycemia-2024"
+      ],
+      "evidence_keywords": [
+        "45%~60%",
+        "粗细搭配"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "h14",
+      "split": "holdout",
+      "category": "反式脂肪",
+      "query": "反式脂肪每天最多吃多少克",
+      "expected_doc_ids": [
+        "who-trans-fat"
+      ],
+      "evidence_keywords": [
+        "2.2克",
+        "1%"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "h15",
+      "split": "holdout",
+      "category": "蔬果",
+      "query": "十岁以下儿童每天要吃多少蔬果",
+      "expected_doc_ids": [
+        "who-healthy-diet"
+      ],
+      "evidence_keywords": [
+        "250",
+        "350克"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "h16",
+      "split": "holdout",
+      "category": "蔬果",
+      "query": "深色蔬菜应该占蔬菜的多少",
+      "expected_doc_ids": [
+        "cns-pagoda-2022"
+      ],
+      "evidence_keywords": [
+        "1/2",
+        "一半"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "h17",
+      "split": "holdout",
+      "category": "减重",
+      "query": "肥胖的人蛋白质和脂肪供能比多少合适",
+      "expected_doc_ids": [
+        "nhc-obesity-diet-2024"
+      ],
+      "evidence_keywords": [
+        "15%~20%",
+        "20%~30%"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "h18",
+      "split": "holdout",
+      "category": "钠盐",
+      "query": "血压偏高的人盐和运动要注意什么",
+      "expected_doc_ids": [
+        "who-sodium",
+        "who-physical-activity",
+        "who-wpro-nudge-2023"
+      ],
+      "evidence_keywords": [
+        "5克",
+        "150分钟"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "h19",
+      "split": "holdout",
+      "category": "无关话题",
+      "query": "帮我写一个 Python 快速排序",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "off_topic"
+    },
+    {
+      "id": "h20",
+      "split": "holdout",
+      "category": "无关话题",
+      "query": "明天北京天气怎么样",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "off_topic"
+    },
+    {
+      "id": "h21",
+      "split": "holdout",
+      "category": "无关话题",
+      "query": "推荐几部好看的科幻电影",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "off_topic"
+    },
+    {
+      "id": "h22",
+      "split": "holdout",
+      "category": "无关话题",
+      "query": "茅台股票现在值得买吗",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "off_topic"
+    },
+    {
+      "id": "h23",
+      "split": "holdout",
+      "category": "无关话题",
+      "query": "把这句话翻译成英文：今天天气不错",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "off_topic"
+    },
+    {
+      "id": "h24",
+      "split": "holdout",
+      "category": "无关话题",
+      "query": "下期双色球号码是多少",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "off_topic"
+    },
+    {
+      "id": "h25",
+      "split": "holdout",
+      "category": "无关话题",
+      "query": "推荐一款两千元左右的手机",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "off_topic"
+    },
+    {
+      "id": "h26",
+      "split": "holdout",
+      "category": "无关话题",
+      "query": "护照怎么办，需要什么材料",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "off_topic"
+    },
+    {
+      "id": "h27",
+      "split": "holdout",
+      "category": "专业建议",
+      "query": "二甲双胍应该饭前吃还是饭后吃",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "professional_advice"
+    },
+    {
+      "id": "h28",
+      "split": "holdout",
+      "category": "专业建议",
+      "query": "血糖高需要打胰岛素吗，打多少单位",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "professional_advice"
+    },
+    {
+      "id": "h29",
+      "split": "holdout",
+      "category": "专业建议",
+      "query": "怀孕期间能不能吃二甲双胍",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "professional_advice"
+    },
+    {
+      "id": "h30",
+      "split": "holdout",
+      "category": "专业建议",
+      "query": "孩子发烧38度要吃退烧药吗",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "professional_advice"
+    },
+    {
+      "id": "h31",
+      "split": "holdout",
+      "category": "专业建议",
+      "query": "甲减吃优甲乐应该吃多少剂量",
+      "expected_doc_ids": [],
+      "evidence_keywords": [],
+      "answerable": false,
+      "refusal_type": "professional_advice"
+    },
+    {
+      "id": "h32",
+      "split": "holdout",
+      "category": "专业建议",
+      "query": "痛风发作时可以吃秋水仙碱吗",
       "expected_doc_ids": [],
       "evidence_keywords": [],
       "answerable": false,

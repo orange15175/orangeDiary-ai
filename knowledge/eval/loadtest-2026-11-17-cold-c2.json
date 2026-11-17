@@ -1,0 +1,61 @@
+{
+  "generated_at": "2026-11-17 21:36:09",
+  "label": "cold-c2",
+  "base_url": "http://127.0.0.1:8003",
+  "requests_per_level": 20,
+  "levels": [
+    {
+      "concurrency": 2,
+      "requests": 20,
+      "wall_seconds": 27.87,
+      "throughput_rps": 0.72,
+      "latency_p50_ms": 2811.6,
+      "latency_p95_ms": 3102.0,
+      "latency_p99_ms": 3179.2,
+      "latency_max_ms": 3179.2,
+      "error_rate": 0.0,
+      "statuses": {
+        "200": 20
+      },
+      "cache": {
+        "bypass": 20
+      }
+    },
+    {
+      "concurrency": 5,
+      "requests": 20,
+      "wall_seconds": 12.33,
+      "throughput_rps": 1.62,
+      "latency_p50_ms": 2024.5,
+      "latency_p95_ms": 4240.3,
+      "latency_p99_ms": 4329.9,
+      "latency_max_ms": 4329.9,
+      "error_rate": 0.6,
+      "statuses": {
+        "429": 12,
+        "200": 8
+      },
+      "cache": {
+        "bypass": 8
+      }
+    },
+    {
+      "concurrency": 10,
+      "requests": 20,
+      "wall_seconds": 2.93,
+      "throughput_rps": 6.82,
+      "latency_p50_ms": 149.3,
+      "latency_p95_ms": 2878.6,
+      "latency_p99_ms": 2931.6,
+      "latency_max_ms": 2931.6,
+      "error_rate": 0.9,
+      "statuses": {
+        "429": 18,
+        "200": 2
+      },
+      "cache": {
+        "bypass": 2
+      }
+    }
+  ]
+}

@@ -22,6 +22,19 @@ _DEFAULT_RAG_CACHE_TTL_SECONDS = "300"
 _DEFAULT_RAG_CACHE_MAX_ENTRIES = "256"
 
 # 熔断：向量通道连续失败 3 次后 30s 内直接快速失败，不再空等 8s 超时。
+# 并发与排队：rerank 是纯 CPU 操作，本机实测并发 4 时单请求从 1.75s 涨到 4.85s，
+# 而成功吞吐几乎不变（0.57 → 0.78 rps）——多出来的并发只买到延迟。
+# 取 2：P50 2.8s、P95 3.1s，仍在 Java 侧 6s 预算内。机器更强时可上调。
+_DEFAULT_RAG_MAX_CONCURRENCY = "2"
+_DEFAULT_RAG_MAX_QUEUE = "8"
+_DEFAULT_RAG_QUEUE_WAIT_MS = "2000"
+# 单用户 60s 内最多 10 次检索，防连点与脚本刷。
+_DEFAULT_RAG_USER_LIMIT = "10"
+_DEFAULT_RAG_USER_WINDOW_SECONDS = "60"
+# 跨进程总量上限；留空表示不启用 Redis 计数（单实例部署足够）。
+_DEFAULT_RAG_GLOBAL_LIMIT = "0"
+_DEFAULT_RAG_REDIS_URL = ""
+
 _DEFAULT_RAG_BREAKER_FAILURE_THRESHOLD = "3"
 _DEFAULT_RAG_BREAKER_RESET_SECONDS = "30"
 
@@ -67,6 +80,13 @@ class Settings:
     rag_cache_max_entries: int = int(_DEFAULT_RAG_CACHE_MAX_ENTRIES)
     rag_breaker_failure_threshold: int = int(_DEFAULT_RAG_BREAKER_FAILURE_THRESHOLD)
     rag_breaker_reset_seconds: float = float(_DEFAULT_RAG_BREAKER_RESET_SECONDS)
+    rag_max_concurrency: int = int(_DEFAULT_RAG_MAX_CONCURRENCY)
+    rag_max_queue: int = int(_DEFAULT_RAG_MAX_QUEUE)
+    rag_queue_wait_ms: float = float(_DEFAULT_RAG_QUEUE_WAIT_MS)
+    rag_user_limit: int = int(_DEFAULT_RAG_USER_LIMIT)
+    rag_user_window_seconds: float = float(_DEFAULT_RAG_USER_WINDOW_SECONDS)
+    rag_global_limit: int = int(_DEFAULT_RAG_GLOBAL_LIMIT)
+    rag_redis_url: str = _DEFAULT_RAG_REDIS_URL
     # None = 不重排；local = 本地 cross-encoder；http = 外部 TEI 兼容服务。
     rerank_provider: str = _DEFAULT_RERANK_PROVIDER
     rerank_model_path: str = _DEFAULT_RERANK_MODEL_PATH
@@ -115,6 +135,19 @@ class Settings:
             rag_max_per_document=int(
                 os.getenv("RAG_MAX_PER_DOCUMENT", _DEFAULT_RAG_MAX_PER_DOCUMENT)
             ),
+            rag_max_concurrency=int(
+                os.getenv("RAG_MAX_CONCURRENCY", _DEFAULT_RAG_MAX_CONCURRENCY)
+            ),
+            rag_max_queue=int(os.getenv("RAG_MAX_QUEUE", _DEFAULT_RAG_MAX_QUEUE)),
+            rag_queue_wait_ms=float(
+                os.getenv("RAG_QUEUE_WAIT_MS", _DEFAULT_RAG_QUEUE_WAIT_MS)
+            ),
+            rag_user_limit=int(os.getenv("RAG_USER_LIMIT", _DEFAULT_RAG_USER_LIMIT)),
+            rag_user_window_seconds=float(
+                os.getenv("RAG_USER_WINDOW_SECONDS", _DEFAULT_RAG_USER_WINDOW_SECONDS)
+            ),
+            rag_global_limit=int(os.getenv("RAG_GLOBAL_LIMIT", _DEFAULT_RAG_GLOBAL_LIMIT)),
+            rag_redis_url=os.getenv("RAG_REDIS_URL", _DEFAULT_RAG_REDIS_URL).strip(),
             rag_cache_enabled=os.getenv("RAG_CACHE_ENABLED", _DEFAULT_RAG_CACHE_ENABLED)
             .strip()
             .lower()

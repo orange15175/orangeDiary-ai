@@ -91,3 +91,8 @@
 | M5-2 缓存与熔断 | 完成（缓存命中 1807ms → 0.02ms；熔断后 2.0s → 0.007s 快速失败） | `docs/M5_CACHE_BREAKER_SSE_REPORT.md` |
 | M5-3 SSE 来源事件 | 完成（含修复 SSE 中文被编码成问号） | `docs/M5_CACHE_BREAKER_SSE_REPORT.md` |
 | M5-4 端到端生成验收 | 完成（真实登录态返回 4 条来源；修掉意图路由漏检索、Ollama 卸载模型导致首问超时） | `docs/M5_CACHE_BREAKER_SSE_REPORT.md` |
+| M6 评估与压测 | 完成（80 题含 32 留出集：留出集文档/证据命中 100%、误答 0%；并发闸门定为 2） | `docs/M6_EVALUATION_LOAD_REPORT.md` |
+| M7-1 并发与排队 | 完成（429 + Retry-After；名额无泄漏；单实例口径） | `docs/M7_STABILITY_REPORT.md` |
+| M7-2 异步摘要 | 完成（有界执行器 + 同会话合并 + 游标 CAS） | `docs/M7_STABILITY_REPORT.md` |
+| M7-3 Trace 与管理页 | 完成（`ai_chat_trace` + 3 个管理接口 + 问答追踪页；顺带修掉分页插件缺失） | `docs/M7_STABILITY_REPORT.md` |
+| M7-4 增量索引补齐 | 完成（失效文档清理 + 构建状态机） | `docs/M7_STABILITY_REPORT.md` |

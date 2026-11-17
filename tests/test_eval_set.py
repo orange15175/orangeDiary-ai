@@ -22,6 +22,16 @@ class EvalSetTests(unittest.TestCase):
         ids = [item["id"] for item in self.questions]
         self.assertEqual(len(ids), len(set(ids)))
 
+    def test_split_is_declared_and_holdout_is_large_enough(self):
+        """留出集必须有独立标注，否则"没参与调参"这句话无法验证。"""
+        for item in self.questions:
+            self.assertIn(item.get("split"), {"tune", "holdout"}, f"{item['id']} 缺少合法 split")
+        holdout = [item for item in self.questions if item["split"] == "holdout"]
+        self.assertGreaterEqual(len(holdout), 30, "留出集不足 30 题，泛化结论不可信")
+        self.assertGreaterEqual(
+            sum(1 for item in holdout if not item["answerable"]), 8, "留出集缺少足够的负例"
+        )
+
     def test_has_answerable_and_refusal_questions(self):
         answerable = [item for item in self.questions if item["answerable"]]
         refusal = [item for item in self.questions if not item["answerable"]]

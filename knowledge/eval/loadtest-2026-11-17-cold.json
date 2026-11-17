@@ -1,0 +1,79 @@
+{
+  "generated_at": "2026-11-17 21:34:43",
+  "label": "cold",
+  "base_url": "http://127.0.0.1:8002",
+  "requests_per_level": 20,
+  "levels": [
+    {
+      "concurrency": 1,
+      "requests": 20,
+      "wall_seconds": 34.96,
+      "throughput_rps": 0.57,
+      "latency_p50_ms": 1746.2,
+      "latency_p95_ms": 1895.2,
+      "latency_p99_ms": 1909.9,
+      "latency_max_ms": 1909.9,
+      "error_rate": 0.0,
+      "statuses": {
+        "200": 20
+      },
+      "cache": {
+        "bypass": 20
+      }
+    },
+    {
+      "concurrency": 5,
+      "requests": 20,
+      "wall_seconds": 18.07,
+      "throughput_rps": 1.11,
+      "latency_p50_ms": 4853.8,
+      "latency_p95_ms": 5619.4,
+      "latency_p99_ms": 6077.8,
+      "latency_max_ms": 6077.8,
+      "error_rate": 0.3,
+      "statuses": {
+        "429": 6,
+        "200": 14
+      },
+      "cache": {
+        "bypass": 14
+      }
+    },
+    {
+      "concurrency": 10,
+      "requests": 20,
+      "wall_seconds": 11.3,
+      "throughput_rps": 1.77,
+      "latency_p50_ms": 2039.5,
+      "latency_p95_ms": 7123.3,
+      "latency_p99_ms": 7237.6,
+      "latency_max_ms": 7237.6,
+      "error_rate": 0.6,
+      "statuses": {
+        "429": 12,
+        "200": 8
+      },
+      "cache": {
+        "bypass": 8
+      }
+    },
+    {
+      "concurrency": 20,
+      "requests": 20,
+      "wall_seconds": 5.75,
+      "throughput_rps": 3.48,
+      "latency_p50_ms": 2039.1,
+      "latency_p95_ms": 5659.8,
+      "latency_p99_ms": 5750.9,
+      "latency_max_ms": 5750.9,
+      "error_rate": 0.8,
+      "statuses": {
+        "429": 16,
+        "200": 4
+      },
+      "cache": {
+        "bypass": 4
+      }
+    }
+  ]
+}

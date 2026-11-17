@@ -19,6 +19,7 @@ from fastapi.responses import JSONResponse
 from app.config import Settings
 from app.rag.circuit import CircuitOpenError
 from app.rag.embedding.ollama import EmbeddingError
+from app.rag.limiter import BusyError, RagLimiter
 from app.rag.rerank import RerankError, build_reranker
 from app.rag.retrieval.vector import VectorStoreError
 from app.rag.service import RagNotReady, RetrievalService
@@ -33,6 +34,9 @@ _MAX_TOP_K = 20
 _service: RetrievalService | None = None
 _service_key: tuple | None = None
 _service_lock = threading.Lock()
+
+_limiter: RagLimiter | None = None
+_limiter_key: tuple | None = None
 
 
 def _trace(request: Request) -> str:
@@ -108,6 +112,56 @@ def _service_for(settings: Settings) -> RetrievalService:
         return _service
 
 
+def _limiter_for(settings: Settings) -> RagLimiter:
+    """按配置复用限流器；限流参数变化时重建（重建即清空频率窗口，可接受）。"""
+    global _limiter, _limiter_key
+    key = (
+        settings.rag_max_concurrency,
+        settings.rag_max_queue,
+        settings.rag_queue_wait_ms,
+        settings.rag_user_limit,
+        settings.rag_user_window_seconds,
+        settings.rag_global_limit,
+        settings.rag_redis_url,
+    )
+    with _service_lock:
+        if _limiter is not None and _limiter_key == key:
+            return _limiter
+        redis_client = _build_redis(settings)
+        _limiter = RagLimiter(
+            max_concurrency=settings.rag_max_concurrency,
+            max_queue=settings.rag_max_queue,
+            max_wait_seconds=settings.rag_queue_wait_ms / 1000.0,
+            user_limit=settings.rag_user_limit,
+            user_window_seconds=settings.rag_user_window_seconds,
+            redis_client=redis_client,
+            global_limit=settings.rag_global_limit or None,
+        )
+        _limiter_key = key
+        return _limiter
+
+
+def _build_redis(settings: Settings):
+    """Redis 只用于跨进程总量上限；没配置或没装依赖就返回 None（进程内限额）。"""
+    if not settings.rag_redis_url or settings.rag_global_limit <= 0:
+        return None
+    try:
+        import redis  # type: ignore[import-not-found]
+    except ImportError:
+        log.warning("未安装 redis 客户端，RAG_GLOBAL_LIMIT 不生效（单实例部署可忽略）")
+        return None
+    try:
+        return redis.from_url(
+            settings.rag_redis_url,
+            socket_timeout=0.2,
+            socket_connect_timeout=0.2,
+            decode_responses=True,
+        )
+    except Exception as error:  # noqa: BLE001 - 限流组件不可用时不影响主链路
+        log.warning("Redis 限流连接失败，降级为进程内限额：%s", error)
+        return None
+
+
 def warmup() -> None:
     """启动预热：把 rerank 模型、索引与 Embedding 模型都加载到服务启动阶段。
 
@@ -174,9 +228,19 @@ async def search(request: Request):
             return _error(400, "invalid_request", trace_id, "min_score 取值范围为 -1~1")
 
     service = _service_for(settings)
+    limiter = _limiter_for(settings)
+    user_key = str(body.get("user_id") or "").strip() or None
     try:
-        # 检索内部是同步 HTTP 调用，放到线程里避免阻塞事件循环。
-        outcome = await asyncio.to_thread(service.search, query, top_k, min_score)
+        # 名额在工作线程里释放：客户端断开时协程会被取消，但线程还在跑，
+        # 若按协程的 finally 放行，实际并发会超过上限。
+        outcome = await asyncio.to_thread(
+            limiter.run, user_key, lambda: service.search(query, top_k, min_score)
+        )
+    except BusyError as error:
+        # 容量不足要快速拒绝：排队到超时对用户来说等于"没有来源"，429 至少可解释、可重试。
+        response = _error(429, "busy", trace_id, str(error))
+        response.headers["Retry-After"] = f"{error.retry_after_seconds:.1f}"
+        return response
     except CircuitOpenError as error:
         # 熔断期的快速失败：仍按"暂时不可用"报，但耗时是毫秒级，不占用户 8s。
         return _error(503, "circuit_open", trace_id, str(error))
@@ -210,5 +274,6 @@ async def stats(request: Request):
         return _error(503, "rag_disabled", trace_id, "知识检索已被 RAG_ENABLED 关闭")
     service = _service_for(settings)
     body = service.stats()
+    body["limiter"] = _limiter_for(settings).stats()
     body["traceId"] = trace_id
     return JSONResponse(body)

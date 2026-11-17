@@ -255,6 +255,12 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="召回评估（向量 / BM25 / RRF 混合）")
     parser.add_argument("--top-k", type=int, default=3, help="评估截断位置，默认 3")
     parser.add_argument("--quiet", action="store_true", help="只打印汇总表")
+    parser.add_argument(
+        "--split",
+        choices=["all", "tune", "holdout"],
+        default="all",
+        help="按评估集切分跑：tune 调参集 / holdout 留出集 / all 分别出一张表",
+    )
     parser.add_argument("--output", default=None, help="结果 JSON 路径")
     parser.add_argument("--index-version", default=DEFAULT_INDEX_VERSION, help="索引版本，如 knowledge-v3")
     parser.add_argument("--collection", default=None, help="Qdrant 集合名，默认按索引版本推导")
@@ -272,11 +278,17 @@ def main() -> int:
         collection=args.collection or f"orange_diary_{args.index_version.replace('knowledge-', 'knowledge_')}",
     )
 
-    questions = load_questions()
+    questions_all = load_questions()
     chunks = load_all_chunks()
-    warnings = validate_annotations(questions, chunks)
+    warnings = validate_annotations(questions_all, chunks)
     for warning in warnings:
         print(f"[标注自检] {warning}", file=sys.stderr)
+
+    # 留出集与调参集分开跑、分开出表：同一张表里混着报，调过的题会把泛化效果撑高。
+    splits = ["tune", "holdout"] if args.split == "all" else [args.split]
+    for split in splits:
+        if not any(q.get("split", "tune") == split for q in questions_all):
+            print(f"[跳过] 评估集里没有 split={split} 的题目", file=sys.stderr)
 
     bm25 = BM25Index.load(config.bm25_path)
     embedder = OllamaEmbedder()
@@ -291,62 +303,90 @@ def main() -> int:
         cache_enabled=False,
     )
 
-    modes = {"vector_only": [], "bm25_only": [], "hybrid_rrf": []}
     service_rerank = None
+    service_rerank_nogate = None
     if args.rerank:
-        # rerank 模式独立建一个服务实例：两者只差在排序与证据门槛，索引完全共用。
+        # rerank 模式独立建服务实例：三者只差在排序与证据门槛，索引完全共用。
         from app.rag.rerank.local import LocalReranker
 
+        model_path = args.rerank_model_path
         service_rerank = RetrievalService(
             collection=config.collection,
             bm25_path=config.bm25_path,
             index_manifest_path=ROOT / "knowledge" / "index" / "manifest.json",
             min_score=VECTOR_MIN_SCORE,
             bm25_strong_score=BM25_STRONG_SCORE,
-            reranker=LocalReranker(args.rerank_model_path, max_length=args.rerank_max_length),
+            reranker=LocalReranker(model_path, max_length=args.rerank_max_length),
             rerank_candidates=args.rerank_candidates,
             rerank_min_score=args.rerank_min_score,
             cache_enabled=False,
         )
-        modes["hybrid_rerank"] = []
+        # 消融用：同一份 rerank 排序，但完全不拒答（门槛置负无穷）。
+        # 它衡量"只排序不过滤"能把误答推到多高，用来证明证据门槛是必要的而不是装饰。
+        service_rerank_nogate = RetrievalService(
+            collection=config.collection,
+            bm25_path=config.bm25_path,
+            index_manifest_path=ROOT / "knowledge" / "index" / "manifest.json",
+            min_score=0.0,
+            bm25_strong_score=0.0,
+            reranker=LocalReranker(model_path, max_length=args.rerank_max_length),
+            rerank_candidates=args.rerank_candidates,
+            rerank_min_score=-1e9,
+            cache_enabled=False,
+        )
+
+    all_scores: dict[str, list[dict]] = {}
+    all_details: dict[str, dict] = {}
     try:
-        for question in questions:
-            modes["vector_only"].append(run_vector_only(question, embedder, store, args.top_k, config))
-            modes["bm25_only"].append(run_bm25_only(question, bm25, store, args.top_k, config))
-            modes["hybrid_rrf"].append(run_hybrid(service, question, args.top_k))
+        for split in splits:
+            questions = [q for q in questions_all if q.get("split", "tune") == split]
+            if not questions:
+                continue
+            modes = {"vector_only": [], "bm25_only": [], "hybrid_rrf": []}
             if service_rerank is not None:
-                modes["hybrid_rerank"].append(run_hybrid(service_rerank, question, args.top_k))
+                modes["hybrid_rerank"] = []
+                modes["hybrid_rerank_nogate"] = []
+            for question in questions:
+                modes["vector_only"].append(run_vector_only(question, embedder, store, args.top_k, config))
+                modes["bm25_only"].append(run_bm25_only(question, bm25, store, args.top_k, config))
+                modes["hybrid_rrf"].append(run_hybrid(service, question, args.top_k))
+                if service_rerank is not None:
+                    modes["hybrid_rerank"].append(run_hybrid(service_rerank, question, args.top_k))
+                    modes["hybrid_rerank_nogate"].append(
+                        run_hybrid(service_rerank_nogate, question, args.top_k)
+                    )
+            for rows in modes.values():
+                for row in rows:
+                    row["split"] = split
+
+            scores = [score_mode(name, rows) for name, rows in modes.items()]
+            all_scores[split] = scores
+            all_details[split] = modes
+
+            print(f"\n=== split={split} ===")
+            print(f"评估集：{len(questions)} 题（可答 {sum(1 for q in questions if q['answerable'])} / "
+                  f"不可答 {sum(1 for q in questions if not q['answerable'])}），K={args.top_k}，"
+                  f"索引 {config.index_version}（{config.collection}）\n")
+            print_table(scores)
+            print_refusal_breakdown(scores)
+
+            if not args.quiet:
+                print(f"\n--- split={split} 混合模式失败明细 ---")
+                failed = [
+                    row
+                    for row in modes["hybrid_rrf"]
+                    if (row["answerable"] and not row["doc_hit"]) or (not row["answerable"] and row["accepted"])
+                ]
+                if not failed:
+                    print("无")
+                for row in failed:
+                    print(f"{row['id']} {row['query']} | top_docs={row['top_docs']} | accepted={row['accepted']}")
     finally:
         service.close()
         if service_rerank is not None:
             service_rerank.close()
-
-    scores = [score_mode(name, rows) for name, rows in modes.items()]
-    print(f"\n评估集：{len(questions)} 题（可答 {sum(1 for q in questions if q['answerable'])} / "
-          f"不可答 {sum(1 for q in questions if not q['answerable'])}），K={args.top_k}，"
-          f"索引 {config.index_version}（{config.collection}）\n")
-    print_table(scores)
-    print_refusal_breakdown(scores)
-
-    if not args.quiet:
-        print("\n--- 混合模式逐题结果 ---")
-        for row in modes["hybrid_rrf"]:
-            flag = "OK " if (row["doc_hit"] if row["answerable"] else not row["accepted"]) else "MISS"
-            print(
-                f"{flag} {row['id']} [{row['category']}] {row['query']} -> "
-                f"doc={row['top1_doc'] or '(none)'} rank={row['doc_rank']} accepted={row['accepted']}"
-            )
-
-        print("\n--- 混合模式失败明细 ---")
-        failed = [
-            row
-            for row in modes["hybrid_rrf"]
-            if (row["answerable"] and not row["doc_hit"]) or (not row["answerable"] and row["accepted"])
-        ]
-        if not failed:
-            print("无")
-        for row in failed:
-            print(f"{row['id']} {row['query']} | top_docs={row['top_docs']} | accepted={row['accepted']}")
+        if service_rerank_nogate is not None:
+            service_rerank_nogate.close()
 
     output = Path(args.output) if args.output else (
         ROOT / "knowledge" / "eval" / f"results-{date.today().isoformat()}-{config.index_version}.json"
@@ -367,9 +407,10 @@ def main() -> int:
                     "max_length": args.rerank_max_length,
                     "min_score": args.rerank_min_score,
                 },
+                "splits": splits,
                 "annotation_warnings": warnings,
-                "scores": scores,
-                "details": modes,
+                "scores": all_scores,
+                "details": all_details,
             },
             ensure_ascii=False,
             indent=2,

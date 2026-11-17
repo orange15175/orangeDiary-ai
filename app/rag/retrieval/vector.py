@@ -6,7 +6,11 @@
 
 from __future__ import annotations
 
+import logging
+
 import httpx
+
+log = logging.getLogger("orange-diary-ai.vector")
 
 
 class VectorStoreError(RuntimeError):
@@ -86,14 +90,32 @@ class QdrantStore:
             raise VectorStoreError(f"统计失败: {response.status_code}")
         return int(response.json().get("result", {}).get("count", 0))
 
+    def _post(self, url: str, body: dict):
+        """读请求带一次连接级重试。
+
+        Qdrant 在容器资源抖动时会直接断开连接（RemoteProtocolError），一次重试能盖住；
+        但 **ReadTimeout 不重试**——超时说明下游已经慢，再试只会把延迟翻倍，
+        并且必然顶破 Java 侧 6s 的检索预算。
+        """
+        try:
+            return self._client.post(url, json=body)
+        except httpx.ReadTimeout:
+            raise
+        except httpx.TransportError as first:
+            log.warning("Qdrant 连接中断，重试一次：%s", first)
+            try:
+                return self._client.post(url, json=body)
+            except httpx.TransportError as second:
+                raise VectorStoreError(f"Qdrant 连接失败（已重试一次）: {second}") from first
+
     def search(self, name: str, vector: list[float], limit: int = 20) -> list[dict]:
         """向量检索；返回 [{chunk_id, score, payload}]，按分数降序。
 
         不设 score_threshold：阈值判断交给上层证据过滤，避免这里悄悄吞掉候选。
         """
-        response = self._client.post(
+        response = self._post(
             f"{self.base_url}/collections/{name}/points/search",
-            json={"vector": vector, "limit": max(1, limit), "with_payload": True},
+            {"vector": vector, "limit": max(1, limit), "with_payload": True},
         )
         if response.status_code == 404:
             raise VectorStoreError(f"集合不存在: {name}")
@@ -121,9 +143,9 @@ class QdrantStore:
         found: dict[str, dict] = {}
         for start in range(0, len(wanted), batch_size):
             batch = wanted[start : start + batch_size]
-            response = self._client.post(
+            response = self._post(
                 f"{self.base_url}/collections/{name}/points/scroll",
-                json={
+                {
                     "filter": {"should": [{"key": "chunk_id", "match": {"value": cid}} for cid in batch]},
                     "limit": len(batch),
                     "with_payload": True,

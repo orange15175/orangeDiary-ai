@@ -1,0 +1,77 @@
+{
+  "generated_at": "2026-11-17 21:32:51",
+  "label": "warm",
+  "base_url": "http://127.0.0.1:8000",
+  "requests_per_level": 20,
+  "levels": [
+    {
+      "concurrency": 1,
+      "requests": 20,
+      "wall_seconds": 11.66,
+      "throughput_rps": 1.72,
+      "latency_p50_ms": 2.8,
+      "latency_p95_ms": 2078.6,
+      "latency_p99_ms": 2295.7,
+      "latency_max_ms": 2295.7,
+      "error_rate": 0.0,
+      "statuses": {
+        "200": 20
+      },
+      "cache": {
+        "hit": 14,
+        "miss": 6
+      }
+    },
+    {
+      "concurrency": 5,
+      "requests": 20,
+      "wall_seconds": 0.03,
+      "throughput_rps": 730.25,
+      "latency_p50_ms": 5.6,
+      "latency_p95_ms": 9.6,
+      "latency_p99_ms": 10.8,
+      "latency_max_ms": 10.8,
+      "error_rate": 0.0,
+      "statuses": {
+        "200": 20
+      },
+      "cache": {
+        "hit": 20
+      }
+    },
+    {
+      "concurrency": 10,
+      "requests": 20,
+      "wall_seconds": 0.02,
+      "throughput_rps": 835.5,
+      "latency_p50_ms": 8.8,
+      "latency_p95_ms": 10.5,
+      "latency_p99_ms": 10.9,
+      "latency_max_ms": 10.9,
+      "error_rate": 0.0,
+      "statuses": {
+        "200": 20
+      },
+      "cache": {
+        "hit": 20
+      }
+    },
+    {
+      "concurrency": 20,
+      "requests": 20,
+      "wall_seconds": 0.03,
+      "throughput_rps": 774.07,
+      "latency_p50_ms": 12.9,
+      "latency_p95_ms": 17.2,
+      "latency_p99_ms": 19.4,
+      "latency_max_ms": 19.4,
+      "error_rate": 0.0,
+      "statuses": {
+        "200": 20
+      },
+      "cache": {
+        "hit": 20
+      }
+    }
+  ]
+}

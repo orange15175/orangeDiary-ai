@@ -27,12 +27,13 @@ class FakeEmbedder:
 class FakeStore:
     def __init__(self) -> None:
         self.upserted: list[dict] = []
+        self.deleted: list[str] = []
 
     def ensure_collection(self, name: str, dimension: int) -> None:
         pass
 
     def delete_document(self, name: str, document_id: str) -> None:
-        pass
+        self.deleted.append(document_id)
 
     def upsert(self, name: str, points: list[dict], batch_size: int = 64) -> int:
         self.upserted.extend(points)
@@ -40,6 +41,10 @@ class FakeStore:
 
     def count(self, name: str) -> int:
         return len(self.upserted)
+
+
+def load_status(index_dir: Path) -> dict:
+    return json.loads((index_dir / "build_state.json").read_text(encoding="utf-8"))["last_run"]
 
 
 DOCUMENT = "# 测试文档\n\n## 钠\n\n成人每天食盐不超过5克。\n"
@@ -111,6 +116,38 @@ class IncrementalIngestTests(unittest.TestCase):
         finally:
             pipeline_module.CHUNKER_VERSION = original
         self.assertEqual(1, second.documents_processed, "切块算法升级后应重建")
+
+    def test_document_removed_from_manifest_is_pruned(self):
+        """源文档从清单里删掉后，必须在索引里同步消失，否则旧知识会一直被召回。"""
+        self.build()
+        self.store.deleted.clear()
+        self.manifest.write_text(
+            json.dumps({"version": "test-v2", "documents": []}, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        result = self.build()
+        self.assertEqual(1, result.documents_removed)
+        self.assertIn("doc", self.store.deleted)
+        self.assertFalse((self.index_dir / "chunks" / "doc.json").exists())
+
+    def test_run_status_is_recorded(self):
+        """失败与成功都要留下状态，排障时不必猜这次构建到底有没有跑完。"""
+        result = self.build()
+        self.assertEqual("succeeded", result.index_version and load_status(self.index_dir)["status"])
+
+        # 制造失败：清单指向不存在的文件会让该文档解析失败，但不应中断整次运行；
+        # 这里改用"源目录整体不可读"更彻底，直接删掉一个已登记文档目录下的文件。
+        self.manifest.write_text(
+            json.dumps({
+                "version": "test-v3",
+                "documents": [{"document_id": "missing", "title": "缺失", "file": "nope.md", "version": "v1"}],
+            }, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        self.build()
+        status = load_status(self.index_dir)
+        self.assertEqual("succeeded", status["status"])
+        self.assertTrue(status["errors"], "解析失败的文档必须出现在 errors 里")
 
     def test_content_change_triggers_rebuild(self):
         self.build()
