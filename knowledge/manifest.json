@@ -1,0 +1,150 @@
+{
+  "version": "knowledge-v2",
+  "updated_at": "2026-11-17",
+  "notes": "来源清单由人工审核维护。source_url 为空表示尚未核实官方链接，needs_review=true；不得在回答中把未核实链接当作引用展示。v2 在 v1 基础上补充 6 篇官方资料（WHO 身体活动、游离糖、非糖甜味剂；中国营养学会膳食指南 2022 八准则；国家卫健委成人肥胖食养指南、高血糖症营养和运动指导原则）。",
+  "documents": [
+    {
+      "document_id": "who-healthy-diet",
+      "title": "健康饮食（世界卫生组织事实清单）",
+      "file": "世界卫生组织-健康饮食.md",
+      "publisher": "世界卫生组织",
+      "source_url": "https://www.who.int/zh/news-room/fact-sheets/detail/healthy-diet",
+      "published_at": "",
+      "scope": "一般人群健康饮食原则、宏量营养素与钠糖脂摄入建议",
+      "version": "v1",
+      "needs_review": false
+    },
+    {
+      "document_id": "who-sodium",
+      "title": "控制钠的摄入（世界卫生组织事实清单）",
+      "file": "控制钠的摄入.md",
+      "publisher": "世界卫生组织",
+      "source_url": "https://www.who.int/zh/news-room/fact-sheets/detail/salt-reduction",
+      "published_at": "",
+      "scope": "成人钠摄入上限、减钠的健康收益与政策建议",
+      "version": "v1",
+      "needs_review": false
+    },
+    {
+      "document_id": "who-trans-fat",
+      "title": "反式脂肪（世界卫生组织事实清单）",
+      "file": "反式脂肪.md",
+      "publisher": "世界卫生组织",
+      "source_url": "https://www.who.int/zh/news-room/fact-sheets/detail/trans-fat",
+      "published_at": "",
+      "scope": "工业反式脂肪来源、健康风险与每日摄入上限",
+      "version": "v1",
+      "needs_review": false
+    },
+    {
+      "document_id": "who-obesity",
+      "title": "肥胖和超重（世界卫生组织事实清单）",
+      "file": "肥胖和超重.md",
+      "publisher": "世界卫生组织",
+      "source_url": "https://www.who.int/zh/news-room/fact-sheets/detail/obesity-and-overweight",
+      "published_at": "",
+      "scope": "超重与肥胖的判定标准、流行情况与预防",
+      "version": "v1",
+      "needs_review": false
+    },
+    {
+      "document_id": "who-malnutrition",
+      "title": "营养不良（世界卫生组织事实清单）",
+      "file": "营养不良.md",
+      "publisher": "世界卫生组织",
+      "source_url": "https://www.who.int/zh/news-room/fact-sheets/detail/malnutrition",
+      "published_at": "",
+      "scope": "营养不良的分类、成因与干预",
+      "version": "v1",
+      "needs_review": false
+    },
+    {
+      "document_id": "cns-pagoda-2022",
+      "title": "中国居民平衡膳食宝塔（2022）修订和解析",
+      "file": "中国居民平衡膳食宝塔（2022）修订和解析.md",
+      "publisher": "中国营养学会",
+      "source_url": "",
+      "published_at": "2022-04-28",
+      "scope": "中国居民各层食物推荐摄入量，适用于 2 岁以上一般人群",
+      "version": "v1",
+      "needs_review": true
+    },
+    {
+      "document_id": "who-wpro-nudge-2023",
+      "title": "助推更健康的饮食行为：减少中国居民盐摄入的创新案例研究",
+      "file": "助推更健康的饮食行为.md",
+      "publisher": "世界卫生组织西太平洋区域办事处",
+      "source_url": "",
+      "published_at": "2023",
+      "scope": "食品环境、政策、数据与传播四个维度的减盐干预案例，非个体膳食指南",
+      "version": "v1",
+      "needs_review": true
+    },
+    {
+      "document_id": "who-physical-activity",
+      "title": "身体活动（世界卫生组织事实清单）",
+      "file": "世界卫生组织-身体活动.md",
+      "publisher": "世界卫生组织",
+      "source_url": "https://www.who.int/zh/news-room/fact-sheets/detail/physical-activity",
+      "published_at": "2024-06-26",
+      "scope": "各年龄段身体活动推荐量、久坐风险与健康收益，含每周150分钟中等强度下限",
+      "version": "v1",
+      "needs_review": false
+    },
+    {
+      "document_id": "cns-cdg-2022-eight",
+      "title": "中国居民膳食指南（2022）平衡膳食八准则与核心推荐",
+      "file": "中国居民膳食指南（2022）平衡膳食八准则核心推荐.md",
+      "publisher": "中国营养学会",
+      "source_url": "http://dg.cnsoc.org/article/04/J4-AsD_DR3OLQMnHG0-jZA.html",
+      "published_at": "2022-04-26",
+      "scope": "八条平衡膳食准则原文与量化推荐（谷类、蔬果、鱼禽蛋肉、盐油糖上限、饮水、饮酒）",
+      "version": "v1",
+      "needs_review": false
+    },
+    {
+      "document_id": "who-free-sugars-2015",
+      "title": "游离糖摄入量建议（世界卫生组织指南要点）",
+      "file": "世界卫生组织-游离糖摄入量建议.md",
+      "publisher": "世界卫生组织",
+      "source_url": "https://www.who.int/zh/news/item/04-03-2015-who-calls-on-countries-to-reduce-sugars-intake-among-adults-and-children",
+      "published_at": "2015-03-04",
+      "scope": "游离糖定义、总能量 10% 上限与 5% 附加收益、含糖饮料与隐形糖来源",
+      "version": "v1",
+      "needs_review": false
+    },
+    {
+      "document_id": "who-non-sugar-sweeteners-2023",
+      "title": "非糖甜味剂使用建议（世界卫生组织2023年指南要点）",
+      "file": "世界卫生组织-非糖甜味剂使用建议.md",
+      "publisher": "世界卫生组织",
+      "source_url": "https://cdn.who.int/media/docs/default-source/nutrition-and-food-safety/jecfa-summary-of-findings-aspartame-ch.pdf",
+      "published_at": "2023-05-15",
+      "scope": "不建议用非糖甜味剂控制体重的有条件建议、适用人群与代糖范围；正文据 WHO 指南与官方发布整理",
+      "version": "v1",
+      "needs_review": true
+    },
+    {
+      "document_id": "nhc-obesity-diet-2024",
+      "title": "成人肥胖食养指南（2024年版）要点",
+      "file": "成人肥胖食养指南（2024年版）要点.md",
+      "publisher": "国家卫生健康委员会",
+      "source_url": "https://www.nhc.gov.cn/sps/c100088/202402/9ba512ba8e314a47a181db11d2fa188d/files/1743476136267_20714.pdf",
+      "published_at": "2024-02",
+      "scope": "成人减重六条食养原则、限能量平衡膳食能量区间、各类食物每日克数推荐",
+      "version": "v1",
+      "needs_review": false
+    },
+    {
+      "document_id": "nhc-hyperglycemia-2024",
+      "title": "高血糖症营养和运动指导原则（2024年版）",
+      "file": "高血糖症营养和运动指导原则（2024年版）.md",
+      "publisher": "国家卫生健康委员会",
+      "source_url": "https://www.gov.cn/zhengce/zhengceku/202407/P020240701700334584645.pdf",
+      "published_at": "2024-07",
+      "scope": "高血糖症膳食指导、低/高 GI 食物举例、升糖负荷与餐后运动建议",
+      "version": "v1",
+      "needs_review": false
+    }
+  ]
+}
