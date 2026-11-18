@@ -64,7 +64,9 @@ class Settings:
     deepseek_input_price_per_million: float
     deepseek_output_price_per_million: float
     ai_service_token: str = ""
-    # RAG 检索配置；默认值对应本地开发环境的 knowledge-v2 索引。
+    # RAG 检索配置；默认值对应本地开发环境的 knowledge-v3 索引（144 片段 / 13 篇文档）。
+    # 根目录 knowledge/manifest.json 里残留的 version 字段是建库时的标注，不参与选择，
+    # 真正决定读哪份索引的是 rag_index_version（对应 knowledge/index/bm25/<版本>.json）。
     rag_enabled: bool = True
     qdrant_url: str = "http://localhost:6333"
     rag_collection: str = _DEFAULT_RAG_COLLECTION

@@ -34,7 +34,9 @@ from app.rag.retrieval.vector import QdrantStore  # noqa: E402
 from app.rag.service import RetrievalService  # noqa: E402
 
 DEFAULT_COLLECTION = "orange_diary_knowledge_v2"
-DEFAULT_INDEX_VERSION = "knowledge-v2"
+# 必须与服务端默认一致（app/config.py 的 knowledge-v3）：曾经这里写 v2，
+# 直接跑脚本会用旧索引评估，而线上读的是 v3，两边数字不可比。
+DEFAULT_INDEX_VERSION = "knowledge-v3"
 QUESTIONS_PATH = ROOT / "knowledge" / "eval" / "questions.json"
 CHUNKS_DIR = ROOT / "knowledge" / "index" / "chunks"
 # 与服务端判定保持一致：向量门槛 0.60；关键词单独成答的门槛更高（12.0）。

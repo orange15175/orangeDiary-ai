@@ -1,8 +1,14 @@
-fastapi
-uvicorn[standard]
-httpx
-pydantic-settings
-python-dotenv
-jieba
-python-docx
-pypdf
+# 运行时依赖：固定版本，保证容器、本机、答辩机器装出来是同一套。
+# 版本取自本机实测通过的 .venv（Python 3.13.12）。升级时先跑 tests/ 再改这里。
+fastapi==0.141.1
+uvicorn[standard]==0.52.3
+httpx==0.28.1
+pydantic==2.13.4
+pydantic-settings==2.15.0
+python-dotenv==1.2.3
+jieba==0.42.1
+python-docx==1.2.0
+pypdf==7.1.0
+
+# 可选：启用 Redis 跨进程限流（RAG_GLOBAL_LIMIT>0）时才需要，缺失时自动退化为进程内限流。
+# redis==6.4.0

@@ -8,9 +8,10 @@ __pycache__/
 .venv/
 .pytest_cache/
 
-# 编辑器本地文件
-.idea/workspace.xml
-.idea/httpRequests/
+# 编辑器本地文件（整个 .idea 不入库：misc.xml/iml 会随 IDE 版本漂移）
+.idea/
+*.iml
+*.iws
 .vscode/
 
 # RAG 构建产物（可由 scripts/ingest.py 重新生成）

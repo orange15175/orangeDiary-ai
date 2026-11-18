@@ -1,4 +1,4 @@
-﻿"""Canonical intent representation shared by rules and semantic parsing."""
+"""Canonical intent representation shared by rules and semantic parsing."""
 
 from __future__ import annotations
 
