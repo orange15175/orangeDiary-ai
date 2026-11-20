@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>卡路里河 · 海獭形象对照</title>
+<style>
+  :root {
+    --ink: #493526;
+    --muted: #8b7d70;
+    --line: #e8dfd1;
+    --surface: #fffcf6;
+    --page-bg: #f8f5ed;
+    --brand-strong: #79648f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 36px 28px 56px;
+    background: var(--page-bg);
+    color: var(--ink);
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+  h1 { margin: 0 0 6px; font-size: 22px; }
+  .sub { margin: 0 0 28px; color: var(--muted); font-size: 13px; }
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; max-width: 880px; }
+  @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+  .card {
+    padding: 18px 16px 20px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: var(--surface);
+    box-shadow: 0 5px 18px rgb(73 53 38 / 4%);
+  }
+  .card h2 { margin: 0 0 4px; font-size: 15px; }
+  .card .note { margin: 0 0 16px; color: var(--muted); font-size: 12px; line-height: 1.65; }
+  .tag {
+    display: inline-block; margin-left: 6px; padding: 2px 7px;
+    border-radius: 999px; font-size: 11px; font-weight: 600;
+    background: #eee7f0; color: var(--brand-strong);
+  }
+  .tag.old { background: #eef8ff; color: #208dbc; }
+
+  /* ---- 河道 ---- */
+  .calorie-river { position: relative; isolation: isolate; height: 60px; margin: 0; overflow: hidden; }
+  .river-water, .river-surface { position: absolute; inset: 5px 0 0; width: 100%; height: 50px; overflow: visible; }
+  .river-bed { fill: #e7f0e9; }
+  .river-current { fill: #c8e1d4; clip-path: inset(0 calc(100% - var(--river-progress)) 0 0); }
+  .river-ripples, .river-surface { fill: none; stroke: #f8fcf8; stroke-width: 1.4; stroke-linecap: round; }
+  .river-otter { position: absolute; z-index: 1; top: 0; left: var(--otter-position); width: 58px; height: 48px; transform: translateX(-50%); }
+  /* 新版造型 */
+  .otter-head, .otter-ear { fill: #9d8c7c; stroke: #5f4b3c; stroke-width: 1.6; stroke-linejoin: round; }
+  .otter-muzzle { fill: #fdf6ea; stroke: #5f4b3c; stroke-width: 1.1; stroke-linejoin: round; }
+  .otter-ear-inner { fill: #d9bfae; }
+  .otter-brow { fill: #fdf6ea; opacity: .9; }
+  .otter-blush { fill: #f0c2bd; opacity: .85; }
+  .otter-eye { fill: #3d2f26; }
+  .otter-glint { fill: #fffcf6; }
+  .otter-nose { fill: #4a3a30; }
+  .otter-mouth { fill: none; stroke: #4a3a30; stroke-width: 1.1; stroke-linecap: round; }
+  .otter-whisker { fill: none; stroke: #4a3a30; stroke-width: .55; stroke-linecap: round; opacity: .7; }
+
+  /* 旧配色 */
+  .legacy .otter-body, .legacy .otter-head, .legacy .otter-ear { fill: #a98269; stroke: #634d3d; stroke-width: 1.8; }
+  .legacy .otter-belly, .legacy .otter-muzzle { fill: #f8eee0; stroke: #634d3d; stroke-width: 1.2; }
+  .legacy .otter-paw { fill: none; stroke: #634d3d; stroke-width: 2.4; }
+  .legacy .otter-ear-inner { fill: #d5b29b; }
+  .legacy .otter-eye, .legacy .otter-nose { fill: #493526; }
+  .legacy .otter-mouth { fill: none; stroke: #493526; stroke-width: 1.2; }
+
+  /* ---- 放大细节 ---- */
+  .zoom-row { display: grid; grid-template-columns: auto auto 1fr; gap: 24px; align-items: center; max-width: 880px; margin-top: 18px; }
+  .zoom { padding: 16px; border: 1px dashed #d8cbb9; border-radius: 18px; background: #fffdf8; text-align: center; }
+  .zoom svg { display: block; width: 212px; height: 150px; }
+  .ref { text-align: center; }
+  .ref img { width: 176px; display: block; }
+  .ref span, .zoom span { display: block; margin-top: 9px; color: var(--muted); font-size: 11px; }
+  .legend { color: var(--muted); font-size: 12px; line-height: 1.9; }
+  .legend b { color: var(--ink); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<h1>卡路里河上的海獭 · 形象对照</h1>
+<p class="sub">同一段河道、同一进度位置（80%），只换了海獭本身的造型语言。</p>
+
+<div class="grid">
+  <div class="card">
+    <h2>改前<span class="tag old">旧</span></h2>
+    <p class="note">扁平色块拼几何形；毛色偏橙 #a98269；眼睛是半径 1.5 的小点、无高光；尾巴漏填色渲染成黑色；脸和身体是两个分离的形状。</p>
+    <div class="calorie-river legacy" style="--river-progress:80%; --otter-position:75%;">
+      <svg class="river-water" viewBox="0 0 360 44" preserveAspectRatio="none" aria-hidden="true">
+        <path class="river-bed" d="M12 10 C38 7 58 12 88 9 S140 8 170 10 S220 12 250 9 S310 8 348 11 L348 34 C320 37 290 33 260 35 S210 36 180 34 S130 32 100 35 S45 36 12 33 Q5 22 12 10Z" />
+        <path class="river-current" d="M12 10 C38 7 58 12 88 9 S140 8 170 10 S220 12 250 9 S310 8 348 11 L348 34 C320 37 290 33 260 35 S210 36 180 34 S130 32 100 35 S45 36 12 33 Q5 22 12 10Z" />
+        <g class="river-ripples">
+          <path d="M54 18c9-3 18-3 27 0m31 8c8-3 16-3 24 0m117-9c8-2 16-2 24 0m-69 12c7-2 13-2 20 0" />
+          <path d="M82 29c5-2 10-2 15 0m149-13c5-2 10-2 15 0" />
+        </g>
+      </svg>
+      <svg class="river-otter" viewBox="0 0 82 58" aria-hidden="true">
+        <g>
+        <ellipse class="otter-ear" cx="29.4" cy="12.4" rx="3.9" ry="2.9" />
+        <ellipse class="otter-ear-inner" cx="29.6" cy="12.7" rx="1.8" ry="1.3" />
+        <ellipse class="otter-ear" cx="52.6" cy="12.4" rx="3.7" ry="2.8" />
+        <ellipse class="otter-ear-inner" cx="52.4" cy="12.7" rx="1.7" ry="1.2" />
+        <circle class="otter-head" cx="41" cy="26" r="17" />
+        <path class="otter-muzzle" d="M24.8 29.8C26.2 23.6 32.4 19.4 41 19.4s14.8 4.2 16.2 10.4c.8 4.4-.6 8.6-3.8 10.6-3 2-7.4 2.8-12.4 2.8s-9.4-.8-12.4-2.8c-3.2-2-4.6-6.2-3.8-10.6Z" />
+        <ellipse class="otter-brow" cx="32.4" cy="18.4" rx="1.6" ry="1.05" />
+        <ellipse class="otter-brow" cx="49.6" cy="18.4" rx="1.6" ry="1.05" />
+        <circle class="otter-eye" cx="33.6" cy="25.4" r="3" />
+        <circle class="otter-eye" cx="48.4" cy="25.4" r="3" />
+        <circle class="otter-glint" cx="32.5" cy="24.2" r="1.15" />
+        <circle class="otter-glint" cx="47.3" cy="24.2" r="1.15" />
+        <ellipse class="otter-blush" cx="29.4" cy="31.4" rx="2.7" ry="1.6" />
+        <ellipse class="otter-blush" cx="52.6" cy="31.4" rx="2.7" ry="1.6" />
+        <path class="otter-nose" d="M39 30.8c0-1.3 1.5-2 2-2s2 .7 2 2c0 1.5-2 2.6-2 2.6s-2-1.1-2-2.6Z" />
+        <path class="otter-mouth" d="M41 33.4v1.4m0 0c-1 1.5-2.5 1.5-3.4.1m3.4-.1c1 1.5 2.5 1.5 3.4.1" />
+        <path class="otter-whisker" d="M32.4 33c-2.2-.4-3.9-.3-5.4.1m5.6 1.6c-2.2.3-3.8.9-5.2 1.5m16.2-3.2c2.2-.4 3.9-.3 5.4.1m-5.6 1.6c2.2.3 3.8.9 5.2 1.5" />
+        </g>
+      </svg>
+      <svg class="river-surface" viewBox="0 0 360 44" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M8 30c18-3 30 3 48 0s29-2 45 0m137 0c16-3 29 2 44 0s24-2 38 0" />
+        <path d="M31 35c9-2 17 1 26 0m228-1c8-2 16 1 24 0" />
+      </svg>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>改后<span class="tag">对齐主形象</span></h2>
+    <p class="note">正脸露出水面的姿态（对应 floating.png）；毛色暖灰褐 #9d8c7c；大眼 + 白高光 + 眉点 + 腮红 + 胡须；两只前爪扒在水面，随水波自然切边。</p>
+    <div class="calorie-river" style="--river-progress:80%; --otter-position:75%;">
+      <svg class="river-water" viewBox="0 0 360 44" preserveAspectRatio="none" aria-hidden="true">
+        <path class="river-bed" d="M12 10 C38 7 58 12 88 9 S140 8 170 10 S220 12 250 9 S310 8 348 11 L348 34 C320 37 290 33 260 35 S210 36 180 34 S130 32 100 35 S45 36 12 33 Q5 22 12 10Z" />
+        <path class="river-current" d="M12 10 C38 7 58 12 88 9 S140 8 170 10 S220 12 250 9 S310 8 348 11 L348 34 C320 37 290 33 260 35 S210 36 180 34 S130 32 100 35 S45 36 12 33 Q5 22 12 10Z" />
+        <g class="river-ripples">
+          <path d="M54 18c9-3 18-3 27 0m31 8c8-3 16-3 24 0m117-9c8-2 16-2 24 0m-69 12c7-2 13-2 20 0" />
+          <path d="M82 29c5-2 10-2 15 0m149-13c5-2 10-2 15 0" />
+        </g>
+      </svg>
+      <svg class="river-otter" viewBox="0 0 82 58" aria-hidden="true">
+        <g>
+        <ellipse class="otter-ear" cx="29.4" cy="12.4" rx="3.9" ry="2.9" />
+        <ellipse class="otter-ear-inner" cx="29.6" cy="12.7" rx="1.8" ry="1.3" />
+        <ellipse class="otter-ear" cx="52.6" cy="12.4" rx="3.7" ry="2.8" />
+        <ellipse class="otter-ear-inner" cx="52.4" cy="12.7" rx="1.7" ry="1.2" />
+        <circle class="otter-head" cx="41" cy="26" r="17" />
+        <path class="otter-muzzle" d="M24.8 29.8C26.2 23.6 32.4 19.4 41 19.4s14.8 4.2 16.2 10.4c.8 4.4-.6 8.6-3.8 10.6-3 2-7.4 2.8-12.4 2.8s-9.4-.8-12.4-2.8c-3.2-2-4.6-6.2-3.8-10.6Z" />
+        <ellipse class="otter-brow" cx="32.4" cy="18.4" rx="1.6" ry="1.05" />
+        <ellipse class="otter-brow" cx="49.6" cy="18.4" rx="1.6" ry="1.05" />
+        <circle class="otter-eye" cx="33.6" cy="25.4" r="3" />
+        <circle class="otter-eye" cx="48.4" cy="25.4" r="3" />
+        <circle class="otter-glint" cx="32.5" cy="24.2" r="1.15" />
+        <circle class="otter-glint" cx="47.3" cy="24.2" r="1.15" />
+        <ellipse class="otter-blush" cx="29.4" cy="31.4" rx="2.7" ry="1.6" />
+        <ellipse class="otter-blush" cx="52.6" cy="31.4" rx="2.7" ry="1.6" />
+        <path class="otter-nose" d="M39 30.8c0-1.3 1.5-2 2-2s2 .7 2 2c0 1.5-2 2.6-2 2.6s-2-1.1-2-2.6Z" />
+        <path class="otter-mouth" d="M41 33.4v1.4m0 0c-1 1.5-2.5 1.5-3.4.1m3.4-.1c1 1.5 2.5 1.5 3.4.1" />
+        <path class="otter-whisker" d="M32.4 33c-2.2-.4-3.9-.3-5.4.1m5.6 1.6c-2.2.3-3.8.9-5.2 1.5m16.2-3.2c2.2-.4 3.9-.3 5.4.1m-5.6 1.6c2.2.3 3.8.9 5.2 1.5" />
+        </g>
+      </svg>
+      <svg class="river-surface" viewBox="0 0 360 44" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M8 30c18-3 30 3 48 0s29-2 45 0m137 0c16-3 29 2 44 0s24-2 38 0" />
+        <path d="M31 35c9-2 17 1 26 0m228-1c8-2 16 1 24 0" />
+      </svg>
+    </div>
+  </div>
+</div>
+
+<div class="zoom-row">
+  <div class="ref">
+    <img src="../src/assets/otter/floating.png" alt="主形象" />
+    <span>主形象 floating.png</span>
+  </div>
+  <div class="zoom">
+    <svg viewBox="0 0 82 58" aria-hidden="true">
+      <g>
+        <circle class="otter-ear" cx="30.6" cy="13.2" r="3.5" />
+        <circle class="otter-ear-inner" cx="30.7" cy="13.4" r="1.7" />
+        <circle class="otter-ear" cx="51.4" cy="13.2" r="3.3" />
+        <circle class="otter-ear-inner" cx="51.3" cy="13.4" r="1.6" />
+        <circle class="otter-head" cx="41" cy="25" r="15.2" />
+        <path class="otter-muzzle" d="M28.6 28.4C29.6 24.2 34.6 21.4 41 21.4s11.4 2.8 12.4 7c.6 3.4-.6 6.8-3.2 8.8-2.6 2-5.8 2.8-9.2 2.8s-6.6-.8-9.2-2.8c-2.6-2-3.8-5.4-3.2-8.8Z" />
+        <ellipse class="otter-brow" cx="33" cy="20" rx="1.5" ry="1" />
+        <ellipse class="otter-brow" cx="49" cy="20" rx="1.5" ry="1" />
+        <circle class="otter-eye" cx="34.4" cy="26" r="2.7" />
+        <circle class="otter-eye" cx="47.6" cy="26" r="2.7" />
+        <circle class="otter-glint" cx="33.5" cy="25" r="1.05" />
+        <circle class="otter-glint" cx="46.7" cy="25" r="1.05" />
+        <ellipse class="otter-blush" cx="30.4" cy="32.6" rx="2.5" ry="1.5" />
+        <ellipse class="otter-blush" cx="51.6" cy="32.6" rx="2.5" ry="1.5" />
+        <path class="otter-nose" d="M39.2 31.6c0-1.2 1.4-1.9 1.8-1.9s1.8.7 1.8 1.9c0 1.4-1.8 2.4-1.8 2.4s-1.8-1-1.8-2.4Z" />
+        <path class="otter-mouth" d="M41 34v1.3m0 0c-.9 1.4-2.3 1.4-3.2.1m3.2-.1c.9 1.4 2.3 1.4 3.2.1" />
+        <path class="otter-whisker" d="M33 33.4c-2-.4-3.6-.3-5 .1m5.2 1.5c-2 .3-3.5.8-4.8 1.4m14.6-3c2-.4 3.6-.3 5 .1m-5.2 1.5c2 .3 3.5.8 4.8 1.4" />
+        <ellipse class="otter-paw" cx="28" cy="43.4" rx="4.2" ry="3.5" />
+        <ellipse class="otter-paw" cx="54" cy="43.4" rx="4.2" ry="3.5" />
+      </g>
+    </svg>
+    <span>改后放大 2.6×</span>
+  </div>
+  <div class="legend">
+    <b>对齐的四件事</b><br />
+    ① 毛色从偏橙的 #a98269 收到暖灰褐 #9d8c7c<br />
+    ② 眼睛 1.5 → 2.7，补白色高光与眉点<br />
+    ③ 描边统一 1.6，接缝更接近手绘<br />
+    ④ 补腮红、胡须、奶白脸颊，尾巴不再漏黑<br />
+    <br />
+    尺寸仍是 58×48，定位与布局零影响。
+  </div>
+</div>
+
+</body>
+</html>

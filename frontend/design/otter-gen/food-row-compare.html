@@ -1,0 +1,207 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><style>
+* { box-sizing:border-box; }
+body { margin:0; padding:20px; display:flex; gap:20px; align-items:flex-start; background:#f8f5ed;
+  font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; }
+.col { width:360px; }
+.cap { margin:0 0 8px; font-size:11px; color:#8b7d70; letter-spacing:1px; font-family:ui-monospace,monospace; }
+.frame { padding:16px; border-radius:22px; background:#f8f5ed; }
+.otter-page {
+  --ink: #493526;
+  --muted: #8b7d70;
+  --brand: #9d8bb7;
+  --brand-strong: #79648f;
+  --brand-soft: #eee7f0;
+  --line: #e8dfd1;
+  --surface: #fffcf6;
+  --page-bg: #f8f5ed;
+  --seafoam: #d9eae3;
+  --danger: #ba613b;
+  --radius-sm: 10px;
+  --radius-md: 18px;
+  --shadow-soft: 0 5px 18px rgb(73 53 38 / 4%);
+  min-height: 100dvh;
+  color: var(--ink);
+  background: var(--page-bg);
+}
+.otter-page input:focus, .otter-page textarea:focus, .otter-page select:focus { box-shadow: 0 0 0 3px rgb(157 139 183 / 15%); }
+.otter-page button { cursor: pointer; }
+.otter-page :focus-visible { outline-color: var(--brand); }
+
+/* Loaded with the app so route navigation retains the visual layer. */
+.diet-view { min-height:100dvh; background:#f8f5ed; color:#493526; }
+.diet-view .diet-page { min-height:100dvh; max-width:680px; margin:auto; padding:20px 16px 100px; }
+.diet-view .page-header { display:grid; grid-template-columns:62px minmax(0,1fr) 62px; gap:10px; align-items:center; }
+.diet-view .back-button { width:62px; height:44px; border:1px solid var(--line); border-radius:10px; background:var(--surface); color:var(--ink); box-shadow:none; }
+.diet-view .date-pill { position:relative; display:flex; justify-content:center; align-items:center; gap:16px; min-height:44px; border:1px solid var(--line); border-radius:10px; background:var(--surface); font-size:17px; }
+.diet-view .date-pill img { width:20px; height:20px; }
+.diet-view .date-pill input { position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+.diet-view .week-row { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:5px; margin:18px 0; }
+.diet-view .week-row button { min-height:44px; border:0; border-radius:10px; background:transparent; color:var(--muted); font-size:16px; }
+.diet-view .week-row button.active { background:var(--brand); color:white; font-weight:600; }
+.diet-view .summary-card,.diet-view .meal-card { margin-bottom:20px; padding:18px; border:1px solid var(--line); border-radius:18px; background:var(--surface); box-shadow:var(--shadow-soft); }
+.diet-view .summary-title { display:flex; align-items:center; justify-content:space-between; width:100%; min-height:28px; padding:0; border:0; background:transparent; color:var(--ink); font-size:17px; font-weight:600; }
+.diet-view .summary-title span { display:flex; align-items:center; gap:8px; }
+.diet-view .summary-title i { width:12px; height:12px; border-radius:50%; background:#a6c9ba; }
+.diet-view .summary-title img { width:18px; height:18px; }
+.diet-view .calorie-overview { display:grid; grid-template-columns:minmax(0,1fr) minmax(138px,1.8fr) minmax(0,1fr); align-items:center; gap:6px; margin:20px 0 12px; }
+.diet-view .calorie-budget { min-width:0; text-align:center; }
+.diet-view .calorie-budget > span { font-size:17px; }
+.diet-view .remaining { display:flex; justify-content:center; align-items:baseline; gap:5px; margin-top:3px; white-space:nowrap; }
+.diet-view .remaining strong { font-size:42px; font-weight:650; line-height:1.15; letter-spacing:-1.5px; overflow-wrap:anywhere; }
+.diet-view .remaining.over-budget strong { color:#c84e53; }
+.diet-view .remaining small { color:var(--muted); font-size:12px; }
+.diet-view .calorie-budget p { margin:4px 0 0; color:var(--muted); font-size:12px; line-height:1.5; white-space:nowrap; }
+.diet-view .side-stat { display:grid; justify-items:center; gap:7px; min-width:0; color:var(--muted); font-size:13px; text-align:center; }
+.diet-view .side-stat strong { color:var(--ink); font-size:23px; font-weight:600; white-space:nowrap; }
+.diet-view .side-stat small { margin-left:4px; color:var(--muted); font-size:11px; font-weight:400; }
+.diet-view .calorie-river + .macro-row { margin-top:4px; padding-top:16px; border-top:1px solid var(--line); }
+.diet-view .macro-row { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; margin-top:20px; }
+.diet-view .macro { min-width:0; font-size:14px; }
+.diet-view .track { height:5px; margin-top:10px; overflow:hidden; border-radius:99px; background:#e5eee5; }
+.diet-view .macro:nth-child(2) .track { background:#f2e0d5; }
+.diet-view .macro:nth-child(3) .track { background:#eee6cc; }
+.diet-view .track i { display:block; height:100%; border-radius:inherit; }
+.diet-view .track .carb { background:#86ad98; }
+.diet-view .track .protein { background:#c89379; }
+.diet-view .track .fat { background:#b89c54; }
+.diet-view .macro small { display:block; margin-top:8px; color:var(--muted); font-size:12px; line-height:1.5; }
+.diet-view .daily-empty-card { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; min-height:184px; padding:24px 12px; border:1px dashed #d8cbb9; border-radius:18px; background:var(--surface); text-align:center; }
+.diet-view .daily-empty-card img { width:34px; height:34px; }
+.diet-view .daily-empty-card strong { font-size:17px; font-weight:500; }
+.diet-view .daily-empty-card p { margin:0; color:var(--muted); font-size:13px; line-height:1.6; }
+.diet-view .loading { display:flex; justify-content:center; align-items:center; min-height:184px; color:var(--muted); }
+.diet-view .meal-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding-bottom:10px; border-bottom:1px solid var(--line); }
+.diet-view .meal-head h2 { margin:0; font-size:17px; }
+.diet-view .meal-head span { color:var(--brand-strong); font-size:13px; }
+.diet-view .food-row { display:grid; grid-template-columns:39px minmax(0,1fr) auto; align-items:center; gap:9px; min-height:57px; padding:7px 0; border-bottom:1px solid var(--line); }
+.diet-view .food-thumb,.diet-view .food-thumb-fallback { display:grid; place-items:center; width:36px; height:36px; overflow:hidden; border:1px solid rgb(73 53 38 / 6%); border-radius:7px; background:#eee7f0; color:var(--brand-strong); font-size:12px; font-weight:600; }
+.diet-view .food-thumb { object-fit:cover; }
+.diet-view .food-info { min-width:0; overflow-wrap:anywhere; }
+.diet-view .food-row strong,.diet-view .food-row span { display:block; }
+.diet-view .food-row strong { font-size:13px; font-weight:500; }
+.diet-view .food-info > span { margin-top:3px; color:var(--muted); font-size:11px; }
+.diet-view .food-actions { display:grid; justify-items:end; gap:3px; min-width:56px; color:var(--muted); font-size:11px; }
+.diet-view .food-actions button { min-height:23px; padding:0 7px; border:1px solid #eed9ce; border-radius:6px; background:#faf0e9; color:var(--danger); font-size:11px; }
+.diet-view .add-meal { width:100%; min-height:38px; margin-top:12px; border:0; border-radius:10px; background:var(--brand-soft); color:var(--brand-strong); font-size:13px; }
+.diet-view .meal-nav { position:fixed; z-index:5; right:0; bottom:0; left:0; display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); max-width:680px; margin:auto; padding:10px 8px calc(10px + env(safe-area-inset-bottom)); border-top:1px solid var(--line); background:var(--surface); }
+.diet-view .meal-nav button { min-width:0; min-height:44px; padding:0; border:0; background:transparent; color:var(--muted); font-size:14px; }
+.diet-view .meal-nav button:first-child { color:var(--brand-strong); font-weight:600; }
+.diet-view button:active { filter:brightness(.97); }
+.diet-view button:focus-visible,.diet-view .date-pill:focus-within { outline:2px solid var(--brand-strong); outline-offset:3px; }
+@media(max-width:350px) {
+  .diet-view .diet-page { padding-right:12px; padding-left:12px; }
+  .diet-view .page-header { grid-template-columns:44px minmax(0,1fr) 44px; }
+  .diet-view .back-button { width:44px; }
+  .diet-view .summary-card,.diet-view .meal-card { padding:14px; }
+  .diet-view .calorie-overview { grid-template-columns:minmax(0,1fr) minmax(130px,1.8fr) minmax(0,1fr); gap:4px; }
+  .diet-view .calorie-budget > span { font-size:15px; }
+  .diet-view .remaining strong { font-size:37px; }
+  .diet-view .side-stat { font-size:12px; }
+  .diet-view .side-stat strong { font-size:21px; }
+  .diet-view .calorie-budget p { font-size:11px; }
+  .diet-view .food-row { grid-template-columns:33px minmax(0,1fr) auto; gap:7px; min-height:51px; }
+  .diet-view .food-thumb,.diet-view .food-thumb-fallback { width:30px; height:30px; }
+  .diet-view .food-actions { min-width:52px; font-size:11px; }
+  .diet-view .macro-row { gap:10px; }
+  .diet-view .macro { font-size:12px; }
+  .diet-view .macro small { font-size:11px; }
+}
+
+/* Loaded with the app so route navigation retains the visual layer. */
+.diet-before { min-height:100dvh; background:#f8f5ed; color:#493526; }
+.diet-before .diet-page { min-height:100dvh; max-width:680px; margin:auto; padding:20px 16px 100px; }
+.diet-before .page-header { display:grid; grid-template-columns:62px minmax(0,1fr) 62px; gap:10px; align-items:center; }
+.diet-before .back-button { width:62px; height:44px; border:1px solid var(--line); border-radius:10px; background:var(--surface); color:var(--ink); box-shadow:none; }
+.diet-before .date-pill { position:relative; display:flex; justify-content:center; align-items:center; gap:16px; min-height:44px; border:1px solid var(--line); border-radius:10px; background:var(--surface); font-size:17px; }
+.diet-before .date-pill img { width:20px; height:20px; }
+.diet-before .date-pill input { position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+.diet-before .week-row { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:5px; margin:18px 0; }
+.diet-before .week-row button { min-height:44px; border:0; border-radius:10px; background:transparent; color:var(--muted); font-size:16px; }
+.diet-before .week-row button.active { background:var(--brand); color:white; font-weight:600; }
+.diet-before .summary-card,.diet-before .meal-card { margin-bottom:20px; padding:18px; border:1px solid var(--line); border-radius:18px; background:var(--surface); box-shadow:var(--shadow-soft); }
+.diet-before .summary-title { display:flex; align-items:center; justify-content:space-between; width:100%; min-height:28px; padding:0; border:0; background:transparent; color:var(--ink); font-size:17px; font-weight:600; }
+.diet-before .summary-title span { display:flex; align-items:center; gap:8px; }
+.diet-before .summary-title i { width:12px; height:12px; border-radius:50%; background:#a6c9ba; }
+.diet-before .summary-title img { width:18px; height:18px; }
+.diet-before .calorie-overview { display:grid; grid-template-columns:minmax(0,1fr) minmax(138px,1.8fr) minmax(0,1fr); align-items:center; gap:6px; margin:20px 0 12px; }
+.diet-before .calorie-budget { min-width:0; text-align:center; }
+.diet-before .calorie-budget > span { font-size:17px; }
+.diet-before .remaining { display:flex; justify-content:center; align-items:baseline; gap:5px; margin-top:3px; white-space:nowrap; }
+.diet-before .remaining strong { font-size:42px; font-weight:650; line-height:1.15; letter-spacing:-1.5px; overflow-wrap:anywhere; }
+.diet-before .remaining.over-budget strong { color:#c84e53; }
+.diet-before .remaining small { color:var(--muted); font-size:12px; }
+.diet-before .calorie-budget p { margin:4px 0 0; color:var(--muted); font-size:12px; line-height:1.5; white-space:nowrap; }
+.diet-before .side-stat { display:grid; justify-items:center; gap:7px; min-width:0; color:var(--muted); font-size:13px; text-align:center; }
+.diet-before .side-stat strong { color:var(--ink); font-size:23px; font-weight:600; white-space:nowrap; }
+.diet-before .side-stat small { margin-left:4px; color:var(--muted); font-size:11px; font-weight:400; }
+.diet-before .calorie-river + .macro-row { margin-top:4px; padding-top:16px; border-top:1px solid var(--line); }
+.diet-before .macro-row { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; margin-top:20px; }
+.diet-before .macro { min-width:0; font-size:14px; }
+.diet-before .track { height:5px; margin-top:10px; overflow:hidden; border-radius:99px; background:#e5eee5; }
+.diet-before .macro:nth-child(2) .track { background:#f2e0d5; }
+.diet-before .macro:nth-child(3) .track { background:#eee6cc; }
+.diet-before .track i { display:block; height:100%; border-radius:inherit; }
+.diet-before .track .carb { background:#86ad98; }
+.diet-before .track .protein { background:#c89379; }
+.diet-before .track .fat { background:#b89c54; }
+.diet-before .macro small { display:block; margin-top:8px; color:var(--muted); font-size:12px; line-height:1.5; }
+.diet-before .daily-empty-card { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; min-height:184px; padding:24px 12px; border:1px dashed #d8cbb9; border-radius:18px; background:var(--surface); text-align:center; }
+.diet-before .daily-empty-card img { width:34px; height:34px; }
+.diet-before .daily-empty-card strong { font-size:17px; font-weight:500; }
+.diet-before .daily-empty-card p { margin:0; color:var(--muted); font-size:13px; line-height:1.6; }
+.diet-before .loading { display:flex; justify-content:center; align-items:center; min-height:184px; color:var(--muted); }
+.diet-before .meal-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding-bottom:12px; border-bottom:1px solid var(--line); }
+.diet-before .meal-head h2 { margin:0; font-size:17px; }
+.diet-before .meal-head span { color:var(--brand-strong); font-size:13px; }
+.diet-before .food-row { display:grid; grid-template-columns:52px minmax(0,1fr) auto; align-items:center; gap:12px; min-height:76px; padding:10px 0; border-bottom:1px solid var(--line); }
+.diet-before .food-thumb,.diet-before .food-thumb-fallback { display:grid; place-items:center; width:48px; height:48px; overflow:hidden; border:1px solid rgb(73 53 38 / 6%); border-radius:9px; background:#eee7f0; color:var(--brand-strong); font-size:16px; font-weight:600; }
+.diet-before .food-thumb { object-fit:cover; }
+.diet-before .food-info { min-width:0; overflow-wrap:anywhere; }
+.diet-before .food-row strong,.diet-before .food-row span { display:block; }
+.diet-before .food-row strong { font-size:15px; font-weight:500; }
+.diet-before .food-info > span { margin-top:4px; color:var(--muted); font-size:13px; }
+.diet-before .food-actions { display:grid; justify-items:end; gap:4px; min-width:74px; color:var(--muted); font-size:13px; }
+.diet-before .food-actions button { min-height:28px; padding:0 10px; border:1px solid #eed9ce; border-radius:8px; background:#faf0e9; color:var(--danger); font-size:12px; }
+.diet-before .add-meal { width:100%; min-height:44px; margin-top:14px; border:0; border-radius:10px; background:var(--brand-soft); color:var(--brand-strong); font-size:14px; }
+.diet-before .meal-nav { position:fixed; z-index:5; right:0; bottom:0; left:0; display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); max-width:680px; margin:auto; padding:10px 8px calc(10px + env(safe-area-inset-bottom)); border-top:1px solid var(--line); background:var(--surface); }
+.diet-before .meal-nav button { min-width:0; min-height:44px; padding:0; border:0; background:transparent; color:var(--muted); font-size:14px; }
+.diet-before .meal-nav button:first-child { color:var(--brand-strong); font-weight:600; }
+.diet-before button:active { filter:brightness(.97); }
+.diet-before button:focus-visible,.diet-before .date-pill:focus-within { outline:2px solid var(--brand-strong); outline-offset:3px; }
+@media(max-width:350px) {
+  .diet-before .diet-page { padding-right:12px; padding-left:12px; }
+  .diet-before .page-header { grid-template-columns:44px minmax(0,1fr) 44px; }
+  .diet-before .back-button { width:44px; }
+  .diet-before .summary-card,.diet-before .meal-card { padding:14px; }
+  .diet-before .calorie-overview { grid-template-columns:minmax(0,1fr) minmax(130px,1.8fr) minmax(0,1fr); gap:4px; }
+  .diet-before .calorie-budget > span { font-size:15px; }
+  .diet-before .remaining strong { font-size:37px; }
+  .diet-before .side-stat { font-size:12px; }
+  .diet-before .side-stat strong { font-size:21px; }
+  .diet-before .calorie-budget p { font-size:11px; }
+  .diet-before .food-row { grid-template-columns:44px minmax(0,1fr) auto; gap:8px; min-height:68px; }
+  .diet-before .food-thumb,.diet-before .food-thumb-fallback { width:40px; height:40px; }
+  .diet-before .food-actions { min-width:68px; font-size:12px; }
+  .diet-before .macro-row { gap:10px; }
+  .diet-before .macro { font-size:12px; }
+  .diet-before .macro small { font-size:11px; }
+}
+
+</style></head><body>
+<div class="col"><p class="cap">AFTER · 36px 缩略图 / 57px 行高</p><div class="frame diet-view"><section class="meal-card"><header class="meal-head"><h2>午餐</h2><span>699 千卡 ›</span></header>
+    <div class="food-row"><div class="food-thumb-fallback" aria-hidden="true">大</div>
+        <div class="food-info"><strong>大白菜（小白口）</strong><span>200克</span></div>
+        <div class="food-actions"><span>32 千卡</span><button type="button">删除</button></div></div><div class="food-row"><div class="food-thumb-fallback" aria-hidden="true">卤</div>
+        <div class="food-info"><strong>卤煮鸡</strong><span>150克</span></div>
+        <div class="food-actions"><span>318 千卡</span><button type="button">删除</button></div></div><div class="food-row"><div class="food-thumb-fallback" aria-hidden="true">盐</div>
+        <div class="food-info"><strong>盐焗鸭腿</strong><span>150克</span></div>
+        <div class="food-actions"><span>346 千卡</span><button type="button">删除</button></div></div><button class="add-meal" type="button">+ 添加午餐</button></section></div></div>
+<div class="col"><p class="cap">BEFORE · 48px 缩略图 / 76px 行高</p><div class="frame diet-before"><section class="meal-card"><header class="meal-head"><h2>午餐</h2><span>699 千卡 ›</span></header>
+    <div class="food-row"><div class="food-thumb-fallback" aria-hidden="true">大</div>
+        <div class="food-info"><strong>大白菜（小白口）</strong><span>200克</span></div>
+        <div class="food-actions"><span>32 千卡</span><button type="button">删除</button></div></div><div class="food-row"><div class="food-thumb-fallback" aria-hidden="true">卤</div>
+        <div class="food-info"><strong>卤煮鸡</strong><span>150克</span></div>
+        <div class="food-actions"><span>318 千卡</span><button type="button">删除</button></div></div><div class="food-row"><div class="food-thumb-fallback" aria-hidden="true">盐</div>
+        <div class="food-info"><strong>盐焗鸭腿</strong><span>150克</span></div>
+        <div class="food-actions"><span>346 千卡</span><button type="button">删除</button></div></div><button class="add-meal" type="button">+ 添加午餐</button></section></div></div>
+</body></html>

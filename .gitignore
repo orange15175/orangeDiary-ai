@@ -19,7 +19,16 @@ htmlcov/
 .vscode/
 
 # RAG 构建产物（可由 scripts/ingest.py 重新生成）
-knowledge/index/
+backend/knowledge/index/
 
 # rerank 模型权重（约 1.1GB，由 scripts/fetch_reranker.py 下载）
-knowledge/models/
+backend/knowledge/models/
+
+# 前端依赖与构建产物
+node_modules/
+dist/
+.env.*.local
+
+# 本地运行输出
+backend/output/
+*.log

@@ -1,0 +1,21 @@
+.otter-page {
+  --ink: #493526;
+  --muted: #8b7d70;
+  --brand: #9d8bb7;
+  --brand-strong: #79648f;
+  --brand-soft: #eee7f0;
+  --line: #e8dfd1;
+  --surface: #fffcf6;
+  --page-bg: #f8f5ed;
+  --seafoam: #d9eae3;
+  --danger: #ba613b;
+  --radius-sm: 10px;
+  --radius-md: 18px;
+  --shadow-soft: 0 5px 18px rgb(73 53 38 / 4%);
+  min-height: 100dvh;
+  color: var(--ink);
+  background: var(--page-bg);
+}
+.otter-page input:focus, .otter-page textarea:focus, .otter-page select:focus { box-shadow: 0 0 0 3px rgb(157 139 183 / 15%); }
+.otter-page button { cursor: pointer; }
+.otter-page :focus-visible { outline-color: var(--brand); }

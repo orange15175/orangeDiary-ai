@@ -1,0 +1,37 @@
+:root {
+  --ink: #254966;
+  --muted: #7593a8;
+  --brand: #39b8ee;
+  --brand-strong: #208dbc;
+  --brand-soft: #dff5ff;
+  --accent: #ff8b72;
+  --line: #d7eaf5;
+  --page-bg: #eef8ff;
+  --surface: #ffffff;
+  --radius-sm: 7px;
+  --radius-md: 10px;
+  --shadow-soft: 0 8px 20px rgba(54, 121, 157, .08);
+  color: var(--ink);
+  background: var(--page-bg);
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-synthesis: none;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #app { min-height: 100%; margin: 0; background: var(--page-bg); }
+
+button, input, select, textarea { font: inherit; }
+
+button { -webkit-tap-highlight-color: transparent; transition: transform .16s ease, background-color .16s ease, border-color .16s ease, color .16s ease; }
+button:active { transform: scale(.98); }
+button:disabled { cursor: not-allowed; opacity: .52; transform: none; }
+
+input, select, textarea { transition: border-color .16s ease, box-shadow .16s ease; }
+input:focus, select:focus, textarea:focus { border-color: var(--brand)!important; box-shadow: 0 0 0 3px rgba(57, 184, 238, .14); outline: 0; }
+
+:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto!important; transition-duration: .01ms!important; animation-duration: .01ms!important; animation-iteration-count: 1!important; }
+}

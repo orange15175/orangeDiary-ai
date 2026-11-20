@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="2160" viewBox="0 0 1080 2160">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="18" flood-color="#244c52" flood-opacity=".10"/>
+    </filter>
+    <linearGradient id="hero" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e9f4ee"/>
+      <stop offset="1" stop-color="#d4ebe5"/>
+    </linearGradient>
+    <linearGradient id="result" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ff9a72"/>
+      <stop offset="1" stop-color="#f47c6b"/>
+    </linearGradient>
+    <style>
+      .sans{font-family:Arial,'Microsoft YaHei','Noto Sans SC',sans-serif;fill:#254b52}
+      .title{font-size:42px;font-weight:700;letter-spacing:1px}
+      .h2{font-size:28px;font-weight:700}
+      .body{font-size:22px}
+      .small{font-size:18px;fill:#668286}
+      .label{font-size:21px;fill:#547477}
+      .num{font-size:50px;font-weight:700;fill:#e66f5d}
+      .metric{font-size:36px;font-weight:700;fill:#2d9291}
+    </style>
+  </defs>
+
+  <rect width="1080" height="2160" fill="#f7f1e7"/>
+  <rect x="25" y="25" width="1030" height="2110" rx="34" fill="#fffdf8" stroke="#e7ded2" stroke-width="2"/>
+
+  <!-- header -->
+  <rect x="25" y="25" width="1030" height="132" rx="34" fill="#fffdf8"/>
+  <path d="M83 91h48M83 91l20-20M83 91l20 20" stroke="#397b79" stroke-width="5" stroke-linecap="round" fill="none"/>
+  <text x="540" y="105" text-anchor="middle" class="sans title">热量计算器</text>
+  <circle cx="972" cy="91" r="31" fill="#e3f1eb"/>
+  <path d="M958 93c8-20 25-20 29-5 3 11-4 22-15 23-9 1-15-5-14-18z" fill="#9b694f"/>
+  <circle cx="969" cy="85" r="3" fill="#fffdf8"/><path d="M978 87l10 4" stroke="#fffdf8" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- hero -->
+  <rect x="57" y="178" width="966" height="285" rx="28" fill="url(#hero)"/>
+  <circle cx="896" cy="317" r="103" fill="#c3e2dc" opacity=".72"/>
+  <path d="M830 357c8-78 66-124 128-91 41 22 47 74 19 107-31 37-89 32-147-16z" fill="#9b694f"/>
+  <ellipse cx="913" cy="358" rx="59" ry="42" fill="#d9a883"/>
+  <circle cx="878" cy="303" r="11" fill="#9b694f"/><circle cx="937" cy="296" r="11" fill="#9b694f"/>
+  <circle cx="882" cy="322" r="5" fill="#254b52"/><circle cx="936" cy="316" r="5" fill="#254b52"/>
+  <path d="M905 342q10 12 21 0" fill="none" stroke="#254b52" stroke-width="5" stroke-linecap="round"/>
+  <text x="92" y="258" class="sans small">今天也要好好照顾自己</text>
+  <text x="92" y="315" class="sans" style="font-size:45px;font-weight:700">把热量变成</text>
+  <text x="92" y="370" class="sans" style="font-size:45px;font-weight:700;fill:#e66f5d">更轻松的生活</text>
+  <text x="92" y="416" class="sans small">填写身体和训练信息，获得专属的每日建议</text>
+
+  <!-- section 1 -->
+  <text x="78" y="535" class="sans h2">01  基础信息</text><rect x="78" y="551" width="50" height="6" rx="3" fill="#f47c6b"/>
+  <text x="78" y="611" class="sans label">生理性别</text>
+  <rect x="245" y="574" width="347" height="66" rx="18" fill="#f9f4eb" stroke="#e9ddd0" stroke-width="2"/>
+  <circle cx="280" cy="607" r="15" fill="#fffdf8" stroke="#e66f5d" stroke-width="4"/><circle cx="280" cy="607" r="7" fill="#e66f5d"/>
+  <text x="312" y="615" class="sans body">女性</text>
+  <rect x="612" y="574" width="347" height="66" rx="18" fill="#fffdf8" stroke="#e9ddd0" stroke-width="2"/>
+  <circle cx="647" cy="607" r="15" fill="#fffdf8" stroke="#b7c9c5" stroke-width="3"/><text x="680" y="615" class="sans body">男性</text>
+
+  <text x="78" y="716" class="sans label">年龄</text><rect x="245" y="675" width="714" height="70" rx="18" fill="#fffdf8" stroke="#d9e6df" stroke-width="2"/><text x="282" y="719" class="sans body">30</text><text x="920" y="719" text-anchor="end" class="sans small">岁</text>
+  <text x="78" y="817" class="sans label">身高</text><rect x="245" y="776" width="714" height="70" rx="18" fill="#fffdf8" stroke="#d9e6df" stroke-width="2"/><text x="282" y="820" class="sans body">160</text><text x="920" y="820" text-anchor="end" class="sans small">厘米</text>
+  <text x="78" y="918" class="sans label">体重</text><rect x="245" y="877" width="714" height="70" rx="18" fill="#fffdf8" stroke="#d9e6df" stroke-width="2"/><text x="282" y="921" class="sans body">74</text><text x="920" y="921" text-anchor="end" class="sans small">公斤</text>
+
+  <!-- bmr result -->
+  <rect x="78" y="1000" width="881" height="176" rx="24" fill="#fff7ed"/>
+  <text x="518" y="1054" text-anchor="middle" class="sans small">基础热量</text>
+  <text x="468" y="1121" text-anchor="middle" class="sans num">1429</text><text x="548" y="1121" class="sans body" style="fill:#e66f5d">千卡</text>
+  <text x="518" y="1152" text-anchor="middle" class="sans small">静息状态下，身体一天大约消耗的热量</text>
+
+  <!-- section 2 -->
+  <text x="78" y="1260" class="sans h2">02  日常活动与训练</text><rect x="78" y="1276" width="50" height="6" rx="3" fill="#2d9291"/>
+  <text x="78" y="1340" class="sans label">日常活动水平</text><rect x="335" y="1302" width="624" height="70" rx="18" fill="#fffdf8" stroke="#d9e6df" stroke-width="2"/><text x="375" y="1346" class="sans body">低活动（久坐为主，系数 1.2）</text><path d="M913 1338l11 11 11-11" fill="none" stroke="#397b79" stroke-width="4" stroke-linecap="round"/>
+  <rect x="78" y="1402" width="881" height="118" rx="20" fill="#fff0ea"/><rect x="78" y="1402" width="7" height="118" rx="3" fill="#f47c6b"/><text x="112" y="1450" class="sans body" style="fill:#d96458">日常基础消耗（不含训练）</text><text x="112" y="1492" class="sans num" style="font-size:38px">1715</text><text x="240" y="1492" class="sans body" style="fill:#d96458">千卡</text>
+
+  <text x="78" y="1595" class="sans label">平均每次训练时长</text><text x="78" y="1624" class="sans small">（分钟）</text><rect x="335" y="1550" width="624" height="70" rx="18" fill="#fffdf8" stroke="#d9e6df" stroke-width="2"/><text x="375" y="1594" class="sans body">60</text>
+  <text x="78" y="1720" class="sans label">每周训练天数</text><rect x="335" y="1675" width="624" height="70" rx="18" fill="#fffdf8" stroke="#d9e6df" stroke-width="2"/><text x="375" y="1719" class="sans body">3</text>
+
+  <!-- level cards -->
+  <text x="78" y="1830" class="sans h2">训练经验</text>
+  <rect x="78" y="1860" width="270" height="112" rx="20" fill="#fffdf8" stroke="#d9e6df" stroke-width="2"/><text x="213" y="1907" text-anchor="middle" class="sans body" style="font-weight:700">新手</text><text x="213" y="1943" text-anchor="middle" class="sans small">系数 5</text>
+  <rect x="371" y="1860" width="270" height="112" rx="20" fill="#2d9291" filter="url(#shadow)"/><text x="506" y="1907" text-anchor="middle" fill="#fffdf8" class="sans body" style="font-weight:700">健身爱好者</text><text x="506" y="1943" text-anchor="middle" fill="#dff4ee" class="sans small">系数 8</text>
+  <rect x="664" y="1860" width="295" height="112" rx="20" fill="#fffdf8" stroke="#d9e6df" stroke-width="2"/><text x="811" y="1907" text-anchor="middle" class="sans body" style="font-weight:700">健身老手</text><text x="811" y="1943" text-anchor="middle" class="sans small">系数 10</text>
+
+  <!-- bottom summary -->
+  <rect x="78" y="2012" width="881" height="94" rx="22" fill="#e6f2ed"/><text x="112" y="2054" class="sans small">每日可消耗总热量</text><text x="835" y="2067" text-anchor="end" class="sans metric">1948</text><text x="858" y="2065" class="sans small">千卡</text>
+</svg>

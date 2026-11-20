@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<style>
+* { box-sizing:border-box; }
+body { width:390px; margin:0 auto; font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; }
+.otter-page {
+  --ink: #493526;
+  --muted: #8b7d70;
+  --brand: #9d8bb7;
+  --brand-strong: #79648f;
+  --brand-soft: #eee7f0;
+  --line: #e8dfd1;
+  --surface: #fffcf6;
+  --page-bg: #f8f5ed;
+  --seafoam: #d9eae3;
+  --danger: #ba613b;
+  --radius-sm: 10px;
+  --radius-md: 18px;
+  --shadow-soft: 0 5px 18px rgb(73 53 38 / 4%);
+  min-height: 100dvh;
+  color: var(--ink);
+  background: var(--page-bg);
+}
+.otter-page input:focus, .otter-page textarea:focus, .otter-page select:focus { box-shadow: 0 0 0 3px rgb(157 139 183 / 15%); }
+.otter-page button { cursor: pointer; }
+.otter-page :focus-visible { outline-color: var(--brand); }
+
+
+.exercise-detail-page {
+  min-height: 100dvh;
+  padding: 24px 16px 52px;
+}
+.exercise-detail-page > * {
+  width: min(100%, 680px);
+  margin-right: auto;
+  margin-left: auto;
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.topbar h1 {
+  margin: 4px 0 0;
+  color: var(--ink);
+  font-size: 24px;
+  letter-spacing: -0.4px;
+}
+.exercise-detail-page .back-button {
+  box-shadow: none;
+}
+.eyebrow {
+  margin: 0;
+  color: var(--brand-strong);
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+}
+.exercise-card,
+.burn-card,
+.form-card,
+.missing {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+.exercise-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+}
+.exercise-art {
+  display: grid;
+  width: 62px;
+  height: 62px;
+  flex: none;
+  place-items: center;
+  border: 1px solid rgb(73 53 38 / 8%);
+  border-radius: 14px;
+  background: #f7e9e2;
+  color: #a8613f;
+}
+.exercise-art svg {
+  width: 26px;
+  height: 26px;
+}
+.exercise-card h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 18px;
+}
+.exercise-card p {
+  margin: 7px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.burn-card {
+  margin-top: 12px;
+  padding: 18px;
+}
+.burn-top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+}
+.burn-figure {
+  min-width: 0;
+}
+.burn-label {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.3px;
+}
+.calorie {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  margin-top: 6px;
+}
+.calorie strong {
+  color: #c2704f;
+  font-size: 42px;
+  font-weight: 650;
+  line-height: 1.05;
+  letter-spacing: -1.4px;
+}
+.calorie span {
+  color: var(--muted);
+  font-size: 13px;
+}
+.burn-otter {
+  width: 72px;
+  height: auto;
+  flex: none;
+  margin: 0 2px -6px 0;
+}
+.burn-hint {
+  margin: 12px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.burn-hint.error-text {
+  color: var(--danger);
+}
+.form-card {
+  margin-top: 12px;
+  padding: 18px;
+}
+.duration-label {
+  display: grid;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.duration-label div {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+}
+.duration-label input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  padding: 4px 0 7px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 29px;
+  font-weight: 650;
+  letter-spacing: -0.8px;
+  outline: 0;
+}
+.duration-label span {
+  flex: none;
+  padding-left: 8px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+.quick-grid button {
+  min-height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 12px;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+.quick-grid button.active {
+  border-color: var(--brand);
+  background: var(--brand);
+  color: #fff;
+  font-weight: 600;
+}
+.details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.details label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.details input {
+  width: 100%;
+  min-width: 0;
+  min-height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0 10px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 14px;
+}
+.details .remark {
+  grid-column: 1 / -1;
+}
+.save-button {
+  margin-top: 20px;
+  height: 48px;
+  border-color: var(--brand);
+  border-radius: 12px;
+  background: var(--brand);
+  font-size: 16px;
+  letter-spacing: 0.5px;
+}
+.save-button:active {
+  border-color: var(--brand-strong);
+  background: var(--brand-strong);
+}
+.missing {
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  min-height: 220px;
+  padding: 70px 20px;
+  color: var(--muted);
+  text-align: center;
+}
+.missing strong {
+  color: var(--ink);
+}
+.missing .van-button {
+  color: var(--brand-strong);
+  border-color: var(--line);
+}
+@media (max-width: 350px) {
+  .burn-otter {
+    width: 62px;
+  }
+  .calorie strong {
+    font-size: 37px;
+  }
+  .quick-grid {
+    gap: 6px;
+  }
+}
+
+
+.back-button { display:grid; place-items:center; width:38px; height:38px; border:1px solid var(--line); border-radius:var(--radius-sm); background:var(--surface); color:var(--ink); font-size:17px; }
+.save-button { display:grid; place-items:center; width:100%; border:1px solid var(--brand); border-radius:12px; background:var(--brand); color:#fff; }
+</style></head>
+<body>
+<main class="exercise-detail-page otter-page">
+  <header class="topbar">
+    <div class="back-button">‹</div>
+    <div><p class="eyebrow">Exercise log</p><h1>编辑运动</h1></div>
+  </header>
+  <section class="exercise-card">
+    <span class="exercise-art"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z"/></svg></span>
+    <div><h2>快走</h2><p>有氧 · MET 3.5</p></div>
+  </section>
+  <section class="burn-card">
+    <div class="burn-top">
+      <div class="burn-figure">
+        <p class="burn-label">预计消耗</p>
+        <div class="calorie"><strong>58</strong><span>kcal</span></div>
+      </div>
+      <img class="burn-otter" src="../../src/assets/otter/dumbbell.png" alt="">
+    </div>
+    <p class="burn-hint">根据当前体重、运动强度和时长计算</p>
+  </section>
+  <section class="form-card">
+    <label class="duration-label">运动时长（分钟）<div><input value="15" inputmode="numeric" type="number"><span>分钟</span></div></label>
+    <div class="quick-grid">
+      <button class="active" type="button">15 分钟</button>
+      <button type="button">30 分钟</button>
+      <button type="button">45 分钟</button>
+      <button type="button">60 分钟</button>
+    </div>
+  </section>
+  <section class="form-card details">
+    <label>日期<input type="date" value="2026-11-07"></label>
+    <label>时间<input type="time" value="18:16"></label>
+    <label class="remark">备注<input placeholder="可选"></label>
+  </section>
+  <div class="save-button">确认保存</div>
+</main>
+</body></html>

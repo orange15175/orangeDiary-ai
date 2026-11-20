@@ -1,0 +1,88 @@
+/* 智能饮食（R3）页面共用样式：与既有蓝色页面同色系，避免每个页面重复一份。 */
+.da-page {
+  min-height: 100vh;
+  padding: 24px 14px calc(96px + env(safe-area-inset-bottom));
+  background: #eef8ff;
+  color: #254966;
+}
+.da-page > * {
+  width: min(100%, 680px);
+  margin-inline: auto;
+}
+.da-page h1 { margin: 4px 0; font-size: 22px; }
+.da-page h2 { margin: 0 0 8px; font-size: 16px; }
+.da-page p { margin: 0; color: #7593a8; font-size: 13px; line-height: 1.6; }
+.da-header { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 18px; }
+.da-card {
+  margin-top: 14px;
+  padding: 16px;
+  border: 1px solid #d7eaf5;
+  border-radius: 10px;
+  background: #fff;
+}
+.da-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.da-row + .da-row { margin-top: 10px; }
+.da-label { display: grid; gap: 6px; color: #4f7490; font-size: 13px; }
+.da-label + .da-label { margin-top: 12px; }
+.da-page input,
+.da-page select,
+.da-page textarea {
+  min-height: 38px;
+  border: 1px solid #d7eaf5;
+  border-radius: 6px;
+  padding: 6px 9px;
+  background: #fff;
+  color: #254966;
+  font: inherit;
+}
+.da-page textarea { min-height: 84px; resize: vertical; }
+.da-btn {
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid #39b8ee;
+  border-radius: 6px;
+  background: #39b8ee;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.da-btn:disabled { opacity: .55; cursor: not-allowed; }
+.da-btn.ghost { border-color: #d7eaf5; background: #fff; color: #254966; }
+.da-btn.small { min-height: 32px; padding: 0 10px; font-size: 12px; }
+.da-chip {
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #eef8ff;
+  color: #4f7490;
+  font-size: 12px;
+}
+.da-chip.warn { background: #fff4e5; color: #a86a1f; }
+.da-chip.ok { background: #e8f7ee; color: #2f7d4f; }
+.da-chip.muted { background: #f1f5f8; color: #8ba4b6; }
+.da-list { display: grid; gap: 10px; margin-top: 12px; }
+.da-item {
+  padding: 12px;
+  border: 1px solid #e4f0f8;
+  border-radius: 8px;
+  background: #fbfdff;
+}
+.da-item > header { display: flex; gap: 8px; align-items: baseline; justify-content: space-between; }
+.da-item strong { font-size: 15px; }
+.da-item small { color: #8ba4b6; font-size: 12px; }
+.da-empty { padding: 18px; border: 1px dashed #cfe4f2; border-radius: 8px; color: #8ba4b6; font-size: 13px; text-align: center; }
+.da-reply { white-space: pre-wrap; font-size: 14px; line-height: 1.75; color: #254966; }
+.da-mono { font-variant-numeric: tabular-nums; }
+.da-grid-2 { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+.da-metric { padding: 12px; border: 1px solid #e4f0f8; border-radius: 8px; background: #fbfdff; }
+.da-metric span { display: block; color: #8ba4b6; font-size: 12px; }
+.da-metric strong { display: block; margin-top: 6px; font-size: 20px; }
+
+.da-steps { padding: 8px 0; gap: 12px; }
+.da-steps a, .da-next { color: #286b94; text-decoration: none; padding: 8px 4px; font-size: 13px; }
+.da-steps a.router-link-exact-active { font-weight: 700; border-bottom: 2px solid #39b8ee; }
+.da-next { display: inline-block; margin-top: 12px; }
+.da-page :is(input,textarea,select,button,a):focus-visible { outline: 3px solid #2488b7; outline-offset: 3px; }
+.da-page .da-item + .da-item { margin-top: 10px; }
+.da-page form > button { margin-top: 12px; }
+.da-page input, .da-page textarea, .da-page select { max-width: 100%; box-sizing: border-box; min-width: 0; }

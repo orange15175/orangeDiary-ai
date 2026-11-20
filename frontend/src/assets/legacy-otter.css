@@ -1,0 +1,201 @@
+/* Shared otter treatment for views that predate the current otter screens. */
+.register-page,
+.profile-page,
+.checkin-page,
+.page,
+.calculator-page,
+.exercise-browser-page,
+.welcome {
+  --ink: #493526;
+  --muted: #8b7d70;
+  --brand: #9d8bb7;
+  --brand-strong: #79648f;
+  --brand-soft: #eee7f0;
+  --seafoam: #d9eae3;
+  --line: #e8dfd1;
+  --surface: #fffcf6;
+  --page-bg: #f8f5ed;
+  --danger: #ba613b;
+  color: var(--ink) !important;
+  background: var(--page-bg) !important;
+}
+
+.register-page,
+.profile-page,
+.checkin-page,
+.page,
+.calculator-page,
+.exercise-browser-page {
+  min-height: 100dvh;
+}
+
+.register-page {
+  padding: 28px 16px 48px;
+}
+.register-card {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: 0 5px 18px rgb(73 53 38 / 4%);
+}
+.register-page .brand-mark {
+  border-radius: 18px 15px 17px 14px;
+  background: var(--brand);
+}
+.register-page .eyebrow,
+.profile-page .eyebrow,
+.checkin-page .eyebrow {
+  color: var(--brand-strong);
+}
+.register-card h1,
+.profile-page h1,
+.checkin-page h1,
+.page h1,
+.calculator-page h1,
+.exercise-browser-page h1 {
+  color: var(--ink);
+}
+.register-card > p:not(.eyebrow),
+.profile-page header > p:last-child,
+.checkin-page .page-header p:last-child,
+.page .intro,
+.page p,
+.calculator-page p,
+.exercise-browser-page .context-line {
+  color: var(--muted);
+}
+.register-card a,
+.profile-page .profile-back {
+  color: var(--brand-strong);
+}
+
+.profile-page,
+.checkin-page,
+.page,
+.calculator-page,
+.exercise-browser-page {
+  padding-top: 26px;
+  padding-bottom: 48px;
+}
+.profile-page > *,
+.checkin-page > *,
+.page > *,
+.calculator-page > *,
+.exercise-browser-page > * {
+  max-width: 680px;
+}
+.profile-page .form-panel,
+.checkin-page .card,
+.page section,
+.calculator-page .calculator-section,
+.exercise-browser-page .browser-shell {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: 0 5px 18px rgb(73 53 38 / 4%);
+}
+.profile-page .form-panel { overflow: hidden; }
+.profile-page .avatar-editor button,
+.profile-page .goal-grid button,
+.profile-page .form-panel select,
+.page input,
+.page select,
+.calculator-page input,
+.calculator-page select,
+.exercise-browser-page .search-box,
+.exercise-browser-page .browser-shell {
+  border-color: var(--line);
+  background: var(--surface);
+  color: var(--ink);
+}
+.profile-page .avatar-editor button,
+.profile-page .goal-grid button {
+  border-radius: 10px;
+  background: var(--brand-soft);
+  color: var(--brand-strong);
+}
+.profile-page .goal-grid button.active,
+.profile-page .van-button--primary,
+.register-page .van-button--primary,
+.page > .van-button--primary,
+.calculator-page .van-button--primary {
+  border-color: var(--brand);
+  background: var(--brand);
+}
+.profile-page .advice {
+  border-radius: 10px;
+  background: var(--seafoam);
+}
+.profile-page .advice strong { color: #527e71; }
+.profile-page .advice span:last-child strong { color: var(--brand-strong); }
+
+.checkin-page .summary strong,
+.page .section-head span,
+.calculator-page .result-block strong,
+.calculator-page .suggestion strong {
+  color: var(--brand-strong);
+}
+.checkin-page .year-grid span { background: var(--brand-soft); }
+.checkin-page .year-grid span.active { background: var(--brand); }
+
+.page .section-head { color: var(--ink); }
+.page .macro { border-color: var(--line); }
+.page .page > .van-button,
+.page > .van-button { border-radius: 10px; }
+
+.calculator-page .topbar {
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+.calculator-page .calculator-section { padding: 20px 18px 0; }
+.calculator-page .calculator-section h2::before { background: var(--brand); }
+.calculator-page .gender-row,
+.calculator-page .basic-fields,
+.calculator-page .result-block { border-color: var(--line); }
+.calculator-page .gender-row button { color: var(--ink); }
+.calculator-page .gender-row button.active i { border-color: var(--brand); background: var(--brand); }
+.calculator-page .daily-energy { border-left-color: #8db8a9; background: var(--seafoam); color: #527e71; }
+.calculator-page .training-levels button { border-color: var(--line); background: var(--surface); }
+.calculator-page .training-levels button.active { border-color: var(--brand); background: var(--brand); }
+.calculator-page .suggestion { border-left-color: var(--brand); background: var(--brand-soft); color: var(--ink); }
+
+.exercise-browser-page .search-box { overflow: hidden; }
+.exercise-browser-page .browser-shell { overflow: hidden; }
+.exercise-browser-page .category-nav { border-color: var(--line); background: #faf7f1; }
+.exercise-browser-page .category-nav button.active { border-left-color: var(--brand); background: var(--surface); color: var(--brand-strong); }
+.exercise-browser-page .exercise-panel > header,
+.exercise-browser-page .exercise-list li { border-color: var(--line); }
+.exercise-browser-page .exercise-icon { background: var(--brand-soft); color: var(--brand-strong); }
+.exercise-browser-page .exercise-list em { color: var(--brand-strong); }
+.exercise-browser-page .load-more { border-color: var(--brand); color: var(--brand-strong); }
+
+.welcome { background: var(--page-bg); }
+.welcome .sea-mark { border-color: var(--brand); background: var(--brand-soft); }
+.welcome .sea-mark span { background: var(--brand); }
+.welcome h1 { color: var(--ink); }
+
+@media (max-width: 680px) {
+  .register-page,
+  .profile-page,
+  .checkin-page,
+  .page,
+  .calculator-page,
+  .exercise-browser-page { padding-inline: 14px; }
+  .calculator-page .topbar { width: calc(100% + 28px) !important; margin-inline: -14px; padding-inline: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .register-page *, .profile-page *, .checkin-page *, .page *, .calculator-page *, .exercise-browser-page * { transition-duration: .01ms !important; }
+}
+
+/* Legacy view overrides keep the established component templates intact. */
+.register-page { background: #f8f5ed !important; color: #493526 !important; }
+.register-page .register-card { border-color: #e8dfd1 !important; background: #fffcf6 !important; box-shadow: 0 5px 18px rgb(73 53 38 / 4%) !important; }
+.register-page .brand-mark { background: #9d8bb7 !important; }
+.profile-page, .checkin-page, .page, .calculator-page, .exercise-browser-page { background: #f8f5ed !important; color: #493526 !important; }
+.profile-page .form-panel, .checkin-page .card, .page section, .calculator-page .calculator-section, .exercise-browser-page .browser-shell { border-color: #e8dfd1 !important; background: #fffcf6 !important; box-shadow: 0 5px 18px rgb(73 53 38 / 4%) !important; }
+.profile-page .goal-grid button.active, .register-page .van-button--primary, .profile-page .van-button--primary, .page > .van-button--primary, .calculator-page .van-button--primary { border-color: #9d8bb7 !important; background: #9d8bb7 !important; }
+.checkin-page .year-grid span.active { background: #9d8bb7 !important; }
+.calculator-page .daily-energy { border-left-color: #8db8a9 !important; background: #d9eae3 !important; color: #527e71 !important; }
+.calculator-page .suggestion { border-left-color: #9d8bb7 !important; background: #eee7f0 !important; }
+.exercise-browser-page .category-nav button.active { border-left-color: #9d8bb7 !important; color: #79648f !important; }

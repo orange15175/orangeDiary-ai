@@ -1,0 +1,331 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
+<style>
+*{box-sizing:border-box}
+body{width:390px;margin:0 auto;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased;background:#e8e2d8}
+.search-row{display:flex;align-items:center;gap:8px;min-height:42px;padding:0 11px}
+.search-row .ph{flex:1;color:#a2947f;font-size:14px}
+.search-row .dot{width:15px;height:15px;border:2px solid #8b7d70;border-radius:50%;border-right-color:transparent;border-bottom-color:transparent;transform:rotate(-45deg);flex:none}
+.back-button{display:grid;place-items:center;font-size:17px}
+.row-arrow{flex:none;color:#c9bcae;font-size:14px;font-style:normal}
+.row-arrow::before{content:"›"}
+.label{padding:14px;margin:0;font:11px ui-monospace,monospace;letter-spacing:1.2px;color:#7d6f63}
+
+.exercise-browser-page {
+  --ink: #493526;
+  --muted: #8b7d70;
+  --brand: #9d8bb7;
+  --brand-strong: #79648f;
+  --brand-soft: #eee7f0;
+  --line: #e8dfd1;
+  --surface: #fffcf6;
+  --page-bg: #f8f5ed;
+  --warm: #f7e9e2;
+  --warm-ink: #a8613f;
+  --van-loading-spinner-color: var(--brand);
+  min-height: 100dvh;
+  padding: max(18px, env(safe-area-inset-top)) 14px
+    max(32px, env(safe-area-inset-bottom));
+  background: var(--page-bg);
+  color: var(--ink);
+}
+.browser-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: min(100%, 760px);
+  margin: auto;
+}
+.browser-header .back-button {
+  width: 42px;
+  height: 42px;
+  border-color: var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 3px 10px rgb(73 53 38 / 5%);
+}
+.search-box {
+  flex: 1;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+.search-box:focus-within {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgb(157 139 183 / 14%);
+}
+.search-box .van-cell {
+  min-height: 42px;
+  padding: 8px 11px;
+  background: transparent;
+  color: var(--ink);
+}
+.search-box .van-field__left-icon {
+  color: var(--muted);
+}
+.search-box .van-field__control {
+  color: var(--ink);
+  font-size: 14px;
+}
+.search-box .van-field__control::placeholder {
+  color: #a2947f;
+}
+.context-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: min(100%, 760px);
+  margin: 16px auto 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.context-line strong {
+  color: var(--brand-strong);
+  font-size: 13px;
+}
+.browser-shell {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  width: min(100%, 760px);
+  min-height: calc(100dvh - 132px);
+  margin: auto;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: 0 5px 18px rgb(73 53 38 / 4%);
+}
+.category-nav {
+  display: grid;
+  align-content: start;
+  padding: 8px 0;
+  border-right: 1px solid var(--line);
+  background: #faf7f0;
+}
+.category-nav button {
+  min-height: 46px;
+  border: 0;
+  border-left: 3px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  transition:
+    background 150ms ease,
+    color 150ms ease;
+}
+.category-nav button.active {
+  border-left-color: var(--brand-strong);
+  background: var(--brand-soft);
+  color: var(--brand-strong);
+  font-weight: 700;
+}
+.category-nav button:focus-visible,
+.exercise-list li:focus-visible,
+.load-more:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 2px solid var(--brand-strong);
+  outline-offset: -2px;
+}
+.exercise-panel {
+  min-width: 0;
+  padding: 0 14px 18px;
+}
+.exercise-panel > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 52px;
+  padding: 10px 2px;
+  border-bottom: 1px solid var(--line);
+}
+.exercise-panel > header strong {
+  font-size: 16px;
+  font-weight: 650;
+}
+.exercise-panel > header span {
+  color: var(--muted);
+  font-size: 12px;
+}
+.state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.state .van-loading__text {
+  color: var(--muted);
+  font-size: 13px;
+}
+.empty {
+  flex-direction: column;
+  gap: 12px;
+  padding: 32px 12px;
+  text-align: center;
+}
+.empty-mark {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  place-items: center;
+  border: 1px solid rgb(73 53 38 / 6%);
+  border-radius: 16px;
+  background: var(--warm);
+  color: var(--warm-ink);
+}
+.empty-mark svg {
+  width: 24px;
+  height: 24px;
+}
+.empty p {
+  max-width: 220px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.exercise-list {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.exercise-list li {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 68px;
+  border-bottom: 1px solid #eee8de;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+.exercise-list li:last-child {
+  border-bottom: 0;
+}
+.exercise-list li:active {
+  background: #faf7f0;
+}
+.exercise-icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: none;
+  place-items: center;
+  border: 1px solid rgb(73 53 38 / 6%);
+  border-radius: 9px;
+  background: var(--warm);
+  color: var(--warm-ink);
+}
+.exercise-icon svg {
+  width: 20px;
+  height: 20px;
+}
+.icon-aerobic {
+  background: #f7e9e2;
+  color: #a8613f;
+}
+.icon-strength {
+  background: #eee7f0;
+  color: #79648f;
+}
+.icon-ball {
+  background: #e8eee3;
+  color: #5c7859;
+}
+.icon-flex {
+  background: #f5edda;
+  color: #8b7449;
+}
+.exercise-list li > div {
+  flex: 1;
+  min-width: 0;
+}
+.exercise-list strong,
+.exercise-list span,
+.exercise-list em {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.exercise-list strong {
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+}
+.exercise-list span {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.exercise-list em {
+  margin-top: 4px;
+  color: var(--warm-ink);
+  font-size: 11px;
+  font-style: normal;
+}
+.row-arrow {
+  flex: none;
+  color: #c9bcae;
+  font-size: 14px;
+}
+.load-more {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  border-radius: 9px;
+  --van-button-default-color: var(--brand-strong);
+  --van-button-default-border-color: #d8cde1;
+  --van-button-default-background: transparent;
+}
+@media (max-width: 360px) {
+  .exercise-browser-page {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+  .browser-shell {
+    grid-template-columns: 78px minmax(0, 1fr);
+  }
+  .exercise-panel {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+  .exercise-list li {
+    gap: 8px;
+    min-height: 64px;
+  }
+  .exercise-icon {
+    width: 38px;
+    height: 38px;
+  }
+  .exercise-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+
+.exercise-browser-page{min-height:auto;padding-bottom:10px}
+.browser-shell{min-height:auto}
+</style></head><body>
+<p class="label">常练（默认态）· 68px 行高 / 42px 图标</p>
+<main class="exercise-browser-page">
+  <header class="browser-header">
+    <div class="back-button">‹</div>
+    <div class="search-box"><div class="search-row"><span class="dot"></span><span class="ph">搜索运动项目</span></div></div>
+  </header>
+  <section class="context-line"><span>2026-11-07</span><strong>常练</strong></section>
+  <div class="browser-shell">
+    <nav class="category-nav"><button type="button" class="active">常练</button><button type="button">自定义</button><button type="button">收藏</button><button type="button">有氧</button><button type="button">力量</button><button type="button">球类</button><button type="button">柔韧</button><button type="button">其他</button></nav>
+    <section class="exercise-panel">
+      <header><strong>常练</strong><span>8 项</span></header>
+      <ul class="exercise-list"><li><span class="exercise-icon icon-aerobic"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z"/></svg></span><div><strong>快走</strong><span>有氧</span><em>MET 3.5</em></div><i class="row-arrow"></i></li><li><span class="exercise-icon icon-aerobic"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z"/></svg></span><div><strong>慢跑</strong><span>有氧</span><em>MET 8.0</em></div><i class="row-arrow"></i></li><li><span class="exercise-icon icon-aerobic"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z"/></svg></span><div><strong>游泳（自由泳）</strong><span>有氧</span><em>MET 7.0</em></div><i class="row-arrow"></i></li><li><span class="exercise-icon icon-aerobic"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z"/></svg></span><div><strong>跳绳</strong><span>有氧</span><em>MET 12.3</em></div><i class="row-arrow"></i></li><li><span class="exercise-icon icon-strength"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M2 8h4v8H2V8zm5 2h2v4H7v-4zm3 .5h4v3h-4v-3zm5-.5h2v4h-2v-4zm3-2h4v8h-4V8z"/></svg></span><div><strong>深蹲</strong><span>力量</span><em>MET 5.0</em></div><i class="row-arrow"></i></li><li><span class="exercise-icon icon-strength"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M2 8h4v8H2V8zm5 2h2v4H7v-4zm3 .5h4v3h-4v-3zm5-.5h2v4h-2v-4zm3-2h4v8h-4V8z"/></svg></span><div><strong>哑铃弯举</strong><span>力量</span><em>MET 3.5</em></div><i class="row-arrow"></i></li><li><span class="exercise-icon icon-ball"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 3.6a8.4 8.4 0 1 0 0 16.8 8.4 8.4 0 0 0 0-16.8Z"/></svg></span><div><strong>篮球</strong><span>球类</span><em>MET 6.5</em></div><i class="row-arrow"></i></li><li><span class="exercise-icon icon-flex"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M6 21c0-9 5.5-14.5 15-16 .5 9.5-5 15.5-15 16z"/></svg></span><div><strong>瑜伽</strong><span>柔韧</span><em>MET 2.5</em></div><i class="row-arrow"></i></li></ul>
+    </section>
+  </div>
+</main>
+</body></html>

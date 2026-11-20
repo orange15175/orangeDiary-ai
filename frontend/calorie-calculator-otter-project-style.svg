@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="2240" viewBox="0 0 1080 2240">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#493526" flood-opacity=".08"/></filter>
+    <linearGradient id="hero" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#eee7f0"/><stop offset="1" stop-color="#f5efe7"/></linearGradient>
+    <style>
+      .ink{font-family:"PingFang SC","Microsoft YaHei",Arial,sans-serif;fill:#493526}
+      .muted{font-family:"PingFang SC","Microsoft YaHei",Arial,sans-serif;fill:#8b7d70}
+      .title{font-size:38px;font-weight:700}.h2{font-size:27px;font-weight:700}.body{font-size:21px}.small{font-size:17px}.num{font-size:48px;font-weight:700;fill:#79648f}.label{font-size:19px;fill:#8b7d70}
+    </style>
+  </defs>
+  <rect width="1080" height="2240" fill="#f8f5ed"/>
+  <rect x="24" y="24" width="1032" height="2192" rx="18" fill="#fffcf6" stroke="#e8dfd1" stroke-width="2"/>
+
+  <rect x="24" y="24" width="1032" height="124" rx="18" fill="#fffcf6"/>
+  <path d="M82 86h42M82 86l18-18M82 86l18 18" fill="none" stroke="#493526" stroke-width="4" stroke-linecap="round"/>
+  <text x="540" y="100" text-anchor="middle" class="ink title">热量计算器</text>
+  <circle cx="975" cy="86" r="25" fill="#eee7f0" stroke="#e8dfd1"/>
+  <path d="M964 88c2-15 16-22 24-11 8 12-1 28-14 25-8-2-11-7-10-14z" fill="#9d8bb7" opacity=".85"/>
+
+  <rect x="58" y="168" width="964" height="255" rx="18" fill="url(#hero)" stroke="#dacbdd"/>
+  <text x="88" y="218" class="muted small" style="letter-spacing:3px;font-weight:700">OTTER WELLNESS</text>
+  <text x="88" y="276" class="ink" style="font-size:40px;font-weight:700">把每天的能量，</text>
+  <text x="88" y="326" class="ink" style="font-size:40px;font-weight:700;fill:#79648f">算得刚刚好。</text>
+  <text x="88" y="370" class="muted small">根据身体数据和生活节奏，找到适合自己的每日热量范围。</text>
+  <line x1="690" y1="224" x2="690" y2="364" stroke="#cfc1d4"/>
+  <text x="730" y="253" class="muted small">建议每日摄入</text>
+  <text x="730" y="316" class="ink" style="font-size:46px;font-weight:700;fill:#79648f">2173</text>
+  <text x="730" y="347" class="muted small">千卡 / 天</text>
+  <image href="/src/assets/otter/floating.png" x="875" y="250" width="125" height="150" preserveAspectRatio="xMidYMid meet" opacity=".18"/>
+
+  <rect x="58" y="441" width="964" height="100" rx="10" fill="#fffcf6" stroke="#e8dfd1"/>
+  <g class="muted small"><text x="96" y="475">基础代谢</text><text x="320" y="475">日常消耗</text><text x="544" y="475">训练消耗</text><text x="768" y="475">每日总消耗</text></g>
+  <g class="ink" style="font-size:25px;font-weight:700"><text x="96" y="514">1429 <tspan class="muted small">kcal</tspan></text><text x="320" y="514">1715 <tspan class="muted small">kcal</tspan></text><text x="544" y="514">233 <tspan class="muted small">kcal</tspan></text><text x="768" y="514" fill="#79648f">1948 <tspan class="muted small">kcal</tspan></text></g>
+
+  <!-- basic -->
+  <rect x="58" y="570" width="964" height="490" rx="14" fill="#fffcf6" stroke="#e8dfd1" filter="url(#shadow)"/>
+  <rect x="82" y="600" width="32" height="32" rx="9" fill="#eee7f0"/><text x="98" y="622" text-anchor="middle" class="ink" style="font-size:11px;font-weight:700;fill:#79648f">01</text>
+  <text x="130" y="622" class="ink h2">身体基础</text><text x="130" y="652" class="muted small">先告诉我们一些关于你的信息</text>
+  <line x1="82" y1="680" x2="998" y2="680" stroke="#e8dfd1"/>
+  <rect x="82" y="715" width="445" height="60" rx="10" fill="#eee7f0" stroke="#9d8bb7"/><text x="112" y="753" class="ink body" style="fill:#79648f">♀</text><text x="154" y="753" class="ink body">女性</text><text x="480" y="753" text-anchor="end" class="muted small">已选择</text>
+  <rect x="550" y="715" width="448" height="60" rx="10" fill="#faf7f1" stroke="#e8dfd1"/><text x="580" y="753" class="muted body">♂</text><text x="622" y="753" class="ink body">男性</text>
+  <g class="label"><text x="82" y="837">年龄</text><text x="82" y="923">身高</text><text x="82" y="1009">体重</text></g>
+  <g fill="#fff" stroke="#e8dfd1"><rect x="250" y="797" width="748" height="58" rx="9"/><rect x="250" y="883" width="748" height="58" rx="9"/><rect x="250" y="969" width="748" height="58" rx="9"/></g>
+  <g class="ink body"><text x="278" y="835">30</text><text x="278" y="921">160</text><text x="278" y="1007">74</text></g><g class="muted small" text-anchor="end"><text x="968" y="835">岁</text><text x="968" y="921">厘米</text><text x="968" y="1007">公斤</text></g>
+
+  <rect x="58" y="1090" width="964" height="610" rx="14" fill="#fffcf6" stroke="#e8dfd1" filter="url(#shadow)"/>
+  <rect x="82" y="1120" width="32" height="32" rx="9" fill="#eee7f0"/><text x="98" y="1142" text-anchor="middle" class="ink" style="font-size:11px;font-weight:700;fill:#79648f">02</text>
+  <text x="130" y="1142" class="ink h2">活动与训练</text><text x="130" y="1172" class="muted small">估算你每天真正需要的能量</text>
+  <line x1="82" y1="1200" x2="998" y2="1200" stroke="#e8dfd1"/>
+  <text x="82" y="1260" class="label">日常活动水平</text><rect x="350" y="1218" width="648" height="58" rx="9" fill="#fff" stroke="#e8dfd1"/><text x="380" y="1255" class="ink body">低活动 · 久坐为主</text><path d="M954 1242l12 12 12-12" fill="none" stroke="#79648f" stroke-width="3"/>
+  <rect x="82" y="1305" width="916" height="92" rx="9" fill="#d9eae3"/><rect x="82" y="1305" width="4" height="92" fill="#9bbfb3"/><text x="112" y="1343" class="ink body" style="font-size:17px;color:#6e8e82">日常基础消耗</text><text x="112" y="1378" class="ink" style="font-size:28px;font-weight:700;color:#6e8e82">1715 <tspan class="small" style="fill:#8b7d70">千卡</tspan></text>
+  <text x="82" y="1465" class="label">每次训练时长</text><rect x="350" y="1425" width="648" height="58" rx="9" fill="#fff" stroke="#e8dfd1"/><text x="380" y="1462" class="ink body">60 <tspan class="muted small">分钟</tspan></text>
+  <text x="82" y="1545" class="label">每周训练天数</text><rect x="350" y="1505" width="648" height="58" rx="9" fill="#fff" stroke="#e8dfd1"/><text x="380" y="1542" class="ink body">3 <tspan class="muted small">天</tspan></text>
+  <text x="82" y="1620" class="label">训练经验</text>
+  <rect x="350" y="1580" width="202" height="70" rx="9" fill="#faf7f1" stroke="#e8dfd1"/><text x="451" y="1610" text-anchor="middle" class="ink body" style="font-size:16px;font-weight:700">新手</text><text x="451" y="1636" text-anchor="middle" class="muted" style="font-size:12px">系数 5</text>
+  <rect x="570" y="1580" width="202" height="70" rx="9" fill="#9d8bb7" filter="url(#shadow)"/><text x="671" y="1610" text-anchor="middle" fill="#fff" class="body" style="font-size:16px;font-weight:700">健身爱好者</text><text x="671" y="1636" text-anchor="middle" fill="#eee7f0" style="font-size:12px">系数 8</text>
+  <rect x="790" y="1580" width="208" height="70" rx="9" fill="#faf7f1" stroke="#e8dfd1"/><text x="894" y="1610" text-anchor="middle" class="ink body" style="font-size:16px;font-weight:700">健身老手</text><text x="894" y="1636" text-anchor="middle" class="muted" style="font-size:12px">系数 10</text>
+
+  <rect x="58" y="1730" width="964" height="280" rx="14" fill="#fffcf6" stroke="#e8dfd1" filter="url(#shadow)"/>
+  <rect x="82" y="1760" width="32" height="32" rx="9" fill="#eee7f0"/><text x="98" y="1782" text-anchor="middle" class="ink" style="font-size:11px;font-weight:700;fill:#79648f">03</text>
+  <text x="130" y="1782" class="ink h2">你的目标</text><text x="130" y="1812" class="muted small">选择一个你想坚持的方向</text>
+  <line x1="82" y1="1840" x2="998" y2="1840" stroke="#e8dfd1"/>
+  <rect x="82" y="1870" width="916" height="48" rx="9" fill="#f4efe7"/><rect x="88" y="1876" width="296" height="36" rx="7" fill="#fffcf6"/><text x="236" y="1900" text-anchor="middle" class="ink body" style="font-size:15px;color:#79648f;font-weight:700">增肌</text><text x="540" y="1900" text-anchor="middle" class="muted body" style="font-size:15px">维持</text><text x="840" y="1900" text-anchor="middle" class="muted body" style="font-size:15px">减脂</text>
+  <rect x="82" y="1940" width="916" height="48" rx="8" fill="#eee7f0"/><text x="112" y="1970" class="ink body" style="font-size:16px">适合你的建议摄入</text><text x="955" y="1972" text-anchor="end" class="ink" style="font-size:26px;font-weight:700;fill:#79648f">2173 <tspan class="muted small">千卡 / 天</tspan></text>
+
+  <rect x="58" y="2040" width="964" height="62" rx="10" fill="#9d8bb7"/><text x="540" y="2080" text-anchor="middle" fill="#fff" class="body" style="font-weight:700">完成，返回今日饮食   →</text>
+</svg>
