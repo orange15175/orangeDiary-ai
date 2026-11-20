@@ -1,0 +1,13 @@
+# 构建上下文瘦身：模型权重与本地环境一律不进镜像
+.venv/
+__pycache__/
+*.pyc
+.git/
+.idea/
+.env
+.env.local
+knowledge/models/
+tests/
+docs/
+node_modules/
+*.log

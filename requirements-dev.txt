@@ -1,0 +1,10 @@
+# 开发与 CI 专用依赖；运行镜像不装这些。
+# 版本与本机 .venv 实测一致（Python 3.13 / Windows）。
+-r requirements.txt
+
+pytest==9.2.0
+pytest-asyncio==1.5.0
+pytest-cov==7.1.0
+coverage==7.17.3
+# 单测用内存 SQLite，不依赖 MySQL；集成测试仍走 deploy/compose.test.yml。
+aiosqlite==0.21.0

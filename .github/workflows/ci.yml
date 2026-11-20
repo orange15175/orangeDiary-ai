@@ -1,0 +1,66 @@
+name: python-ci
+
+# 单测全部用 mock，不依赖 Ollama / Qdrant / MySQL；集成用例单独走 compose。
+on:
+  push:
+  pull_request:
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+      - name: 安装依赖
+        run: pip install -r requirements-dev.txt
+      # pytest 是唯一的覆盖率汇总入口；它同时收集现有的 unittest TestCase。
+      # 85% 是"被改动模块"的目标，全仓当前基线 79%，所以门槛先设在 75，只防倒退。
+      - name: 单元测试与覆盖率
+        run: |
+          python -m pytest tests -m "not integration and not live" \
+            --cov=app --cov-report=term --cov-report=xml --cov-fail-under=75
+      - name: 兼容回归（不计覆盖率）
+        run: python -m unittest discover -s tests -p "test_*.py"
+      - name: 语法与编码检查（BOM 会让 ast.parse 直接失败）
+        run: python -c "import ast,pathlib; [ast.parse(p.read_bytes()) for p in pathlib.Path('app').rglob('*.py')]"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage
+          path: coverage.xml
+
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+      - name: 安装依赖
+        run: pip install -r requirements-dev.txt
+      # 还没有用例时直接跳过，避免 pytest 因"没有匹配到测试"以退出码 5 让流水线假红。
+      - name: 启动测试依赖（真实 MySQL 8 + Redis）
+        run: |
+          if ! grep -rq "mark.integration" tests; then
+            echo "还没有标记 integration 的用例，跳过集成环境"
+            exit 0
+          fi
+          docker compose -f deploy/compose.test.yml up -d --wait
+      - name: 集成测试
+        env:
+          APP_ENV: test
+          TEST_DATABASE_URL: mysql+asyncmy://orange_test:orange_test@127.0.0.1:3307/orange_diary_test_ci
+          TEST_REDIS_URL: redis://127.0.0.1:6380/0
+        run: |
+          if ! grep -rq "mark.integration" tests; then
+            echo "跳过：无用例"
+            exit 0
+          fi
+          python -m pytest tests -m integration -q
+      - name: 清理
+        if: always()
+        run: docker compose -f deploy/compose.test.yml down -v

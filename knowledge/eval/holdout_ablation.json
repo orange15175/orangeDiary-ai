@@ -1,0 +1,2978 @@
+{
+  "generated_at": "2026-11-18 15:29:58",
+  "index_version": "knowledge-v2",
+  "collection": "orange_diary_knowledge_v2",
+  "top_k": 3,
+  "thresholds": {
+    "vector_min_score": 0.6,
+    "bm25_strong_score": 12.0,
+    "bm25_only_gate": 6.0
+  },
+  "rerank": {
+    "enabled": true,
+    "model": "bge-reranker-base",
+    "candidates": 12,
+    "max_length": 320,
+    "min_score": 0.75
+  },
+  "splits": [
+    "holdout"
+  ],
+  "annotation_warnings": [],
+  "scores": {
+    "holdout": [
+      {
+        "mode": "vector_only",
+        "doc_hit_rate": 0.8889,
+        "evidence_hit_rate": 0.8889,
+        "mrr": 0.8333,
+        "answerable_recall": 1.0,
+        "false_accept_rate": 0.0714,
+        "decision_accuracy": 0.9688,
+        "latency_p50_ms": 313.4,
+        "latency_max_ms": 5488.8,
+        "refusal_breakdown": {
+          "off_topic": {
+            "total": 8,
+            "accepted": 0,
+            "false_accept_rate": 0.0
+          },
+          "professional_advice": {
+            "total": 6,
+            "accepted": 1,
+            "false_accept_rate": 0.1667
+          }
+        }
+      },
+      {
+        "mode": "bm25_only",
+        "doc_hit_rate": 0.8889,
+        "evidence_hit_rate": 0.7778,
+        "mrr": 0.7315,
+        "answerable_recall": 1.0,
+        "false_accept_rate": 0.3571,
+        "decision_accuracy": 0.8438,
+        "latency_p50_ms": 47.0,
+        "latency_max_ms": 824.9,
+        "refusal_breakdown": {
+          "off_topic": {
+            "total": 8,
+            "accepted": 2,
+            "false_accept_rate": 0.25
+          },
+          "professional_advice": {
+            "total": 6,
+            "accepted": 3,
+            "false_accept_rate": 0.5
+          }
+        }
+      },
+      {
+        "mode": "hybrid_rrf",
+        "doc_hit_rate": 0.8889,
+        "evidence_hit_rate": 0.8333,
+        "mrr": 0.8611,
+        "answerable_recall": 1.0,
+        "false_accept_rate": 0.0714,
+        "decision_accuracy": 0.9688,
+        "latency_p50_ms": 354.9,
+        "latency_max_ms": 1879.5,
+        "refusal_breakdown": {
+          "off_topic": {
+            "total": 8,
+            "accepted": 0,
+            "false_accept_rate": 0.0
+          },
+          "professional_advice": {
+            "total": 6,
+            "accepted": 1,
+            "false_accept_rate": 0.1667
+          }
+        }
+      },
+      {
+        "mode": "hybrid_rerank",
+        "doc_hit_rate": 1.0,
+        "evidence_hit_rate": 1.0,
+        "mrr": 0.8796,
+        "answerable_recall": 1.0,
+        "false_accept_rate": 0.0,
+        "decision_accuracy": 1.0,
+        "latency_p50_ms": 3252.8,
+        "latency_max_ms": 5149.7,
+        "refusal_breakdown": {
+          "off_topic": {
+            "total": 8,
+            "accepted": 0,
+            "false_accept_rate": 0.0
+          },
+          "professional_advice": {
+            "total": 6,
+            "accepted": 0,
+            "false_accept_rate": 0.0
+          }
+        }
+      },
+      {
+        "mode": "hybrid_rerank_nogate",
+        "doc_hit_rate": 1.0,
+        "evidence_hit_rate": 1.0,
+        "mrr": 0.8796,
+        "answerable_recall": 1.0,
+        "false_accept_rate": 1.0,
+        "decision_accuracy": 0.5625,
+        "latency_p50_ms": 3279.9,
+        "latency_max_ms": 4944.0,
+        "refusal_breakdown": {
+          "off_topic": {
+            "total": 8,
+            "accepted": 8,
+            "false_accept_rate": 1.0
+          },
+          "professional_advice": {
+            "total": 6,
+            "accepted": 6,
+            "false_accept_rate": 1.0
+          }
+        }
+      }
+    ]
+  },
+  "details": {
+    "holdout": {
+      "vector_only": [
+        {
+          "id": "h01",
+          "query": "每天蔬菜至少吃多少克",
+          "category": "蔬果",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "cns-pagoda-2022",
+          "top_docs": [
+            "cns-pagoda-2022",
+            "cns-cdg-2022-eight",
+            "nhc-obesity-diet-2024"
+          ],
+          "latency_ms": 5488.8,
+          "split": "holdout"
+        },
+        {
+          "id": "h02",
+          "query": "每天水果建议吃多少",
+          "category": "蔬果",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "cns-pagoda-2022",
+          "top_docs": [
+            "cns-pagoda-2022",
+            "cns-cdg-2022-eight",
+            "nhc-obesity-diet-2024"
+          ],
+          "latency_ms": 358.2,
+          "split": "holdout"
+        },
+        {
+          "id": "h03",
+          "query": "薯类每天吃多少合适",
+          "category": "谷薯",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "nhc-obesity-diet-2024",
+          "top_docs": [
+            "nhc-obesity-diet-2024",
+            "cns-pagoda-2022",
+            "cns-cdg-2022-eight"
+          ],
+          "latency_ms": 351.3,
+          "split": "holdout"
+        },
+        {
+          "id": "h04",
+          "query": "每天要吃多少种食物",
+          "category": "膳食原则",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "cns-cdg-2022-eight",
+          "top_docs": [
+            "cns-cdg-2022-eight",
+            "cns-cdg-2022-eight",
+            "cns-pagoda-2022"
+          ],
+          "latency_ms": 312.4,
+          "split": "holdout"
+        },
+        {
+          "id": "h05",
+          "query": "每天膳食纤维摄入多少合适",
+          "category": "膳食原则",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "cns-cdg-2022-eight",
+          "top_docs": [
+            "cns-cdg-2022-eight",
+            "cns-pagoda-2022",
+            "cns-cdg-2022-eight"
+          ],
+          "latency_ms": 344.1,
+          "split": "holdout"
+        },
+        {
+          "id": "h06",
+          "query": "全谷物和杂豆每天吃多少",
+          "category": "谷薯",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "cns-pagoda-2022",
+          "top_docs": [
+            "cns-pagoda-2022",
+            "cns-cdg-2022-eight",
+            "nhc-obesity-diet-2024"
+          ],
+          "latency_ms": 344.0,
+          "split": "holdout"
+        },
+        {
+          "id": "h07",
+          "query": "成年人每天钠摄入不超过多少毫克",
+          "category": "钠盐",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "who-sodium",
+          "top_docs": [
+            "who-sodium",
+            "who-sodium",
+            "who-healthy-diet"
+          ],
+          "latency_ms": 313.6,
+          "split": "holdout"
+        },
+        {
+          "id": "h08",
+          "query": "游离糖每天最好控制在多少克",
+          "category": "糖",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "who-free-sugars-2015",
+          "top_docs": [
+            "who-free-sugars-2015",
+            "who-healthy-diet",
+            "who-free-sugars-2015"
+          ],
+          "latency_ms": 319.2,
+          "split": "holdout"
+        },
+        {
+          "id": "h09",
+          "query": "每周中等强度运动至少多少分钟",
+          "category": "身体活动",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "cns-cdg-2022-eight",
+          "top_docs": [
+            "cns-cdg-2022-eight",
+            "who-physical-activity",
+            "cns-pagoda-2022"
+          ],
+          "latency_ms": 291.9,
+          "split": "holdout"
+        },
+        {
+          "id": "h10",
+          "query": "每周至少几天中等强度运动",
+          "category": "身体活动",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "cns-cdg-2022-eight",
+          "top_docs": [
+            "cns-cdg-2022-eight",
+            "nhc-hyperglycemia-2024",
+            "nhc-obesity-diet-2024"
+          ],
+          "latency_ms": 321.7,
+          "split": "holdout"
+        },
+        {
+          "id": "h11",
+          "query": "BMI 是怎么算的",
+          "category": "体重",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "who-malnutrition",
+          "top_docs": [
+            "who-malnutrition"
+          ],
+          "latency_ms": 304.6,
+          "split": "holdout"
+        },
+        {
+          "id": "h12",
+          "query": "减重时每天要少摄入多少热量",
+          "category": "减重",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "nhc-obesity-diet-2024",
+          "top_docs": [
+            "nhc-obesity-diet-2024",
+            "nhc-obesity-diet-2024",
+            "nhc-obesity-diet-2024"
+          ],
+          "latency_ms": 322.7,
+          "split": "holdout"
+        },
+        {
+          "id": "h13",
+          "query": "血糖高的人主食吃多少、怎么搭配",
+          "category": "血糖",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "nhc-hyperglycemia-2024",
+          "top_docs": [
+            "nhc-hyperglycemia-2024",
+            "nhc-hyperglycemia-2024",
+            "nhc-hyperglycemia-2024"
+          ],
+          "latency_ms": 317.3,
+          "split": "holdout"
+        },
+        {
+          "id": "h14",
+          "query": "反式脂肪每天最多吃多少克",
+          "category": "反式脂肪",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "who-trans-fat",
+          "top_docs": [
+            "who-trans-fat",
+            "who-healthy-diet",
+            "who-trans-fat"
+          ],
+          "latency_ms": 298.4,
+          "split": "holdout"
+        },
+        {
+          "id": "h15",
+          "query": "十岁以下儿童每天要吃多少蔬果",
+          "category": "蔬果",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "who-healthy-diet",
+          "top_docs": [
+            "who-healthy-diet",
+            "cns-pagoda-2022",
+            "cns-cdg-2022-eight"
+          ],
+          "latency_ms": 307.6,
+          "split": "holdout"
+        },
+        {
+          "id": "h16",
+          "query": "深色蔬菜应该占蔬菜的多少",
+          "category": "蔬果",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "cns-pagoda-2022",
+          "top_docs": [
+            "cns-pagoda-2022",
+            "nhc-obesity-diet-2024"
+          ],
+          "latency_ms": 289.6,
+          "split": "holdout"
+        },
+        {
+          "id": "h17",
+          "query": "肥胖的人蛋白质和脂肪供能比多少合适",
+          "category": "减重",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 2,
+          "evidence_hit": true,
+          "top1_doc": "who-healthy-diet",
+          "top_docs": [
+            "who-healthy-diet",
+            "nhc-obesity-diet-2024",
+            "who-healthy-diet"
+          ],
+          "latency_ms": 298.9,
+          "split": "holdout"
+        },
+        {
+          "id": "h18",
+          "query": "血压偏高的人盐和运动要注意什么",
+          "category": "钠盐",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 2,
+          "evidence_hit": true,
+          "top1_doc": "who-healthy-diet",
+          "top_docs": [
+            "who-healthy-diet",
+            "who-wpro-nudge-2023"
+          ],
+          "latency_ms": 295.1,
+          "split": "holdout"
+        },
+        {
+          "id": "h19",
+          "query": "帮我写一个 Python 快速排序",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 287.3,
+          "split": "holdout"
+        },
+        {
+          "id": "h20",
+          "query": "明天北京天气怎么样",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 313.1,
+          "split": "holdout"
+        },
+        {
+          "id": "h21",
+          "query": "推荐几部好看的科幻电影",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 303.8,
+          "split": "holdout"
+        },
+        {
+          "id": "h22",
+          "query": "茅台股票现在值得买吗",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 322.9,
+          "split": "holdout"
+        },
+        {
+          "id": "h23",
+          "query": "把这句话翻译成英文：今天天气不错",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 289.1,
+          "split": "holdout"
+        },
+        {
+          "id": "h24",
+          "query": "下期双色球号码是多少",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 299.5,
+          "split": "holdout"
+        },
+        {
+          "id": "h25",
+          "query": "推荐一款两千元左右的手机",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 316.1,
+          "split": "holdout"
+        },
+        {
+          "id": "h26",
+          "query": "护照怎么办，需要什么材料",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 310.5,
+          "split": "holdout"
+        },
+        {
+          "id": "h27",
+          "query": "二甲双胍应该饭前吃还是饭后吃",
+          "category": "专业建议",
+          "answerable": false,
+          "refusal_type": "professional_advice",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 334.6,
+          "split": "holdout"
+        },
+        {
+          "id": "h28",
+          "query": "血糖高需要打胰岛素吗，打多少单位",
+          "category": "专业建议",
+          "answerable": false,
+          "refusal_type": "professional_advice",
+          "accepted": true,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "nhc-hyperglycemia-2024",
+          "top_docs": [
+            "nhc-hyperglycemia-2024",
+            "nhc-hyperglycemia-2024"
+          ],
+          "latency_ms": 340.9,
+          "split": "holdout"
+        },
+        {
+          "id": "h29",
+          "query": "怀孕期间能不能吃二甲双胍",
+          "category": "专业建议",
+          "answerable": false,
+          "refusal_type": "professional_advice",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 309.7,
+          "split": "holdout"
+        },
+        {
+          "id": "h30",
+          "query": "孩子发烧38度要吃退烧药吗",
+          "category": "专业建议",
+          "answerable": false,
+          "refusal_type": "professional_advice",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 322.3,
+          "split": "holdout"
+        },
+        {
+          "id": "h31",
+          "query": "甲减吃优甲乐应该吃多少剂量",
+          "category": "专业建议",
+          "answerable": false,
+          "refusal_type": "professional_advice",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 305.8,
+          "split": "holdout"
+        },
+        {
+          "id": "h32",
+          "query": "痛风发作时可以吃秋水仙碱吗",
+          "category": "专业建议",
+          "answerable": false,
+          "refusal_type": "professional_advice",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 327.8,
+          "split": "holdout"
+        }
+      ],
+      "bm25_only": [
+        {
+          "id": "h01",
+          "query": "每天蔬菜至少吃多少克",
+          "category": "蔬果",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "cns-pagoda-2022",
+          "top_docs": [
+            "cns-pagoda-2022",
+            "cns-cdg-2022-eight",
+            "nhc-obesity-diet-2024"
+          ],
+          "latency_ms": 824.9,
+          "split": "holdout"
+        },
+        {
+          "id": "h02",
+          "query": "每天水果建议吃多少",
+          "category": "蔬果",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 2,
+          "evidence_hit": true,
+          "top1_doc": "cns-cdg-2022-eight",
+          "top_docs": [
+            "cns-cdg-2022-eight",
+            "cns-pagoda-2022",
+            "nhc-hyperglycemia-2024"
+          ],
+          "latency_ms": 45.9,
+          "split": "holdout"
+        },
+        {
+          "id": "h03",
+          "query": "薯类每天吃多少合适",
+          "category": "谷薯",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "cns-cdg-2022-eight",
+          "top_docs": [
+            "cns-cdg-2022-eight",
+            "nhc-obesity-diet-2024",
+            "cns-pagoda-2022"
+          ],
+          "latency_ms": 45.5,
+          "split": "holdout"
+        },
+        {
+          "id": "h04",
+          "query": "每天要吃多少种食物",
+          "category": "膳食原则",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "cns-cdg-2022-eight",
+          "top_docs": [
+            "cns-cdg-2022-eight",
+            "cns-cdg-2022-eight",
+            "nhc-obesity-diet-2024"
+          ],
+          "latency_ms": 47.9,
+          "split": "holdout"
+        },
+        {
+          "id": "h05",
+          "query": "每天膳食纤维摄入多少合适",
+          "category": "膳食原则",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "cns-pagoda-2022",
+          "top_docs": [
+            "cns-pagoda-2022",
+            "nhc-obesity-diet-2024",
+            "cns-cdg-2022-eight"
+          ],
+          "latency_ms": 48.2,
+          "split": "holdout"
+        },
+        {
+          "id": "h06",
+          "query": "全谷物和杂豆每天吃多少",
+          "category": "谷薯",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "cns-cdg-2022-eight",
+          "top_docs": [
+            "cns-cdg-2022-eight",
+            "nhc-obesity-diet-2024",
+            "cns-pagoda-2022"
+          ],
+          "latency_ms": 47.3,
+          "split": "holdout"
+        },
+        {
+          "id": "h07",
+          "query": "成年人每天钠摄入不超过多少毫克",
+          "category": "钠盐",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 3,
+          "evidence_hit": true,
+          "top1_doc": "cns-cdg-2022-eight",
+          "top_docs": [
+            "cns-cdg-2022-eight",
+            "who-healthy-diet",
+            "who-sodium"
+          ],
+          "latency_ms": 49.6,
+          "split": "holdout"
+        },
+        {
+          "id": "h08",
+          "query": "游离糖每天最好控制在多少克",
+          "category": "糖",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 2,
+          "evidence_hit": false,
+          "top1_doc": "cns-cdg-2022-eight",
+          "top_docs": [
+            "cns-cdg-2022-eight",
+            "who-healthy-diet",
+            "who-wpro-nudge-2023"
+          ],
+          "latency_ms": 47.9,
+          "split": "holdout"
+        },
+        {
+          "id": "h09",
+          "query": "每周中等强度运动至少多少分钟",
+          "category": "身体活动",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 2,
+          "evidence_hit": true,
+          "top1_doc": "nhc-obesity-diet-2024",
+          "top_docs": [
+            "nhc-obesity-diet-2024",
+            "cns-cdg-2022-eight",
+            "cns-pagoda-2022"
+          ],
+          "latency_ms": 49.7,
+          "split": "holdout"
+        },
+        {
+          "id": "h10",
+          "query": "每周至少几天中等强度运动",
+          "category": "身体活动",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "cns-cdg-2022-eight",
+          "top_docs": [
+            "cns-cdg-2022-eight",
+            "nhc-obesity-diet-2024",
+            "cns-pagoda-2022"
+          ],
+          "latency_ms": 48.7,
+          "split": "holdout"
+        },
+        {
+          "id": "h11",
+          "query": "BMI 是怎么算的",
+          "category": "体重",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "who-malnutrition",
+          "top_docs": [
+            "who-malnutrition"
+          ],
+          "latency_ms": 89.2,
+          "split": "holdout"
+        },
+        {
+          "id": "h12",
+          "query": "减重时每天要少摄入多少热量",
+          "category": "减重",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": false,
+          "top1_doc": "nhc-obesity-diet-2024",
+          "top_docs": [
+            "nhc-obesity-diet-2024",
+            "nhc-obesity-diet-2024",
+            "who-healthy-diet"
+          ],
+          "latency_ms": 46.6,
+          "split": "holdout"
+        },
+        {
+          "id": "h13",
+          "query": "血糖高的人主食吃多少、怎么搭配",
+          "category": "血糖",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "nhc-hyperglycemia-2024",
+          "top_docs": [
+            "nhc-hyperglycemia-2024",
+            "nhc-obesity-diet-2024"
+          ],
+          "latency_ms": 48.4,
+          "split": "holdout"
+        },
+        {
+          "id": "h14",
+          "query": "反式脂肪每天最多吃多少克",
+          "category": "反式脂肪",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "who-trans-fat",
+          "top_docs": [
+            "who-trans-fat",
+            "who-healthy-diet",
+            "who-trans-fat"
+          ],
+          "latency_ms": 47.6,
+          "split": "holdout"
+        },
+        {
+          "id": "h15",
+          "query": "十岁以下儿童每天要吃多少蔬果",
+          "category": "蔬果",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "who-healthy-diet",
+          "top_docs": [
+            "who-healthy-diet",
+            "cns-cdg-2022-eight",
+            "cns-cdg-2022-eight"
+          ],
+          "latency_ms": 48.3,
+          "split": "holdout"
+        },
+        {
+          "id": "h16",
+          "query": "深色蔬菜应该占蔬菜的多少",
+          "category": "蔬果",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 3,
+          "evidence_hit": true,
+          "top1_doc": "nhc-obesity-diet-2024",
+          "top_docs": [
+            "nhc-obesity-diet-2024",
+            "cns-cdg-2022-eight",
+            "cns-pagoda-2022"
+          ],
+          "latency_ms": 49.2,
+          "split": "holdout"
+        },
+        {
+          "id": "h17",
+          "query": "肥胖的人蛋白质和脂肪供能比多少合适",
+          "category": "减重",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "nhc-obesity-diet-2024",
+          "top_docs": [
+            "nhc-obesity-diet-2024",
+            "nhc-hyperglycemia-2024",
+            "cns-pagoda-2022"
+          ],
+          "latency_ms": 51.4,
+          "split": "holdout"
+        },
+        {
+          "id": "h18",
+          "query": "血压偏高的人盐和运动要注意什么",
+          "category": "钠盐",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "who-wpro-nudge-2023",
+          "top_docs": [
+            "who-wpro-nudge-2023",
+            "nhc-obesity-diet-2024",
+            "who-physical-activity"
+          ],
+          "latency_ms": 51.6,
+          "split": "holdout"
+        },
+        {
+          "id": "h19",
+          "query": "帮我写一个 Python 快速排序",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 1.8,
+          "split": "holdout"
+        },
+        {
+          "id": "h20",
+          "query": "明天北京天气怎么样",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 0.5,
+          "split": "holdout"
+        },
+        {
+          "id": "h21",
+          "query": "推荐几部好看的科幻电影",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 0.8,
+          "split": "holdout"
+        },
+        {
+          "id": "h22",
+          "query": "茅台股票现在值得买吗",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 0.9,
+          "split": "holdout"
+        },
+        {
+          "id": "h23",
+          "query": "把这句话翻译成英文：今天天气不错",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 1.1,
+          "split": "holdout"
+        },
+        {
+          "id": "h24",
+          "query": "下期双色球号码是多少",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 0.9,
+          "split": "holdout"
+        },
+        {
+          "id": "h25",
+          "query": "推荐一款两千元左右的手机",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": true,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "cns-pagoda-2022",
+          "top_docs": [
+            "cns-pagoda-2022",
+            "cns-pagoda-2022"
+          ],
+          "latency_ms": 46.4,
+          "split": "holdout"
+        },
+        {
+          "id": "h26",
+          "query": "护照怎么办，需要什么材料",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": true,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "who-wpro-nudge-2023",
+          "top_docs": [
+            "who-wpro-nudge-2023"
+          ],
+          "latency_ms": 45.9,
+          "split": "holdout"
+        },
+        {
+          "id": "h27",
+          "query": "二甲双胍应该饭前吃还是饭后吃",
+          "category": "专业建议",
+          "answerable": false,
+          "refusal_type": "professional_advice",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 1.7,
+          "split": "holdout"
+        },
+        {
+          "id": "h28",
+          "query": "血糖高需要打胰岛素吗，打多少单位",
+          "category": "专业建议",
+          "answerable": false,
+          "refusal_type": "professional_advice",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 0.8,
+          "split": "holdout"
+        },
+        {
+          "id": "h29",
+          "query": "怀孕期间能不能吃二甲双胍",
+          "category": "专业建议",
+          "answerable": false,
+          "refusal_type": "professional_advice",
+          "accepted": true,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "cns-cdg-2022-eight",
+          "top_docs": [
+            "cns-cdg-2022-eight",
+            "cns-pagoda-2022"
+          ],
+          "latency_ms": 45.8,
+          "split": "holdout"
+        },
+        {
+          "id": "h30",
+          "query": "孩子发烧38度要吃退烧药吗",
+          "category": "专业建议",
+          "answerable": false,
+          "refusal_type": "professional_advice",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 1.4,
+          "split": "holdout"
+        },
+        {
+          "id": "h31",
+          "query": "甲减吃优甲乐应该吃多少剂量",
+          "category": "专业建议",
+          "answerable": false,
+          "refusal_type": "professional_advice",
+          "accepted": true,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "who-sodium",
+          "top_docs": [
+            "who-sodium"
+          ],
+          "latency_ms": 91.1,
+          "split": "holdout"
+        },
+        {
+          "id": "h32",
+          "query": "痛风发作时可以吃秋水仙碱吗",
+          "category": "专业建议",
+          "answerable": false,
+          "refusal_type": "professional_advice",
+          "accepted": true,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "who-healthy-diet",
+          "top_docs": [
+            "who-healthy-diet",
+            "who-malnutrition"
+          ],
+          "latency_ms": 45.6,
+          "split": "holdout"
+        }
+      ],
+      "hybrid_rrf": [
+        {
+          "id": "h01",
+          "query": "每天蔬菜至少吃多少克",
+          "category": "蔬果",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "cns-pagoda-2022",
+          "top_docs": [
+            "cns-pagoda-2022",
+            "cns-cdg-2022-eight",
+            "nhc-obesity-diet-2024"
+          ],
+          "latency_ms": 1879.5,
+          "split": "holdout"
+        },
+        {
+          "id": "h02",
+          "query": "每天水果建议吃多少",
+          "category": "蔬果",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "cns-pagoda-2022",
+          "top_docs": [
+            "cns-pagoda-2022",
+            "cns-cdg-2022-eight",
+            "nhc-obesity-diet-2024"
+          ],
+          "latency_ms": 389.2,
+          "split": "holdout"
+        },
+        {
+          "id": "h03",
+          "query": "薯类每天吃多少合适",
+          "category": "谷薯",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "nhc-obesity-diet-2024",
+          "top_docs": [
+            "nhc-obesity-diet-2024",
+            "cns-cdg-2022-eight",
+            "cns-pagoda-2022"
+          ],
+          "latency_ms": 388.9,
+          "split": "holdout"
+        },
+        {
+          "id": "h04",
+          "query": "每天要吃多少种食物",
+          "category": "膳食原则",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "cns-cdg-2022-eight",
+          "top_docs": [
+            "cns-cdg-2022-eight",
+            "cns-cdg-2022-eight",
+            "nhc-obesity-diet-2024"
+          ],
+          "latency_ms": 384.7,
+          "split": "holdout"
+        },
+        {
+          "id": "h05",
+          "query": "每天膳食纤维摄入多少合适",
+          "category": "膳食原则",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "cns-cdg-2022-eight",
+          "top_docs": [
+            "cns-cdg-2022-eight",
+            "cns-pagoda-2022",
+            "nhc-obesity-diet-2024"
+          ],
+          "latency_ms": 390.6,
+          "split": "holdout"
+        },
+        {
+          "id": "h06",
+          "query": "全谷物和杂豆每天吃多少",
+          "category": "谷薯",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "cns-pagoda-2022",
+          "top_docs": [
+            "cns-pagoda-2022",
+            "nhc-obesity-diet-2024",
+            "cns-cdg-2022-eight"
+          ],
+          "latency_ms": 337.2,
+          "split": "holdout"
+        },
+        {
+          "id": "h07",
+          "query": "成年人每天钠摄入不超过多少毫克",
+          "category": "钠盐",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "who-sodium",
+          "top_docs": [
+            "who-sodium",
+            "who-healthy-diet",
+            "cns-cdg-2022-eight"
+          ],
+          "latency_ms": 348.6,
+          "split": "holdout"
+        },
+        {
+          "id": "h08",
+          "query": "游离糖每天最好控制在多少克",
+          "category": "糖",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "who-healthy-diet",
+          "top_docs": [
+            "who-healthy-diet",
+            "who-free-sugars-2015",
+            "cns-cdg-2022-eight"
+          ],
+          "latency_ms": 342.7,
+          "split": "holdout"
+        },
+        {
+          "id": "h09",
+          "query": "每周中等强度运动至少多少分钟",
+          "category": "身体活动",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "cns-cdg-2022-eight",
+          "top_docs": [
+            "cns-cdg-2022-eight",
+            "cns-pagoda-2022",
+            "who-physical-activity"
+          ],
+          "latency_ms": 360.2,
+          "split": "holdout"
+        },
+        {
+          "id": "h10",
+          "query": "每周至少几天中等强度运动",
+          "category": "身体活动",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "cns-cdg-2022-eight",
+          "top_docs": [
+            "cns-cdg-2022-eight",
+            "nhc-obesity-diet-2024",
+            "nhc-hyperglycemia-2024"
+          ],
+          "latency_ms": 328.9,
+          "split": "holdout"
+        },
+        {
+          "id": "h11",
+          "query": "BMI 是怎么算的",
+          "category": "体重",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "who-malnutrition",
+          "top_docs": [
+            "who-malnutrition"
+          ],
+          "latency_ms": 367.8,
+          "split": "holdout"
+        },
+        {
+          "id": "h12",
+          "query": "减重时每天要少摄入多少热量",
+          "category": "减重",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": false,
+          "top1_doc": "nhc-obesity-diet-2024",
+          "top_docs": [
+            "nhc-obesity-diet-2024",
+            "nhc-obesity-diet-2024",
+            "who-free-sugars-2015"
+          ],
+          "latency_ms": 344.9,
+          "split": "holdout"
+        },
+        {
+          "id": "h13",
+          "query": "血糖高的人主食吃多少、怎么搭配",
+          "category": "血糖",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "nhc-hyperglycemia-2024",
+          "top_docs": [
+            "nhc-hyperglycemia-2024",
+            "cns-cdg-2022-eight",
+            "cns-cdg-2022-eight"
+          ],
+          "latency_ms": 337.5,
+          "split": "holdout"
+        },
+        {
+          "id": "h14",
+          "query": "反式脂肪每天最多吃多少克",
+          "category": "反式脂肪",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "who-trans-fat",
+          "top_docs": [
+            "who-trans-fat",
+            "who-trans-fat",
+            "who-healthy-diet"
+          ],
+          "latency_ms": 356.8,
+          "split": "holdout"
+        },
+        {
+          "id": "h15",
+          "query": "十岁以下儿童每天要吃多少蔬果",
+          "category": "蔬果",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "who-healthy-diet",
+          "top_docs": [
+            "who-healthy-diet",
+            "cns-cdg-2022-eight",
+            "cns-pagoda-2022"
+          ],
+          "latency_ms": 336.8,
+          "split": "holdout"
+        },
+        {
+          "id": "h16",
+          "query": "深色蔬菜应该占蔬菜的多少",
+          "category": "蔬果",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 2,
+          "evidence_hit": true,
+          "top1_doc": "nhc-obesity-diet-2024",
+          "top_docs": [
+            "nhc-obesity-diet-2024",
+            "cns-pagoda-2022",
+            "cns-cdg-2022-eight"
+          ],
+          "latency_ms": 365.3,
+          "split": "holdout"
+        },
+        {
+          "id": "h17",
+          "query": "肥胖的人蛋白质和脂肪供能比多少合适",
+          "category": "减重",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "nhc-obesity-diet-2024",
+          "top_docs": [
+            "nhc-obesity-diet-2024",
+            "who-healthy-diet",
+            "who-malnutrition"
+          ],
+          "latency_ms": 356.4,
+          "split": "holdout"
+        },
+        {
+          "id": "h18",
+          "query": "血压偏高的人盐和运动要注意什么",
+          "category": "钠盐",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "who-wpro-nudge-2023",
+          "top_docs": [
+            "who-wpro-nudge-2023",
+            "who-healthy-diet"
+          ],
+          "latency_ms": 324.9,
+          "split": "holdout"
+        },
+        {
+          "id": "h19",
+          "query": "帮我写一个 Python 快速排序",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 335.3,
+          "split": "holdout"
+        },
+        {
+          "id": "h20",
+          "query": "明天北京天气怎么样",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 306.8,
+          "split": "holdout"
+        },
+        {
+          "id": "h21",
+          "query": "推荐几部好看的科幻电影",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 374.7,
+          "split": "holdout"
+        },
+        {
+          "id": "h22",
+          "query": "茅台股票现在值得买吗",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 351.9,
+          "split": "holdout"
+        },
+        {
+          "id": "h23",
+          "query": "把这句话翻译成英文：今天天气不错",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 322.7,
+          "split": "holdout"
+        },
+        {
+          "id": "h24",
+          "query": "下期双色球号码是多少",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 353.3,
+          "split": "holdout"
+        },
+        {
+          "id": "h25",
+          "query": "推荐一款两千元左右的手机",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 356.6,
+          "split": "holdout"
+        },
+        {
+          "id": "h26",
+          "query": "护照怎么办，需要什么材料",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 361.3,
+          "split": "holdout"
+        },
+        {
+          "id": "h27",
+          "query": "二甲双胍应该饭前吃还是饭后吃",
+          "category": "专业建议",
+          "answerable": false,
+          "refusal_type": "professional_advice",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 376.3,
+          "split": "holdout"
+        },
+        {
+          "id": "h28",
+          "query": "血糖高需要打胰岛素吗，打多少单位",
+          "category": "专业建议",
+          "answerable": false,
+          "refusal_type": "professional_advice",
+          "accepted": true,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "nhc-hyperglycemia-2024",
+          "top_docs": [
+            "nhc-hyperglycemia-2024",
+            "nhc-hyperglycemia-2024"
+          ],
+          "latency_ms": 367.8,
+          "split": "holdout"
+        },
+        {
+          "id": "h29",
+          "query": "怀孕期间能不能吃二甲双胍",
+          "category": "专业建议",
+          "answerable": false,
+          "refusal_type": "professional_advice",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 353.3,
+          "split": "holdout"
+        },
+        {
+          "id": "h30",
+          "query": "孩子发烧38度要吃退烧药吗",
+          "category": "专业建议",
+          "answerable": false,
+          "refusal_type": "professional_advice",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 344.3,
+          "split": "holdout"
+        },
+        {
+          "id": "h31",
+          "query": "甲减吃优甲乐应该吃多少剂量",
+          "category": "专业建议",
+          "answerable": false,
+          "refusal_type": "professional_advice",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 326.8,
+          "split": "holdout"
+        },
+        {
+          "id": "h32",
+          "query": "痛风发作时可以吃秋水仙碱吗",
+          "category": "专业建议",
+          "answerable": false,
+          "refusal_type": "professional_advice",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 358.8,
+          "split": "holdout"
+        }
+      ],
+      "hybrid_rerank": [
+        {
+          "id": "h01",
+          "query": "每天蔬菜至少吃多少克",
+          "category": "蔬果",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "cns-pagoda-2022",
+          "top_docs": [
+            "cns-pagoda-2022",
+            "nhc-obesity-diet-2024",
+            "cns-cdg-2022-eight"
+          ],
+          "latency_ms": 5149.7,
+          "split": "holdout"
+        },
+        {
+          "id": "h02",
+          "query": "每天水果建议吃多少",
+          "category": "蔬果",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "cns-pagoda-2022",
+          "top_docs": [
+            "cns-pagoda-2022",
+            "nhc-obesity-diet-2024",
+            "cns-cdg-2022-eight"
+          ],
+          "latency_ms": 2952.1,
+          "split": "holdout"
+        },
+        {
+          "id": "h03",
+          "query": "薯类每天吃多少合适",
+          "category": "谷薯",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "nhc-obesity-diet-2024",
+          "top_docs": [
+            "nhc-obesity-diet-2024",
+            "cns-cdg-2022-eight",
+            "cns-pagoda-2022"
+          ],
+          "latency_ms": 3063.9,
+          "split": "holdout"
+        },
+        {
+          "id": "h04",
+          "query": "每天要吃多少种食物",
+          "category": "膳食原则",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "cns-cdg-2022-eight",
+          "top_docs": [
+            "cns-cdg-2022-eight",
+            "cns-pagoda-2022",
+            "cns-cdg-2022-eight"
+          ],
+          "latency_ms": 3447.0,
+          "split": "holdout"
+        },
+        {
+          "id": "h05",
+          "query": "每天膳食纤维摄入多少合适",
+          "category": "膳食原则",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "who-healthy-diet",
+          "top_docs": [
+            "who-healthy-diet",
+            "nhc-obesity-diet-2024",
+            "cns-pagoda-2022"
+          ],
+          "latency_ms": 3598.5,
+          "split": "holdout"
+        },
+        {
+          "id": "h06",
+          "query": "全谷物和杂豆每天吃多少",
+          "category": "谷薯",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "cns-pagoda-2022",
+          "top_docs": [
+            "cns-pagoda-2022",
+            "cns-cdg-2022-eight",
+            "nhc-obesity-diet-2024"
+          ],
+          "latency_ms": 3417.8,
+          "split": "holdout"
+        },
+        {
+          "id": "h07",
+          "query": "成年人每天钠摄入不超过多少毫克",
+          "category": "钠盐",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "who-sodium",
+          "top_docs": [
+            "who-sodium",
+            "who-sodium",
+            "who-healthy-diet"
+          ],
+          "latency_ms": 3259.6,
+          "split": "holdout"
+        },
+        {
+          "id": "h08",
+          "query": "游离糖每天最好控制在多少克",
+          "category": "糖",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "who-free-sugars-2015",
+          "top_docs": [
+            "who-free-sugars-2015",
+            "who-healthy-diet",
+            "cns-cdg-2022-eight"
+          ],
+          "latency_ms": 2761.4,
+          "split": "holdout"
+        },
+        {
+          "id": "h09",
+          "query": "每周中等强度运动至少多少分钟",
+          "category": "身体活动",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "who-physical-activity",
+          "top_docs": [
+            "who-physical-activity",
+            "cns-cdg-2022-eight",
+            "nhc-obesity-diet-2024"
+          ],
+          "latency_ms": 3302.7,
+          "split": "holdout"
+        },
+        {
+          "id": "h10",
+          "query": "每周至少几天中等强度运动",
+          "category": "身体活动",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 2,
+          "evidence_hit": true,
+          "top1_doc": "who-physical-activity",
+          "top_docs": [
+            "who-physical-activity",
+            "cns-cdg-2022-eight",
+            "nhc-obesity-diet-2024"
+          ],
+          "latency_ms": 2925.5,
+          "split": "holdout"
+        },
+        {
+          "id": "h11",
+          "query": "BMI 是怎么算的",
+          "category": "体重",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 2,
+          "evidence_hit": true,
+          "top1_doc": "who-malnutrition",
+          "top_docs": [
+            "who-malnutrition",
+            "who-obesity",
+            "who-obesity"
+          ],
+          "latency_ms": 3024.3,
+          "split": "holdout"
+        },
+        {
+          "id": "h12",
+          "query": "减重时每天要少摄入多少热量",
+          "category": "减重",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "nhc-obesity-diet-2024",
+          "top_docs": [
+            "nhc-obesity-diet-2024",
+            "nhc-obesity-diet-2024",
+            "who-free-sugars-2015"
+          ],
+          "latency_ms": 2722.4,
+          "split": "holdout"
+        },
+        {
+          "id": "h13",
+          "query": "血糖高的人主食吃多少、怎么搭配",
+          "category": "血糖",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "nhc-hyperglycemia-2024",
+          "top_docs": [
+            "nhc-hyperglycemia-2024",
+            "cns-cdg-2022-eight"
+          ],
+          "latency_ms": 3300.1,
+          "split": "holdout"
+        },
+        {
+          "id": "h14",
+          "query": "反式脂肪每天最多吃多少克",
+          "category": "反式脂肪",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "who-trans-fat",
+          "top_docs": [
+            "who-trans-fat",
+            "cns-cdg-2022-eight",
+            "who-trans-fat"
+          ],
+          "latency_ms": 3246.1,
+          "split": "holdout"
+        },
+        {
+          "id": "h15",
+          "query": "十岁以下儿童每天要吃多少蔬果",
+          "category": "蔬果",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "who-healthy-diet",
+          "top_docs": [
+            "who-healthy-diet",
+            "nhc-obesity-diet-2024",
+            "cns-cdg-2022-eight"
+          ],
+          "latency_ms": 2776.3,
+          "split": "holdout"
+        },
+        {
+          "id": "h16",
+          "query": "深色蔬菜应该占蔬菜的多少",
+          "category": "蔬果",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 2,
+          "evidence_hit": true,
+          "top1_doc": "nhc-obesity-diet-2024",
+          "top_docs": [
+            "nhc-obesity-diet-2024",
+            "cns-pagoda-2022",
+            "cns-cdg-2022-eight"
+          ],
+          "latency_ms": 3174.7,
+          "split": "holdout"
+        },
+        {
+          "id": "h17",
+          "query": "肥胖的人蛋白质和脂肪供能比多少合适",
+          "category": "减重",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "nhc-obesity-diet-2024",
+          "top_docs": [
+            "nhc-obesity-diet-2024",
+            "nhc-hyperglycemia-2024"
+          ],
+          "latency_ms": 3136.0,
+          "split": "holdout"
+        },
+        {
+          "id": "h18",
+          "query": "血压偏高的人盐和运动要注意什么",
+          "category": "钠盐",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 3,
+          "evidence_hit": true,
+          "top1_doc": "who-healthy-diet",
+          "top_docs": [
+            "who-healthy-diet",
+            "cns-pagoda-2022",
+            "who-wpro-nudge-2023"
+          ],
+          "latency_ms": 3187.7,
+          "split": "holdout"
+        },
+        {
+          "id": "h19",
+          "query": "帮我写一个 Python 快速排序",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 3190.4,
+          "split": "holdout"
+        },
+        {
+          "id": "h20",
+          "query": "明天北京天气怎么样",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 3183.7,
+          "split": "holdout"
+        },
+        {
+          "id": "h21",
+          "query": "推荐几部好看的科幻电影",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 3466.0,
+          "split": "holdout"
+        },
+        {
+          "id": "h22",
+          "query": "茅台股票现在值得买吗",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 3683.9,
+          "split": "holdout"
+        },
+        {
+          "id": "h23",
+          "query": "把这句话翻译成英文：今天天气不错",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 3332.1,
+          "split": "holdout"
+        },
+        {
+          "id": "h24",
+          "query": "下期双色球号码是多少",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 3308.6,
+          "split": "holdout"
+        },
+        {
+          "id": "h25",
+          "query": "推荐一款两千元左右的手机",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 3585.1,
+          "split": "holdout"
+        },
+        {
+          "id": "h26",
+          "query": "护照怎么办，需要什么材料",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 3360.2,
+          "split": "holdout"
+        },
+        {
+          "id": "h27",
+          "query": "二甲双胍应该饭前吃还是饭后吃",
+          "category": "专业建议",
+          "answerable": false,
+          "refusal_type": "professional_advice",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 3227.2,
+          "split": "holdout"
+        },
+        {
+          "id": "h28",
+          "query": "血糖高需要打胰岛素吗，打多少单位",
+          "category": "专业建议",
+          "answerable": false,
+          "refusal_type": "professional_advice",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 3324.0,
+          "split": "holdout"
+        },
+        {
+          "id": "h29",
+          "query": "怀孕期间能不能吃二甲双胍",
+          "category": "专业建议",
+          "answerable": false,
+          "refusal_type": "professional_advice",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 3379.9,
+          "split": "holdout"
+        },
+        {
+          "id": "h30",
+          "query": "孩子发烧38度要吃退烧药吗",
+          "category": "专业建议",
+          "answerable": false,
+          "refusal_type": "professional_advice",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 3500.9,
+          "split": "holdout"
+        },
+        {
+          "id": "h31",
+          "query": "甲减吃优甲乐应该吃多少剂量",
+          "category": "专业建议",
+          "answerable": false,
+          "refusal_type": "professional_advice",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 2206.0,
+          "split": "holdout"
+        },
+        {
+          "id": "h32",
+          "query": "痛风发作时可以吃秋水仙碱吗",
+          "category": "专业建议",
+          "answerable": false,
+          "refusal_type": "professional_advice",
+          "accepted": false,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "",
+          "top_docs": [],
+          "latency_ms": 3043.2,
+          "split": "holdout"
+        }
+      ],
+      "hybrid_rerank_nogate": [
+        {
+          "id": "h01",
+          "query": "每天蔬菜至少吃多少克",
+          "category": "蔬果",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "cns-pagoda-2022",
+          "top_docs": [
+            "cns-pagoda-2022",
+            "nhc-obesity-diet-2024",
+            "cns-cdg-2022-eight"
+          ],
+          "latency_ms": 4944.0,
+          "split": "holdout"
+        },
+        {
+          "id": "h02",
+          "query": "每天水果建议吃多少",
+          "category": "蔬果",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "cns-pagoda-2022",
+          "top_docs": [
+            "cns-pagoda-2022",
+            "nhc-obesity-diet-2024",
+            "cns-cdg-2022-eight"
+          ],
+          "latency_ms": 2849.8,
+          "split": "holdout"
+        },
+        {
+          "id": "h03",
+          "query": "薯类每天吃多少合适",
+          "category": "谷薯",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "nhc-obesity-diet-2024",
+          "top_docs": [
+            "nhc-obesity-diet-2024",
+            "cns-cdg-2022-eight",
+            "cns-pagoda-2022"
+          ],
+          "latency_ms": 3017.9,
+          "split": "holdout"
+        },
+        {
+          "id": "h04",
+          "query": "每天要吃多少种食物",
+          "category": "膳食原则",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "cns-cdg-2022-eight",
+          "top_docs": [
+            "cns-cdg-2022-eight",
+            "cns-pagoda-2022",
+            "cns-cdg-2022-eight"
+          ],
+          "latency_ms": 3267.9,
+          "split": "holdout"
+        },
+        {
+          "id": "h05",
+          "query": "每天膳食纤维摄入多少合适",
+          "category": "膳食原则",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "who-healthy-diet",
+          "top_docs": [
+            "who-healthy-diet",
+            "nhc-obesity-diet-2024",
+            "cns-pagoda-2022"
+          ],
+          "latency_ms": 3534.2,
+          "split": "holdout"
+        },
+        {
+          "id": "h06",
+          "query": "全谷物和杂豆每天吃多少",
+          "category": "谷薯",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "cns-pagoda-2022",
+          "top_docs": [
+            "cns-pagoda-2022",
+            "cns-cdg-2022-eight",
+            "nhc-obesity-diet-2024"
+          ],
+          "latency_ms": 3192.4,
+          "split": "holdout"
+        },
+        {
+          "id": "h07",
+          "query": "成年人每天钠摄入不超过多少毫克",
+          "category": "钠盐",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "who-sodium",
+          "top_docs": [
+            "who-sodium",
+            "who-sodium",
+            "who-healthy-diet"
+          ],
+          "latency_ms": 3292.0,
+          "split": "holdout"
+        },
+        {
+          "id": "h08",
+          "query": "游离糖每天最好控制在多少克",
+          "category": "糖",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "who-free-sugars-2015",
+          "top_docs": [
+            "who-free-sugars-2015",
+            "who-healthy-diet",
+            "cns-cdg-2022-eight"
+          ],
+          "latency_ms": 2719.4,
+          "split": "holdout"
+        },
+        {
+          "id": "h09",
+          "query": "每周中等强度运动至少多少分钟",
+          "category": "身体活动",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "who-physical-activity",
+          "top_docs": [
+            "who-physical-activity",
+            "cns-cdg-2022-eight",
+            "nhc-obesity-diet-2024"
+          ],
+          "latency_ms": 3993.9,
+          "split": "holdout"
+        },
+        {
+          "id": "h10",
+          "query": "每周至少几天中等强度运动",
+          "category": "身体活动",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 2,
+          "evidence_hit": true,
+          "top1_doc": "who-physical-activity",
+          "top_docs": [
+            "who-physical-activity",
+            "cns-cdg-2022-eight",
+            "nhc-obesity-diet-2024"
+          ],
+          "latency_ms": 2961.1,
+          "split": "holdout"
+        },
+        {
+          "id": "h11",
+          "query": "BMI 是怎么算的",
+          "category": "体重",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 2,
+          "evidence_hit": true,
+          "top1_doc": "who-malnutrition",
+          "top_docs": [
+            "who-malnutrition",
+            "who-obesity",
+            "who-obesity"
+          ],
+          "latency_ms": 3203.8,
+          "split": "holdout"
+        },
+        {
+          "id": "h12",
+          "query": "减重时每天要少摄入多少热量",
+          "category": "减重",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "nhc-obesity-diet-2024",
+          "top_docs": [
+            "nhc-obesity-diet-2024",
+            "nhc-obesity-diet-2024",
+            "who-free-sugars-2015"
+          ],
+          "latency_ms": 2778.2,
+          "split": "holdout"
+        },
+        {
+          "id": "h13",
+          "query": "血糖高的人主食吃多少、怎么搭配",
+          "category": "血糖",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "nhc-hyperglycemia-2024",
+          "top_docs": [
+            "nhc-hyperglycemia-2024",
+            "cns-cdg-2022-eight",
+            "cns-cdg-2022-eight"
+          ],
+          "latency_ms": 3315.5,
+          "split": "holdout"
+        },
+        {
+          "id": "h14",
+          "query": "反式脂肪每天最多吃多少克",
+          "category": "反式脂肪",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "who-trans-fat",
+          "top_docs": [
+            "who-trans-fat",
+            "cns-cdg-2022-eight",
+            "who-trans-fat"
+          ],
+          "latency_ms": 3148.9,
+          "split": "holdout"
+        },
+        {
+          "id": "h15",
+          "query": "十岁以下儿童每天要吃多少蔬果",
+          "category": "蔬果",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "who-healthy-diet",
+          "top_docs": [
+            "who-healthy-diet",
+            "nhc-obesity-diet-2024",
+            "cns-cdg-2022-eight"
+          ],
+          "latency_ms": 2671.4,
+          "split": "holdout"
+        },
+        {
+          "id": "h16",
+          "query": "深色蔬菜应该占蔬菜的多少",
+          "category": "蔬果",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 2,
+          "evidence_hit": true,
+          "top1_doc": "nhc-obesity-diet-2024",
+          "top_docs": [
+            "nhc-obesity-diet-2024",
+            "cns-pagoda-2022",
+            "cns-cdg-2022-eight"
+          ],
+          "latency_ms": 3133.7,
+          "split": "holdout"
+        },
+        {
+          "id": "h17",
+          "query": "肥胖的人蛋白质和脂肪供能比多少合适",
+          "category": "减重",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 1,
+          "evidence_hit": true,
+          "top1_doc": "nhc-obesity-diet-2024",
+          "top_docs": [
+            "nhc-obesity-diet-2024",
+            "nhc-hyperglycemia-2024",
+            "nhc-obesity-diet-2024"
+          ],
+          "latency_ms": 3143.6,
+          "split": "holdout"
+        },
+        {
+          "id": "h18",
+          "query": "血压偏高的人盐和运动要注意什么",
+          "category": "钠盐",
+          "answerable": true,
+          "refusal_type": "",
+          "accepted": true,
+          "doc_hit": true,
+          "doc_rank": 3,
+          "evidence_hit": true,
+          "top1_doc": "who-healthy-diet",
+          "top_docs": [
+            "who-healthy-diet",
+            "cns-pagoda-2022",
+            "who-wpro-nudge-2023"
+          ],
+          "latency_ms": 3157.1,
+          "split": "holdout"
+        },
+        {
+          "id": "h19",
+          "query": "帮我写一个 Python 快速排序",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": true,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "who-wpro-nudge-2023",
+          "top_docs": [
+            "who-wpro-nudge-2023",
+            "who-wpro-nudge-2023",
+            "who-sodium"
+          ],
+          "latency_ms": 3119.8,
+          "split": "holdout"
+        },
+        {
+          "id": "h20",
+          "query": "明天北京天气怎么样",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": true,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "cns-cdg-2022-eight",
+          "top_docs": [
+            "cns-cdg-2022-eight",
+            "who-wpro-nudge-2023",
+            "who-wpro-nudge-2023"
+          ],
+          "latency_ms": 3356.9,
+          "split": "holdout"
+        },
+        {
+          "id": "h21",
+          "query": "推荐几部好看的科幻电影",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": true,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "who-wpro-nudge-2023",
+          "top_docs": [
+            "who-wpro-nudge-2023",
+            "who-wpro-nudge-2023",
+            "cns-pagoda-2022"
+          ],
+          "latency_ms": 3463.9,
+          "split": "holdout"
+        },
+        {
+          "id": "h22",
+          "query": "茅台股票现在值得买吗",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": true,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "who-wpro-nudge-2023",
+          "top_docs": [
+            "who-wpro-nudge-2023",
+            "who-wpro-nudge-2023",
+            "who-healthy-diet"
+          ],
+          "latency_ms": 3410.9,
+          "split": "holdout"
+        },
+        {
+          "id": "h23",
+          "query": "把这句话翻译成英文：今天天气不错",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": true,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "who-wpro-nudge-2023",
+          "top_docs": [
+            "who-wpro-nudge-2023",
+            "who-free-sugars-2015",
+            "cns-cdg-2022-eight"
+          ],
+          "latency_ms": 3480.4,
+          "split": "holdout"
+        },
+        {
+          "id": "h24",
+          "query": "下期双色球号码是多少",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": true,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "cns-pagoda-2022",
+          "top_docs": [
+            "cns-pagoda-2022",
+            "who-malnutrition",
+            "who-obesity"
+          ],
+          "latency_ms": 3405.0,
+          "split": "holdout"
+        },
+        {
+          "id": "h25",
+          "query": "推荐一款两千元左右的手机",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": true,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "cns-pagoda-2022",
+          "top_docs": [
+            "cns-pagoda-2022",
+            "cns-cdg-2022-eight",
+            "who-wpro-nudge-2023"
+          ],
+          "latency_ms": 3653.8,
+          "split": "holdout"
+        },
+        {
+          "id": "h26",
+          "query": "护照怎么办，需要什么材料",
+          "category": "无关话题",
+          "answerable": false,
+          "refusal_type": "off_topic",
+          "accepted": true,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "who-wpro-nudge-2023",
+          "top_docs": [
+            "who-wpro-nudge-2023",
+            "who-physical-activity",
+            "cns-pagoda-2022"
+          ],
+          "latency_ms": 3458.9,
+          "split": "holdout"
+        },
+        {
+          "id": "h27",
+          "query": "二甲双胍应该饭前吃还是饭后吃",
+          "category": "专业建议",
+          "answerable": false,
+          "refusal_type": "professional_advice",
+          "accepted": true,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "nhc-obesity-diet-2024",
+          "top_docs": [
+            "nhc-obesity-diet-2024",
+            "cns-cdg-2022-eight",
+            "nhc-hyperglycemia-2024"
+          ],
+          "latency_ms": 3345.4,
+          "split": "holdout"
+        },
+        {
+          "id": "h28",
+          "query": "血糖高需要打胰岛素吗，打多少单位",
+          "category": "专业建议",
+          "answerable": false,
+          "refusal_type": "professional_advice",
+          "accepted": true,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "who-obesity",
+          "top_docs": [
+            "who-obesity",
+            "who-free-sugars-2015",
+            "nhc-hyperglycemia-2024"
+          ],
+          "latency_ms": 3460.2,
+          "split": "holdout"
+        },
+        {
+          "id": "h29",
+          "query": "怀孕期间能不能吃二甲双胍",
+          "category": "专业建议",
+          "answerable": false,
+          "refusal_type": "professional_advice",
+          "accepted": true,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "nhc-obesity-diet-2024",
+          "top_docs": [
+            "nhc-obesity-diet-2024",
+            "who-healthy-diet",
+            "cns-cdg-2022-eight"
+          ],
+          "latency_ms": 3423.6,
+          "split": "holdout"
+        },
+        {
+          "id": "h30",
+          "query": "孩子发烧38度要吃退烧药吗",
+          "category": "专业建议",
+          "answerable": false,
+          "refusal_type": "professional_advice",
+          "accepted": true,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "cns-cdg-2022-eight",
+          "top_docs": [
+            "cns-cdg-2022-eight",
+            "who-sodium",
+            "cns-cdg-2022-eight"
+          ],
+          "latency_ms": 3503.2,
+          "split": "holdout"
+        },
+        {
+          "id": "h31",
+          "query": "甲减吃优甲乐应该吃多少剂量",
+          "category": "专业建议",
+          "answerable": false,
+          "refusal_type": "professional_advice",
+          "accepted": true,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "nhc-obesity-diet-2024",
+          "top_docs": [
+            "nhc-obesity-diet-2024",
+            "nhc-obesity-diet-2024",
+            "cns-cdg-2022-eight"
+          ],
+          "latency_ms": 2246.5,
+          "split": "holdout"
+        },
+        {
+          "id": "h32",
+          "query": "痛风发作时可以吃秋水仙碱吗",
+          "category": "专业建议",
+          "answerable": false,
+          "refusal_type": "professional_advice",
+          "accepted": true,
+          "doc_hit": false,
+          "doc_rank": null,
+          "evidence_hit": false,
+          "top1_doc": "cns-cdg-2022-eight",
+          "top_docs": [
+            "cns-cdg-2022-eight",
+            "cns-cdg-2022-eight",
+            "who-healthy-diet"
+          ],
+          "latency_ms": 3014.5,
+          "split": "holdout"
+        }
+      ]
+    }
+  }
+}
