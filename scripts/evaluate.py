@@ -33,10 +33,11 @@ from app.rag.retrieval.bm25 import BM25Index  # noqa: E402
 from app.rag.retrieval.vector import QdrantStore  # noqa: E402
 from app.rag.service import RetrievalService  # noqa: E402
 
-DEFAULT_COLLECTION = "orange_diary_knowledge_v2"
-# 必须与服务端默认一致（app/config.py 的 knowledge-v3）：曾经这里写 v2，
+DEFAULT_COLLECTION = "orange_diary_knowledge_v4"
+# 必须与服务端默认一致（app/config.py 的 knowledge-v4）：曾经这里写 v2，
 # 直接跑脚本会用旧索引评估，而线上读的是 v3，两边数字不可比。
-DEFAULT_INDEX_VERSION = "knowledge-v3"
+# v4 起索引里还有 cooking 域，评估集是营养题，因此固定只评 nutrition 域的分域索引。
+DEFAULT_INDEX_VERSION = "knowledge-v4"
 QUESTIONS_PATH = ROOT / "knowledge" / "eval" / "questions.json"
 CHUNKS_DIR = ROOT / "knowledge" / "index" / "chunks"
 # 与服务端判定保持一致：向量门槛 0.60；关键词单独成答的门槛更高（12.0）。
@@ -52,10 +53,12 @@ class EvalConfig:
 
     index_version: str = DEFAULT_INDEX_VERSION
     collection: str = DEFAULT_COLLECTION
+    # 评估集全是营养题；不限定域就会把菜谱片段也算进候选，指标与线上聊天不可比。
+    domain: str = "nutrition"
 
     @property
     def bm25_path(self) -> Path:
-        return ROOT / "knowledge" / "index" / "bm25" / f"{self.index_version}.json"
+        return ROOT / "knowledge" / "index" / "bm25" / f"{self.domain}.{self.index_version}.json"
 
 
 def load_questions() -> list[dict]:
@@ -299,6 +302,7 @@ def main() -> int:
         collection=config.collection,
         bm25_path=config.bm25_path,
         index_manifest_path=ROOT / "knowledge" / "index" / "manifest.json",
+        domain=config.domain,
         min_score=VECTOR_MIN_SCORE,
         bm25_strong_score=BM25_STRONG_SCORE,
         # 评估必须关缓存：命中缓存会跳过检索与 rerank，P50 会被算成 0.2ms。
@@ -316,6 +320,7 @@ def main() -> int:
             collection=config.collection,
             bm25_path=config.bm25_path,
             index_manifest_path=ROOT / "knowledge" / "index" / "manifest.json",
+            domain=config.domain,
             min_score=VECTOR_MIN_SCORE,
             bm25_strong_score=BM25_STRONG_SCORE,
             reranker=LocalReranker(model_path, max_length=args.rerank_max_length),
@@ -329,6 +334,7 @@ def main() -> int:
             collection=config.collection,
             bm25_path=config.bm25_path,
             index_manifest_path=ROOT / "knowledge" / "index" / "manifest.json",
+            domain=config.domain,
             min_score=0.0,
             bm25_strong_score=0.0,
             reranker=LocalReranker(model_path, max_length=args.rerank_max_length),

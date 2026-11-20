@@ -10,5 +10,21 @@ jieba==0.42.1
 python-docx==1.2.0
 pypdf==7.1.0
 
-# 可选：启用 Redis 跨进程限流（RAG_GLOBAL_LIMIT>0）时才需要，缺失时自动退化为进程内限流。
-# redis==6.4.0
+# ---- 业务后端（M1 起 Python 自己承载业务，不再回调 Java）----
+# ORM 与迁移：存量库用 0001 手写基线 + `alembic stamp 0001`，不使用 autogenerate。
+sqlalchemy==2.0.44
+alembic==1.16.5
+# MySQL 异步驱动。asyncmy 有 cp313 wheel；若换机器装不上，降级 aiomysql 需同步改 URL scheme。
+asyncmy==0.2.10
+# 密码哈希必须能校验 Spring 生成的 $2a$ 前缀，不能换成 argon2/passlib 默认算法。
+bcrypt==4.3.0
+PyJWT==2.10.1
+# 认证会话必需（刷新令牌轮换与复用检测）；RAG 跨进程限流也用同一个包。
+redis==6.4.0
+# 图片对象存储客户端（S3 兼容）。端点/凭据沿用 Java 的 MINIO_* 变量，切流时部署脚本不用改。
+minio==7.2.15
+# FastAPI 解析 multipart/form-data 必需，缺它 UploadFile 直接 500。
+python-multipart==0.0.20
+# 饮食报告 PDF。中文字体用 app/reports/assets/NotoSansSC-Regular.ttf（OFL），
+# 不用 reportlab 内置 CID 字体——那份依赖阅读器的字体支持，导出的报告会串字形。
+reportlab==4.4.4

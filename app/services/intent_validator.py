@@ -20,9 +20,15 @@ ALLOWED_INTENTS = {
     "exercise_calorie",
     "exercise_record",
     "health_advice",
+    "cooking",
     "out_of_scope",
     "clarification",
 }
+# 做菜只有一个意图，靠 subtype 区分"问某道菜/拿食材找菜/接着上一轮追问"，
+# 不拆成多个意图，否则聊天入口会被拆成几套。
+ALLOWED_COOKING_SUBTYPES = {"dish", "ingredients", "followup"}
+MAX_COOKING_SERVINGS = 12
+MAX_COOKING_LIST_ITEMS = 8
 ALLOWED_MEALS = {"breakfast", "lunch", "dinner", "snack"}
 # 每日汇总指标：只描述“今天的摄入/剩余/目标”，与食物营养指标不是同一套枚举。
 ALLOWED_SUMMARY_METRICS = {"intake_calorie", "remaining_calorie", "target_calorie"}
@@ -48,8 +54,13 @@ ALLOWED_UNITS = {
 ALLOWED_SLOT_KEYS = {
     "food_name", "amount_g", "amount_text", "nutrition_metric", "exercise_name", "duration_min",
     "quantity", "unit", "meal_type", "metrics",
+    # 做菜槽位：只描述"要做什么"，不含任何已摄入/库存语义。
+    "dish_name", "selected_dish", "ingredients", "allergens", "excluded_ingredients",
+    "equipment", "servings", "subtype",
 }
 # 每种意图必须具备的槽位；缺失时统一进入追问，而不是生成可保存的错误预览。
+# cooking 刻意不在表内：做菜没有必填参数，「一块五花肉」这种没有克重的说法也要能直接回答，
+# 不能因为缺 amount_g 就把用户推回"记录饮食还差多少克"的追问。
 REQUIRED_SLOTS = {
     "food_record": ("food_name", "amount_g"),
     "food_nutrition": ("food_name",),
@@ -138,6 +149,30 @@ def _normalize_metrics(value: object) -> list[str]:
     return result
 
 
+def _text_list(value: object, limit: int = MAX_COOKING_LIST_ITEMS) -> tuple[str, ...]:
+    """把「辣椒、五花肉、鸡腿」或数组归一成去重短列表。
+
+    做菜的食材/忌口只是提示词素材，不参与任何数值计算；长度和条数都要卡，
+    避免模型把整段话塞进槽位后再拼进提示词。
+    """
+    if isinstance(value, str):
+        parts: list[object] = re.split(r"[、,，;；/\s]+", value)
+    elif isinstance(value, (list, tuple, set)):
+        parts = list(value)
+    else:
+        return ()
+    result: list[str] = []
+    for item in parts:
+        if not isinstance(item, str):
+            continue
+        text = item.strip()[:MAX_SLOT_TEXT_LENGTH]
+        if text and text not in result:
+            result.append(text)
+        if len(result) >= limit:
+            break
+    return tuple(result)
+
+
 def normalize_slots(raw_slots: object) -> dict:
     """白名单、类型、范围三层校验，规则与语义路径共用。"""
     slots: dict = {}
@@ -172,6 +207,18 @@ def normalize_slots(raw_slots: object) -> dict:
         elif key == "meal_type":
             if isinstance(value, str) and value.strip() in ALLOWED_MEALS:
                 slots[key] = value.strip()
+        elif key == "servings":
+            servings = _finite_number(value)
+            # 0 人份、300 人份都不该带着往下走；拿不到整数就丢弃，让提示词按默认 2 人份说明。
+            if servings is not None and servings.is_integer() and 0 < servings <= MAX_COOKING_SERVINGS:
+                slots[key] = int(servings)
+        elif key == "subtype":
+            if isinstance(value, str) and value.strip() in ALLOWED_COOKING_SUBTYPES:
+                slots[key] = value.strip()
+        elif key in ("ingredients", "allergens", "excluded_ingredients"):
+            items = _text_list(value)
+            if items:
+                slots[key] = items
         else:
             text = _optional_text(value)
             if text:

@@ -47,8 +47,10 @@ def run_inference(args) -> tuple[dict, list[float], list[float], dict]:
     reranker = LocalReranker(args.model_path, max_length=args.max_length, batch_size=args.candidates)
     service = RetrievalService(
         collection=args.collection,
-        bm25_path=ROOT / "knowledge" / "index" / "bm25" / f"{args.index_version}.json",
+        # 与 evaluate.py 一致：只扫营养域的分域索引。
+        bm25_path=ROOT / "knowledge" / "index" / "bm25" / f"nutrition.{args.index_version}.json",
         index_manifest_path=ROOT / "knowledge" / "index" / "manifest.json",
+        domain="nutrition",
         top_k=args.candidates,
         # 门槛设 0：让每个候选都带着分数返回，扫阈值时再按需裁剪。
         rerank_min_score=0.0,
@@ -170,8 +172,8 @@ def _diversify_hits(hits: list[dict], limit: int, max_per_document: int) -> list
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="rerank 阈值扫描")
-    parser.add_argument("--index-version", default="knowledge-v3")
-    parser.add_argument("--collection", default="orange_diary_knowledge_v3")
+    parser.add_argument("--index-version", default="knowledge-v4")
+    parser.add_argument("--collection", default="orange_diary_knowledge_v4")
     parser.add_argument("--candidates", type=int, default=20, help="送进 rerank 的候选数")
     parser.add_argument("--max-length", type=int, default=384)
     parser.add_argument("--top-k", type=int, default=3, help="评估截断位置")

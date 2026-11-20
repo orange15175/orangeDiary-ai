@@ -54,10 +54,13 @@ class RetrievalHit:
     # rerank 分数是"这条是否回答了问题"的交互打分，与向量余弦不可直接比较；
     # 未接入 rerank 时为 None，调用方据此判断排序依据。
     rerank_score: float | None = None
+    # 来源所属知识域：追踪与来源快照据此区分营养/菜谱，避免互相冒充。
+    domain: str = ""
 
     def to_payload(self) -> dict:
         return {
             "rank": self.rank,
+            "domain": self.domain,
             "chunk_id": self.chunk_id,
             "document_id": self.document_id,
             "title": self.title,
@@ -121,6 +124,9 @@ class RetrievalService:
         collection: str = "orange_diary_knowledge_v2",
         bm25_path: Path | None = None,
         index_manifest_path: Path | None = None,
+        # 知识域：None 表示不限定（沿用原有文献索引）；"cooking" 等值会把向量召回
+        # 限定在对应 payload 上，且使用该域自己的 BM25 索引文件。
+        domain: str | None = None,
         embedding_model: str = "bge-m3",
         ollama_url: str = "http://127.0.0.1:11434",
         embedding_timeout_seconds: float = 8.0,
@@ -137,11 +143,13 @@ class RetrievalService:
         cache_max_entries: int = 256,
         breaker_failure_threshold: int = 3,
         breaker_reset_seconds: float = 30.0,
+        owns_reranker: bool = True,
     ) -> None:
         self.qdrant_url = qdrant_url
         self.collection = collection
         self.bm25_path = Path(bm25_path) if bm25_path else None
         self.index_manifest_path = Path(index_manifest_path) if index_manifest_path else None
+        self.domain = domain or None
         self.embedding_model = embedding_model
         self.ollama_url = ollama_url
         self.embedding_timeout_seconds = embedding_timeout_seconds
@@ -151,6 +159,9 @@ class RetrievalService:
         self.bm25_strong_score = bm25_strong_score
         self.max_per_document = max(1, max_per_document)
         self.reranker = reranker
+        # 跨知识域共享同一个 reranker 实例：按域各建一份会把几百 MB 的模型加载两遍。
+        # 共享时由 runtime 负责释放，服务关闭不能顺手把它关掉。
+        self.owns_reranker = owns_reranker
         self.rerank_candidates = max(1, rerank_candidates)
         self.rerank_min_score = float(rerank_min_score)
         self.cache = (
@@ -240,9 +251,9 @@ class RetrievalService:
                 self._embedder.close()
             if self._store is not None:
                 self._store.close()
-            if self.reranker is not None:
+            if self.reranker is not None and self.owns_reranker:
                 self.reranker.close()
-                self.reranker = None
+            self.reranker = None
             if self.cache is not None:
                 # 索引换版、模型换版时服务会重建，旧缓存必须一起丢弃。
                 self.cache.clear()
@@ -261,7 +272,7 @@ class RetrievalService:
         assert self._embedder is not None and self._store is not None
         try:
             vector = self._embedder.embed([query])[0]
-            hits = self._store.search(self.collection, vector, limit=limit)
+            hits = self._store.search(self.collection, vector, limit=limit, domain=self.domain)
         except Exception as error:
             self._vector_breaker.record_failure(error)
             raise
@@ -507,4 +518,5 @@ class RetrievalService:
             bm25_rank=item["bm25_rank"],
             rank=0,
             rerank_score=rerank_score,
+            domain=str(payload.get("knowledge_domain") or meta.get("domain") or self.domain or ""),
         )

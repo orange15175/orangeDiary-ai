@@ -43,7 +43,9 @@ class FakeStore:
         self._vector_hits = vector_hits
         self._payloads = payloads
 
-    def search(self, name: str, vector: list[float], limit: int = 20):
+    def search(self, name: str, vector: list[float], limit: int = 20, domain: str | None = None):
+        # 与 QdrantVectorStore 保持同签名：按域过滤是生产行为，假 Store 只做记录。
+        self.last_domain = domain
         return [
             {"chunk_id": chunk_id, "score": score, "payload": self._payloads.get(chunk_id, {})}
             for chunk_id, score in self._vector_hits[:limit]

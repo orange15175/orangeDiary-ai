@@ -7,6 +7,10 @@ __pycache__/
 *.py[cod]
 .venv/
 .pytest_cache/
+# 覆盖率数据是本地跑测的副产物，CI 用上传的 xml 报告，不入库。
+.coverage
+coverage.xml
+htmlcov/
 
 # 编辑器本地文件（整个 .idea 不入库：misc.xml/iml 会随 IDE 版本漂移）
 .idea/

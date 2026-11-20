@@ -53,16 +53,26 @@ _FOOD_PATTERN = re.compile(
     r"(?P<food>[\u4e00-\u9fff]{2,12}?)(?:\s*(?P<amount_after>\d+(?:\.\d+)?)\s*(?:公斤|千克|斤|克|g|G))?"
     r"(?:的|有|含有)?\s*(?:多少)?(?P<metric>热量|卡路里|大卡|千卡|能量|蛋白质|脂肪|碳水(?:化合物)?)"
 )
+# 时长不能只认阿拉伯数字：用户说"跑了半小时""一个半小时""两小时"同样有确定值，
+# 反问"请问多少分钟"等于让用户把自己刚说的话再翻译一遍。
+_DURATION_PATTERN = r"(?:\d+(?:\.\d+)?|[一二两三四五六七八九十]|半)(?:\s*个)?\s*(?:半\s*)?(?:小时|钟头|分钟|min)"
 _EXERCISE_PATTERN = re.compile(
-    r"(?P<exercise>[\u4e00-\u9fff]{2,12}?)(?:\s*(?P<duration>\d+)\s*(?:分钟|min))?\s*(?:能)?(?:消耗|燃烧)"
+    rf"(?P<exercise>[\u4e00-\u9fff]{{2,12}}?)(?:\s*(?P<duration>{_DURATION_PATTERN}))?\s*(?:能)?(?:消耗|燃烧)"
 )
 _EXERCISE_HINTS = (
     "跑步", "走路", "快走", "游泳", "骑行", "骑车", "跳绳", "健身",
     "力量训练", "瑜伽", "篮球", "足球", "羽毛球", "运动", "训练",
+    # 单字动词放最后："我跑完了30分钟"只出现"跑"，不补这一项就取不到项目名。
+    # "走"只在带时长时算运动（见下面规则），单说"我走了"不当作运动记录。
+    "跑", "走",
 )
+# 单字动词还原成登记项目名，避免把"跑"直接写进记录卡。
+_EXERCISE_ALIASES = {"跑": "跑步", "游": "游泳", "骑": "骑行", "走": "走路"}
+# 未来时标记：准备/打算/计划做的运动尚未发生，不能生成"已完成"记录卡。
+_FUTURE_MARKERS = r"(?:准备|打算|计划|将要|马上|一会儿|待会儿|等下|明天|后天|下周|下次|要去|想去)"
 _EXERCISE_RECORD_PATTERN = re.compile(
     r"(?:我|刚刚|刚才|晚上|今天)?(?:进行了|做了|完成了|跑了|练了|运动了)"
-    r"(?P<exercise>[\u4e00-\u9fff]{0,12}?)(?:\s*(?P<duration>\d+)\s*(?:分钟|min))?"
+    rf"(?P<exercise>[\u4e00-\u9fff]{{0,12}}?)(?:\s*(?P<duration>{_DURATION_PATTERN}))?"
 )
 # 记录语句优先匹配“数量 + 单位”；单位可选但必须显式识别，不能默认当克。
 _FOOD_RECORD_PATTERN = re.compile(
@@ -75,6 +85,124 @@ _FOOD_RECORD_PATTERN = re.compile(
 _FOOD_RECORD_NO_AMOUNT = re.compile(
     r"(?:吃了|喝了|进食了)\s*(?P<food>[\u4e00-\u9fffA-Za-z][\u4e00-\u9fffA-Za-z0-9]{0,15})"
 )
+
+# 做菜意图的显式标记。只认"问做法/找菜"的说法，避免和"吃/热量"混在一起：
+# 「红烧肉热量多少」必须仍是 food_nutrition，「我吃了红烧肉」必须仍是 food_record。
+_COOKING_DISH_QUERY = re.compile(
+    r"(?P<dish>[\u4e00-\u9fffA-Za-z]{2,12}?)(?:怎么做|怎么烧|怎么炒|怎么炖|怎么煮|怎么煎|怎么蒸|怎么拌|如何做|的做法|做法)"
+)
+_COOKING_DISH_WANT = re.compile(
+    r"(?:我想吃|想吃|我想做|想做|我要做|帮我做|教我做)(?:一)?(?:道|个|份)?(?P<dish>[\u4e00-\u9fff]{2,10})"
+)
+_COOKING_INGREDIENT_QUERY = re.compile(r"能做什么|可以做什么|做什么菜|做什么好|推荐(?:个|一道|一个)菜|来一道")
+# "我有辣椒、五花肉和鸡腿"：只取人称之后到句末的片段，再按分隔符拆。
+_COOKING_STOCK = re.compile(
+    r"(?:我有|家里有|冰箱里有|还剩|剩下|(?<!没)有)(?P<items>[^，。？！?,]{2,40})"
+)
+_COOKING_STOCK_STOPWORDS = ("什么", "啥", "哪些", "没有", "多少", "办法", "做法", "推荐")
+_COOKING_FOLLOWUP = re.compile(r"第[一二三四五1-5]道|就做|换成|换一道|换一个|不放|不要放|不用放")
+
+
+def _clean_dish(raw: str | None) -> str | None:
+    """剥掉菜名前的口头语、时间和句尾语气词，保留真正的菜名。"""
+    if not raw:
+        return None
+    dish = raw.strip()
+    # "晚上鸡腿怎么做"里的"晚上"是时间，不是菜名的一部分。
+    for prefix in (
+        "我想吃", "想吃", "我想做", "想做", "我要做", "帮我做", "教我做", "做一道", "来一道",
+        "晚上", "中午", "早上", "今天", "明天", "今晚", "周末", "我家", "家里",
+    ):
+        if dish.startswith(prefix):
+            dish = dish[len(prefix):]
+            break
+    dish = dish.strip("的了呢吧啊")
+    # "鸡腿除了红烧还能怎么做" 会把从句一起吞进菜名（正则只能靠"怎么做"定位）。
+    # 从句标记一律截断，否则菜名去检索必然零命中。
+    for marker in ("除了", "还能", "还可以", "可以", "如何", "怎么", "要", "用"):
+        cut = dish.find(marker)
+        if cut >= 2:
+            dish = dish[:cut]
+            break
+    dish = dish.strip("的了呢吧啊")
+    if len(dish) < 2:
+        return None
+    return dish
+
+
+def _cooking_params(message: str) -> dict[str, ParamValue]:
+    """提取做菜槽位。这里不产出 amount_g：做菜不是记录，缺克重也不追问。"""
+    params: dict[str, ParamValue] = {}
+
+    dish = _COOKING_DISH_QUERY.search(message) or _COOKING_DISH_WANT.search(message)
+    if dish:
+        name = _clean_dish(dish.group("dish"))
+        if name:
+            params["dish_name"] = name
+
+    stock = _COOKING_STOCK.search(message)
+    if stock:
+        raw_items = stock.group("items")
+        if not any(word in raw_items for word in _COOKING_STOCK_STOPWORDS):
+            items = [
+                item.strip()
+                for item in re.split(r"[、,，和及\s]+", raw_items)
+                if item.strip() and len(item.strip()) <= 12
+            ]
+            items = [item for item in items if not any(word in item for word in _COOKING_STOCK_STOPWORDS)]
+            if items:
+                params["ingredients"] = tuple(dict.fromkeys(items))
+
+    # 「辣椒、五花肉、鸡腿能做什么」没有"有"字，食材直接列在问句前面。
+    if "ingredients" not in params and _COOKING_INGREDIENT_QUERY.search(message):
+        head = re.split(r"能做什么|可以做什么|做什么菜|做什么好|推荐|来一道", message)[0]
+        head = re.sub(r"^(?:晚上|中午|早上|今天|明天|今晚|我|家里|冰箱里|还剩|剩下)+", "", head).strip("，,、 的")
+        if 2 <= len(head) <= 40:
+            items = [
+                item.strip()
+                for item in re.split(r"[、,，和及\s]+", head)
+                if 1 < len(item.strip()) <= 12
+            ]
+            items = [item for item in items if not any(word in item for word in _COOKING_STOCK_STOPWORDS)]
+            if items:
+                params["ingredients"] = tuple(dict.fromkeys(items))
+
+    allergens = [
+        value.strip()
+        for value in re.findall(r"(?:对)?([\u4e00-\u9fff]{1,6}?)过敏", message)
+        if value.strip()
+    ]
+    if allergens:
+        params["allergens"] = tuple(dict.fromkeys(allergens))
+
+    excluded = [
+        value.strip()
+        for value in re.findall(r"(?:不吃|不要放|不放|忌口有?|不能吃)([\u4e00-\u9fff]{1,6})", message)
+        if value.strip() and not any(word in value for word in _COOKING_STOCK_STOPWORDS)
+    ]
+    if excluded:
+        params["excluded_ingredients"] = tuple(dict.fromkeys(excluded))
+
+    servings = re.search(r"(\d+)\s*(?:人份|个人吃|人吃)", message)
+    if servings and 0 < int(servings.group(1)) <= 12:
+        params["servings"] = int(servings.group(1))
+    else:
+        cn_servings = re.search(r"([一二两三四五六])\s*个?人吃", message)
+        if cn_servings:
+            value = _CN_DIGITS.get(cn_servings.group(1))
+            if value:
+                params["servings"] = int(value)
+
+    if _COOKING_FOLLOWUP.search(message):
+        params["subtype"] = "followup"
+    elif _COOKING_INGREDIENT_QUERY.search(message) or (
+        "ingredients" in params and not params.get("dish_name")
+    ):
+        params["subtype"] = "ingredients"
+    else:
+        params["subtype"] = "dish"
+    return params
+
 
 
 def parse_quantity(text: str | None) -> float | None:
@@ -200,6 +328,26 @@ def _daily_summary_params(message: str) -> dict[str, ParamValue]:
     return {"metrics": tuple(dict.fromkeys(metrics))}
 
 
+_CN_MINUTES = {"半": 0.5, "一": 1, "二": 2, "两": 2, "三": 3, "四": 4,
+               "五": 5, "六": 6, "七": 7, "八": 8, "九": 9, "十": 10}
+
+
+def _parse_duration_minutes(text: str) -> int | None:
+    """把"30分钟/半小时/一个半小时/两小时"统一换算成分钟。"""
+    matched = re.search(rf"(?P<num>\d+(?:\.\d+)?|[一二两三四五六七八九十]|半)"
+                        rf"(?:\s*个)?\s*(?P<half>半\s*)?(?P<unit>小时|钟头|分钟|min)", text or "")
+    if not matched:
+        return None
+    raw = matched.group("num")
+    value = float(raw) if raw[0].isdigit() else _CN_MINUTES.get(raw)
+    if value is None:
+        return None
+    if matched.group("half"):
+        value += 0.5
+    minutes = value * 60 if matched.group("unit") in ("小时", "钟头") else value
+    return int(round(minutes)) if minutes > 0 else None
+
+
 def _exercise_params(message: str) -> dict[str, ParamValue]:
     """提取运动消耗查询的项目和时长。"""
     matched = _EXERCISE_PATTERN.search(message)
@@ -214,7 +362,9 @@ def _exercise_params(message: str) -> dict[str, ParamValue]:
     if exercise_name:
         params["exercise_name"] = exercise_name
     if matched.group("duration"):
-        params["duration_min"] = int(matched.group("duration"))
+        minutes = _parse_duration_minutes(matched.group("duration"))
+        if minutes:
+            params["duration_min"] = minutes
     return params
 
 
@@ -227,30 +377,43 @@ def _exercise_record_params(message: str) -> dict[str, ParamValue]:
         if name in message:
             exercise_name = name
             break
+    exercise_name = _EXERCISE_ALIASES.get(exercise_name, exercise_name)
     params: dict[str, ParamValue] = {}
     if exercise_name:
         params["exercise_name"] = exercise_name
     duration = matched.group("duration") if matched else None
     if not duration:
-        duration_match = re.search(r"(\d+)\s*(?:分钟|min)", message)
-        duration = duration_match.group(1) if duration_match else None
+        duration_match = re.search(r"(?:\d+(?:\.\d+)?|[一二两三四五六七八九十]|半)\s*(?:个)?\s*(?:半)?\s*(?:小时|钟头|分钟|min)", message)
+        duration = duration_match.group(0) if duration_match else None
     if duration:
-        params["duration_min"] = int(duration)
+        minutes = _parse_duration_minutes(duration)
+        if minutes:
+            params["duration_min"] = minutes
     return params
 
 
 # 新增简单意图时优先只补这一项；Router 不需要增加新的 if 分支。
 INTENT_RULES = (
     IntentRule("food_nutrition", "search_food_nutrition", 100, "nutrition_lookup",
-               (r"(?:热量|卡路里|大卡|千卡|能量|蛋白质|脂肪|碳水(?:化合物)?)",), _food_params, ("food_name",)),
+               # "今天消耗了多少大卡"里的"大卡"是运动消耗口径，不能被食物营养抢走。
+               (r"^(?!.*(?:消耗|燃烧)).*(?:热量|卡路里|大卡|千卡|能量|蛋白质|脂肪|碳水(?:化合物)?)",), _food_params, ("food_name",)),
     IntentRule("food_record", "prepare_diet_record", 95, "nutrition_lookup",
                (r"吃了(?!什么|啥|多少|几)", r"喝了(?!什么|啥|多少|几)", r"进食了"), _food_record_params,
                ("food_name", "amount_g")),
     IntentRule("exercise_calorie", "search_exercise_calorie", 90, "exercise_lookup",
                (r"(?:消耗|燃烧)",), _exercise_params, ("exercise_name", "duration_min")),
     IntentRule("exercise_record", "prepare_exercise_record", 94, "exercise_lookup",
-               (r"(?:刚刚|刚才|今天|晚上)?.*(?:跑步了|走路了|游泳了|骑车了|骑行了|跳绳了|健身了|训练了|瑜伽了|运动了)",
-                r"^(?!.*(?:消耗|燃烧|多少)).*(?:跑步|走路|游泳|骑车|骑行|跳绳|健身|训练|瑜伽)\s*\d+\s*(?:分钟|min)"), _exercise_record_params, ("exercise_name", "duration_min")),
+               # 已发生：全名+"了"（跑步了/健身了），或单字动词+"完了/过了"（跑完了/刚跑完）。
+               (rf"^(?!.*{_FUTURE_MARKERS}).*(?:跑步|走路|游泳|骑车|骑行|跳绳|健身|训练|瑜伽|运动|跑)(?:完了|完|过了|了)",
+                # 已发生：动词直接带时长（跑步30分钟/跑了半小时/走路一小时）。未来时与消耗查询排除在外。
+                rf"^(?!.*(?:消耗|燃烧|多少|{_FUTURE_MARKERS})).*(?:跑步|走路|游泳|骑车|骑行|跳绳|健身|训练|瑜伽|跑|走)\s*(?:了)?\s*{_DURATION_PATTERN}"), _exercise_record_params, ("exercise_name", "duration_min")),
+    # 做菜排在看营养/记饮食之后：同一句话里"红烧肉热量多少"仍归营养查询。
+    # 不给 conflict_group，才能和记录意图并存，供编排层拆分处理。
+    IntentRule("cooking", "answer_cooking", 85, None,
+               (r"怎么做|怎么烧|怎么炒|怎么炖|怎么煮|怎么煎|怎么蒸|怎么拌|如何做|做法|教程",
+                r"能做什么|可以做什么|做什么菜|做什么好|推荐个菜|推荐一道|来一道",
+                r"我想吃|想吃|我想做|想做",
+                r"第[一二三四五1-5]道|就做第"), _cooking_params),
     IntentRule("daily_summary", "get_today_summary", 80, None,
                (r"(?:今天|今日)?(?:能吃|可以吃|还能吃|还可以吃)多少(?:热量|卡路里|大卡|千卡)?",
                 r"(?:今天|今日)?(?:吃了|摄入|已经吃|已摄入)多少(?:热量|卡路里|大卡|千卡)?",
@@ -296,6 +459,22 @@ def normalize_intents(message: str) -> tuple:
 
     # 为调用方提供规则路径的统一结果，语义路径也会产出相同结构。
     return tuple(IntentResult.from_rule(intent) for intent in detect_intents(message))
+
+
+def is_future_plan(message: str) -> bool:
+    """「准备/打算/计划…」+ 运动项目：这件事还没发生，不能生成"已完成"记录卡。
+
+    规则层已经排除了未来时，但语义模型仍可能把这类句子判成 exercise_record。
+    出卡前统一用这个判断兜底，避免诱导用户保存一条没做过的运动。
+    """
+    text = (message or "").strip()
+    if not text:
+        return False
+    future = _FUTURE_MARKERS.replace("计划", "计划(?!外|内)")
+    return re.search(
+        future + r".{0,8}(?:跑步|走路|游泳|骑车|骑行|跳绳|健身|训练|瑜伽|运动|跑|走)",
+        text,
+    ) is not None
 
 
 def _merge_intents(candidates: list[IntentMatch]) -> list[IntentMatch]:

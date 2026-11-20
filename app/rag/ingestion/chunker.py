@@ -182,8 +182,26 @@ def chunk_markdown(
     meta: DocumentMeta,
     chunk_size: int = DEFAULT_CHUNK_SIZE,
     overlap: int = DEFAULT_OVERLAP,
+    strategy: str | None = None,
 ) -> list[Chunk]:
-    """生成带稳定 ID 与内容哈希的片段列表。"""
+    """生成带稳定 ID 与内容哈希的片段列表。
+
+    `strategy` 缺省取 `meta.chunk_strategy`：
+    - `heading`：按标题切，适合长篇文献；
+    - `recipe`：整份菜谱一个片段，避免只召回"大火收汁"这一段就当成完整做法。
+    """
+    strategy = strategy or meta.chunk_strategy or "heading"
+    if strategy == "recipe":
+        return _chunk_recipe(markdown, meta)
+    return _chunk_by_heading(markdown, meta, chunk_size=chunk_size, overlap=overlap)
+
+
+def _chunk_by_heading(
+    markdown: str,
+    meta: DocumentMeta,
+    chunk_size: int = DEFAULT_CHUNK_SIZE,
+    overlap: int = DEFAULT_OVERLAP,
+) -> list[Chunk]:
     chunks: list[Chunk] = []
     index = 0
     for heading_path, blocks in split_sections(markdown):
@@ -200,7 +218,59 @@ def chunk_markdown(
                     source_url=meta.source_url,
                     text=text,
                     content_hash=content_hash(text),
+                    domain=meta.domain,
+                    recipe_key=meta.recipe_key,
                 )
             )
             index += 1
     return chunks
+
+
+# 整份菜谱单个片段的上限。家常菜正文通常 300–600 字，超过这个长度说明
+# 文档里塞了多道菜或多个变体，应当退回按标题切，而不是把向量挤成一个模糊的均值。
+RECIPE_CHUNK_MAX = 2000
+
+
+def _chunk_recipe(markdown: str, meta: DocumentMeta) -> list[Chunk]:
+    """把一份菜谱压成一个自包含片段（菜名 + 食材 + 调料 + 步骤 + 要点）。"""
+    lines: list[str] = []
+    for raw_line in markdown.splitlines():
+        line = raw_line.rstrip()
+        # 引用块（> 说明：本菜谱由项目整理…）是给人看的免责声明，
+        # 进索引会稀释每条菜谱的语义、并让所有菜谱长得像同一篇文档。
+        if line.lstrip().startswith(">"):
+            continue
+        heading = _HEADING_RE.match(line)
+        if heading:
+            title = clean_inline(heading.group(2))
+            # 一级标题就是菜名，已在 payload 里，不重复占长度；其余小节压成【食材】这样的行内标签。
+            if len(heading.group(1)) > 1:
+                lines.append(f"【{title}】")
+            elif title and title != meta.title:
+                lines.append(title)
+            continue
+        if _LIST_RE.match(line):
+            line = _LIST_RE.sub("", line.strip())
+        if line.strip():
+            lines.append(clean_inline(line))
+    text = "\n".join(item for item in lines if item)
+    if not text:
+        return []
+    if len(text) <= RECIPE_CHUNK_MAX:
+        return [
+            Chunk(
+                chunk_id=f"{meta.document_id}-000",
+                document_id=meta.document_id,
+                version=meta.version,
+                chunk_index=0,
+                title=meta.title,
+                heading_path=(meta.title,),
+                source_url=meta.source_url,
+                text=text,
+                content_hash=content_hash(text),
+                domain=meta.domain,
+                recipe_key=meta.recipe_key or meta.document_id,
+            )
+        ]
+    # 过长就按小节切；recipe_key 仍然写在每个片段上，调用方据此合并。
+    return _chunk_by_heading(markdown, meta)

@@ -9,10 +9,17 @@ import hashlib
 from dataclasses import dataclass
 
 # 切块算法或参数变化时必须改版本号，旧索引才能被识别为不兼容。
-CHUNKER_VERSION = "md-heading-v2"
+CHUNKER_VERSION = "md-heading-v3"
 # 索引文本的拼装方式（是否并入章节标题）变化时改这里，触发全量重建。
 INDEX_TEXT_VERSION = "heading-context-v1"
-SCHEMA_VERSION = "1"
+# payload 结构变化时升这里：2 起每个片段带 knowledge_domain / recipe_key。
+SCHEMA_VERSION = "2"
+
+# 知识域：营养文献与烹饪资料必须能在候选阶段分开，
+# 否则做菜问题会召回膳食指南、营养问题会召回菜谱。
+DOMAIN_NUTRITION = "nutrition"
+DOMAIN_COOKING = "cooking"
+KNOWN_DOMAINS = (DOMAIN_NUTRITION, DOMAIN_COOKING)
 
 
 def content_hash(text: str) -> str:
@@ -33,6 +40,13 @@ class DocumentMeta:
     scope: str = ""
     version: str = "v1"
     needs_review: bool = False
+    # 知识域：nutrition（膳食指南/文献）或 cooking（菜谱）。
+    domain: str = DOMAIN_NUTRITION
+    # 同一道菜可能有多个片段（或结构化的稳定标识），召回后按它补齐整份菜谱。
+    recipe_key: str = ""
+    # heading：按标题切；recipe：整份菜谱一个片段（做法必须成套出现，不能只召回"翻炒出锅"）。
+    chunk_strategy: str = "heading"
+    license: str = ""
 
 
 @dataclass(frozen=True)
@@ -48,6 +62,8 @@ class Chunk:
     source_url: str
     text: str
     content_hash: str
+    domain: str = DOMAIN_NUTRITION
+    recipe_key: str = ""
 
     @property
     def heading_text(self) -> str:
@@ -66,7 +82,11 @@ class Chunk:
         return f"{self.heading_text}\n{self.text}"
 
     def payload(self) -> dict:
-        """Qdrant payload；字段与检索接口返回结构保持一致。"""
+        """Qdrant payload；字段与检索接口返回结构保持一致。
+
+        `knowledge_domain` 是向量通道在候选阶段做域过滤的唯一依据，
+        缺了它就只能"混搜后再过滤"，做菜问题会被文献挤掉。
+        """
         return {
             "chunk_id": self.chunk_id,
             "document_id": self.document_id,
@@ -77,6 +97,8 @@ class Chunk:
             "source_url": self.source_url,
             "text": self.text,
             "content_hash": self.content_hash,
+            "knowledge_domain": self.domain,
+            "recipe_key": self.recipe_key,
             "chunker_version": CHUNKER_VERSION,
             "schema_version": SCHEMA_VERSION,
         }

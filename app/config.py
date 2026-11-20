@@ -8,8 +8,8 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 # 检索默认值只在这里定义一次：字段默认值与 from_env 共用，避免两处各写一份后漂移
 # （曾经因为字段写 0.60、from_env 写 0.55，导致线上仍按旧阈值判定）。
-_DEFAULT_RAG_COLLECTION = "orange_diary_knowledge_v3"
-_DEFAULT_RAG_INDEX_VERSION = "knowledge-v3"
+_DEFAULT_RAG_COLLECTION = "orange_diary_knowledge_v4"
+_DEFAULT_RAG_INDEX_VERSION = "knowledge-v4"
 _DEFAULT_RAG_TOP_K = "5"
 _DEFAULT_RAG_MIN_SCORE = "0.60"
 _DEFAULT_RAG_BM25_STRONG_SCORE = "12.0"
@@ -63,6 +63,14 @@ class Settings:
     deepseek_timeout_seconds: float
     deepseek_input_price_per_million: float
     deepseek_output_price_per_million: float
+    # ---- 模型网关可靠性（重试 + 熔断）----
+    # 只重试瞬时故障（连接失败 / 超时 / 429 / 5xx）；4xx 与空回答不重试。
+    model_retry_max_attempts: int = 3
+    model_retry_base_delay_seconds: float = 0.5
+    model_retry_backoff_factor: float = 2.0
+    model_retry_max_delay_seconds: float = 5.0
+    model_breaker_failure_threshold: int = 3
+    model_breaker_reset_seconds: float = 30.0
     ai_service_token: str = ""
     # RAG 检索配置；默认值对应本地开发环境的 knowledge-v3 索引（144 片段 / 13 篇文档）。
     # 根目录 knowledge/manifest.json 里残留的 version 字段是建库时的标注，不参与选择，
@@ -110,6 +118,45 @@ class Settings:
     # 表现为"隔一会儿问第一句就没有来源"。显式保活，0/空 表示不发送该参数。
     ollama_keep_alive: str = "30m"
     knowledge_index_dir: str = str(_PROJECT_ROOT / "knowledge" / "index")
+    # ---- 业务后端（M1 起 Python 自己承载业务，不再回调 Java）----
+    app_env: str = "development"
+    # 与 Java 同一个 MySQL 库；驱动用 asyncmy，URL 形如
+    # mysql+asyncmy://user:pass@host:3306/calorie_tracker
+    database_url: str = ""
+    # 认证会话专用 Redis；与 RAG 限流用的 rag_redis_url 分开，避免互相顶掉配置。
+    redis_url: str = ""
+    jwt_secret: str = ""
+    jwt_expiration_ms: int = 1_800_000
+    jwt_refresh_expiration_ms: int = 2_592_000_000
+    # 切流后新会话写在新命名空间，旧 Java 会话不受影响；要无感迁移须另做兼容测试。
+    auth_session_namespace: str = "auth:session:"
+    # ---- AI 问答（`/api/ai/**`）----
+    # 对齐 Java `features.ai-chat.enabled`：关掉后三个端点直接 404，而不是返回空回答。
+    ai_chat_enabled: bool = True
+    # 配额数值沿用 Java `ai.quota`：正常用户一天 8~15 次，演示日（彩排+演示+老师试）约 50 次。
+    ai_daily_limit: int = 50
+    # 分钟窗口只防脚本：正常对话不会一分钟连问 10 句。
+    ai_quota_per_minute: int = 10
+    # 管理员免次数、不免 token 成本（成本上限首版未落地，语义先固定在这里）。
+    ai_quota_admin_exempt: bool = True
+    # 会话摘要：够 50 条消息才触发，一次压 20 条，摘要上限 1200 字。
+    ai_summary_trigger_messages: int = 50
+    ai_summary_batch_size: int = 20
+    ai_summary_max_chars: int = 1200
+    # ---- 社区写操作限流（与 Java `community.rate-limit` 默认值一致）----
+    # 这些是安全边界：Redis 不可用时 fail-closed（503），不能像 AI 配额那样放行。
+    community_posts_per_hour: int = 20
+    community_comments_per_minute: int = 30
+    community_comments_per_day: int = 500
+    community_images_per_hour: int = 100
+    community_image_bytes_per_day: int = 500 * 1024 * 1024
+    community_reports_per_day: int = 30
+    # ---- 图片对象存储（MinIO，S3 兼容）----
+    # 与 Java `minio.*` 完全同一套环境变量，切流时部署脚本不用改。
+    minio_endpoint: str = "http://localhost:9000"
+    minio_access_key: str = "minioadmin"
+    minio_secret_key: str = "minioadmin"
+    minio_bucket: str = "orange-diary"
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -123,6 +170,22 @@ class Settings:
             ),
             deepseek_output_price_per_million=float(
                 os.getenv("DEEPSEEK_OUTPUT_PRICE_PER_MILLION", "0")
+            ),
+            model_retry_max_attempts=int(os.getenv("MODEL_RETRY_MAX_ATTEMPTS", "3")),
+            model_retry_base_delay_seconds=float(
+                os.getenv("MODEL_RETRY_BASE_DELAY_SECONDS", "0.5")
+            ),
+            model_retry_backoff_factor=float(
+                os.getenv("MODEL_RETRY_BACKOFF_FACTOR", "2.0")
+            ),
+            model_retry_max_delay_seconds=float(
+                os.getenv("MODEL_RETRY_MAX_DELAY_SECONDS", "5.0")
+            ),
+            model_breaker_failure_threshold=int(
+                os.getenv("MODEL_BREAKER_FAILURE_THRESHOLD", "3")
+            ),
+            model_breaker_reset_seconds=float(
+                os.getenv("MODEL_BREAKER_RESET_SECONDS", "30.0")
             ),
             ai_service_token=os.getenv("AI_SERVICE_TOKEN", "").strip(),
             rag_enabled=os.getenv("RAG_ENABLED", "true").strip().lower() not in {"0", "false", "no"},
@@ -190,4 +253,32 @@ class Settings:
             knowledge_index_dir=os.getenv(
                 "KNOWLEDGE_INDEX_DIR", str(_PROJECT_ROOT / "knowledge" / "index")
             ),
+            app_env=os.getenv("APP_ENV", "development").strip().lower(),
+            database_url=os.getenv("DATABASE_URL", "").strip(),
+            redis_url=os.getenv("REDIS_URL", "").strip(),
+            jwt_secret=os.getenv("JWT_SECRET", "").strip(),
+            jwt_expiration_ms=int(os.getenv("JWT_EXPIRATION_MS", "1800000")),
+            jwt_refresh_expiration_ms=int(os.getenv("JWT_REFRESH_EXPIRATION_MS", "2592000000")),
+            auth_session_namespace=os.getenv("AUTH_SESSION_NAMESPACE", "auth:session:").strip(),
+            community_posts_per_hour=int(os.getenv("COMMUNITY_POSTS_PER_HOUR", "20")),
+            community_comments_per_minute=int(os.getenv("COMMUNITY_COMMENTS_PER_MINUTE", "30")),
+            community_comments_per_day=int(os.getenv("COMMUNITY_COMMENTS_PER_DAY", "500")),
+            community_images_per_hour=int(os.getenv("COMMUNITY_IMAGES_PER_HOUR", "100")),
+            community_image_bytes_per_day=int(
+                os.getenv("COMMUNITY_IMAGE_BYTES_PER_DAY", str(500 * 1024 * 1024))
+            ),
+            community_reports_per_day=int(os.getenv("COMMUNITY_REPORTS_PER_DAY", "30")),
+            minio_endpoint=os.getenv("MINIO_ENDPOINT", "http://localhost:9000").strip(),
+            minio_access_key=os.getenv("MINIO_ACCESS_KEY", "minioadmin").strip(),
+            minio_secret_key=os.getenv("MINIO_SECRET_KEY", "minioadmin").strip(),
+            minio_bucket=os.getenv("MINIO_BUCKET", "orange-diary").strip(),
+            ai_chat_enabled=os.getenv("FEATURES_AI_CHAT_ENABLED", "true").strip().lower()
+            not in {"0", "false", "no"},
+            ai_daily_limit=int(os.getenv("AI_DAILY_QUOTA", "50")),
+            ai_quota_per_minute=int(os.getenv("AI_QUOTA_PER_MINUTE", "10")),
+            ai_quota_admin_exempt=os.getenv("AI_QUOTA_ADMIN_EXEMPT", "true").strip().lower()
+            not in {"0", "false", "no"},
+            ai_summary_trigger_messages=int(os.getenv("AI_SUMMARY_TRIGGER_MESSAGES", "50")),
+            ai_summary_batch_size=int(os.getenv("AI_SUMMARY_BATCH_SIZE", "20")),
+            ai_summary_max_chars=int(os.getenv("AI_SUMMARY_MAX_CHARS", "1200")),
         )

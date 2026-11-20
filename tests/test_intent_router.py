@@ -83,6 +83,32 @@ class ClarificationTests(unittest.TestCase):
         self.assertIsNone(build_clarification(normalize_intents("跑步30分钟消耗多少")))
 
 
+class ExerciseTenseTests(unittest.TestCase):
+    """「已发生」才出记录卡；「准备做」不能生成已完成记录。"""
+
+    def _record(self, text: str):
+        return [item for item in normalize_intents(text) if item.intent == "exercise_record"]
+
+    def test_finished_forms_are_recognized(self):
+        for text in ("我跑了30分钟", "我跑完了30分钟", "刚跑完30分钟", "今天跑步了30分钟"):
+            with self.subTest(text=text):
+                hits = self._record(text)
+                self.assertTrue(hits, f"{text} 应识别为已完成的运动记录")
+                slots = hits[0].slots
+                self.assertEqual("跑步", slots["exercise_name"])
+                self.assertEqual(30, slots["duration_min"])
+
+    def test_future_plans_do_not_produce_record(self):
+        for text in ("我准备跑步30分钟", "我打算明天跑步30分钟", "我计划下周游泳30分钟"):
+            with self.subTest(text=text):
+                self.assertFalse(self._record(text), f"{text} 尚未发生，不该生成记录卡")
+
+    def test_bare_verb_alone_is_not_a_record(self):
+        # 「我走了」是离开，不是运动记录；带时长才算。
+        self.assertFalse(self._record("我走了"))
+        self.assertTrue(self._record("我走了30分钟"))
+
+
 class NutritionMetricTests(unittest.TestCase):
     def test_chinese_metric_is_normalized_to_enum(self):
         _, slots, _ = classify("鸡蛋的热量是多少")[0]
@@ -147,6 +173,23 @@ class SharedValidationTests(unittest.TestCase):
         results = classify("今天还能吃多少热量")
         self.assertEqual("daily_summary", results[0][0])
         self.assertEqual(("remaining_calorie",), results[0][1]["metrics"])
+
+
+class ChineseDurationTests(unittest.TestCase):
+    """时长不能只认阿拉伯数字：用户说"半小时"就是 30 分钟，不该反过来追问。"""
+
+    def test_chinese_duration_is_converted(self):
+        cases = {"跑了半小时": 30, "走路一小时": 60, "游泳一个半小时": 90, "骑行两小时": 120}
+        for message, expected in cases.items():
+            slots = classify(message)[0][1]
+            self.assertEqual(expected, slots["duration_min"], message)
+
+    def test_future_plan_still_not_a_record(self):
+        self.assertEqual([], classify("准备跑步30分钟"))
+
+    def test_exercise_calorie_not_stolen_by_food_nutrition(self):
+        results = classify("跑步消耗多少热量")
+        self.assertEqual("exercise_calorie", results[0][0])
 
 
 if __name__ == "__main__":

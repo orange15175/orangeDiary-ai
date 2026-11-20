@@ -91,3 +91,54 @@ class ChunkerTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+RECIPE_MARKDOWN = """# 红烧肉
+
+## 食材
+- 五花肉 500 克
+- 姜 4 片
+
+## 调料
+- 生抽 2 汤匙
+
+## 做法
+1. 五花肉切块焯水。
+2. 炒糖色后炖 50 分钟。
+"""
+
+
+class RecipeChunkTests(unittest.TestCase):
+    """菜谱必须整份进一个片段：只召回"收汁"那一段会被当成完整做法。"""
+
+    def _meta(self):
+        return DocumentMeta(
+            document_id="recipe-hongshaorou",
+            title="红烧肉",
+            file="cooking/红烧肉.md",
+            domain="cooking",
+            recipe_key="hongshaorou",
+            chunk_strategy="recipe",
+        )
+
+    def test_whole_recipe_becomes_single_chunk(self):
+        chunks = chunk_markdown(RECIPE_MARKDOWN, self._meta())
+        self.assertEqual(1, len(chunks))
+        text = chunks[0].text
+        for part in ("五花肉 500 克", "生抽 2 汤匙", "炒糖色"):
+            self.assertIn(part, text)
+        # 小节标题压成行内标签，读起来仍然知道哪段是调料、哪段是做法。
+        self.assertIn("【调料】", text)
+
+    def test_recipe_chunk_carries_domain_and_key(self):
+        chunk = chunk_markdown(RECIPE_MARKDOWN, self._meta())[0]
+        self.assertEqual("cooking", chunk.domain)
+        self.assertEqual("hongshaorou", chunk.recipe_key)
+        payload = chunk.payload()
+        self.assertEqual("cooking", payload["knowledge_domain"])
+        self.assertEqual("hongshaorou", payload["recipe_key"])
+
+    def test_heading_document_defaults_to_nutrition_domain(self):
+        chunk = chunk_markdown(MARKDOWN, meta())[0]
+        self.assertEqual("nutrition", chunk.domain)
+        self.assertEqual("nutrition", chunk.payload()["knowledge_domain"])

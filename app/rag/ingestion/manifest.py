@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from app.rag.schemas import DocumentMeta
+from app.rag.schemas import DOMAIN_NUTRITION, KNOWN_DOMAINS, DocumentMeta
 
 
 class ManifestError(ValueError):
@@ -40,6 +40,16 @@ def load_manifest(path: Path) -> list[DocumentMeta]:
         if document_id in seen:
             raise ManifestError(f"document_id 重复: {document_id}")
         seen.add(document_id)
+        # 域名写错会同时从两个域的索引里消失（既不进 nutrition 也不进 cooking），
+        # 检索时只表现为"没命中"，很难排查，所以这里直接拒绝。
+        domain = str(item.get("domain") or DOMAIN_NUTRITION).strip()
+        if domain not in KNOWN_DOMAINS:
+            raise ManifestError(
+                f"未知 knowledge_domain: {domain}（允许：{', '.join(KNOWN_DOMAINS)}）"
+            )
+        strategy = str(item.get("chunk_strategy") or "heading").strip()
+        if strategy not in {"heading", "recipe"}:
+            raise ManifestError(f"未知 chunk_strategy: {strategy}（允许：heading, recipe）")
         result.append(
             DocumentMeta(
                 document_id=document_id,
@@ -51,6 +61,10 @@ def load_manifest(path: Path) -> list[DocumentMeta]:
                 scope=str(item.get("scope") or ""),
                 version=str(item.get("version") or "v1"),
                 needs_review=bool(item.get("needs_review", False)),
+                domain=domain,
+                recipe_key=str(item.get("recipe_key") or "").strip(),
+                chunk_strategy=strategy,
+                license=str(item.get("license") or "").strip(),
             )
         )
     return result

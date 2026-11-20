@@ -1,14 +1,64 @@
 import asyncio
 import json
 import logging
+import random
+import threading
 import time
 
 import httpx
 
 from app.config import Settings
 from app.prompts.scenarios import SCENARIOS
+from app.rag.circuit import CircuitBreaker
 
 logger = logging.getLogger("orange-diary-ai")
+
+# 可重试的瞬时故障：连接失败 / 超时 / 429 / 5xx。4xx（除 429）是参数或鉴权问题，
+# 重试不会变好；空回答与截断是上游"正常返回了无效内容"，重试大概率还是这样。
+_RETRYABLE_CODES = {
+    "upstream_timeout",
+    "upstream_http_429",
+    "upstream_http_500",
+    "upstream_http_502",
+    "upstream_http_503",
+    "upstream_http_504",
+    "invalid_upstream_response",
+}
+
+# 熔断器按场景隔离：聊天挂了不该连带拖垮摘要或意图分类。进程级共享，
+# 因为调用方每次都 `ModelGateway(settings)` 新建实例，状态必须活在外面。
+_BREAKERS: dict[str, CircuitBreaker] = {}
+_BREAKERS_LOCK = threading.Lock()
+
+
+def _breaker_for(scene_id: str, settings: Settings) -> CircuitBreaker:
+    with _BREAKERS_LOCK:
+        breaker = _BREAKERS.get(scene_id)
+        if breaker is None:
+            breaker = CircuitBreaker(
+                f"model:{scene_id}",
+                failure_threshold=settings.model_breaker_failure_threshold,
+                reset_timeout_seconds=settings.model_breaker_reset_seconds,
+            )
+            _BREAKERS[scene_id] = breaker
+        return breaker
+
+
+def reset_model_breakers() -> None:
+    """清空熔断器状态（测试与运维重载用）。"""
+    with _BREAKERS_LOCK:
+        _BREAKERS.clear()
+
+
+def _is_retryable(code: str) -> bool:
+    return code in _RETRYABLE_CODES
+
+
+def _retry_delay(attempt: int, settings: Settings) -> float:
+    """指数退避 + 全抖动（0.5x~1.5x），并封顶，避免重试把请求拖出总预算。"""
+    raw = settings.model_retry_base_delay_seconds * (settings.model_retry_backoff_factor ** attempt)
+    jittered = raw * (0.5 + random.random())
+    return min(jittered, settings.model_retry_max_delay_seconds)
 
 
 class ModelFailure(Exception):
@@ -18,7 +68,7 @@ class ModelFailure(Exception):
 
 
 class ModelGateway:
-    """The only upstream text-model transport; tools remain executed by Java."""
+    """The only upstream text-model transport; tools are executed by the caller (Python side)."""
     def __init__(self, settings: Settings):
         self.settings = settings
 
@@ -66,6 +116,39 @@ class ModelGateway:
         payload, scene = self.prepare(body)
         if not self.settings.deepseek_api_key:
             raise ModelFailure("model_not_configured", 503)
+
+        scene_id = body["model"]
+        breaker = _breaker_for(scene_id, self.settings)
+        if not breaker.allow():
+            self.log_result(scene_id, scene, trace_id, time.monotonic(), "failed", error="circuit_open")
+            raise ModelFailure("circuit_open", 503)
+
+        attempts = max(1, self.settings.model_retry_max_attempts)
+        for attempt in range(attempts):
+            try:
+                result = await self._transact(payload, scene, scene_id, trace_id)
+            except ModelFailure as error:
+                # 只有"瞬时且还有名额"才重试；不可重试或最后一次失败都记入熔断并抛出。
+                if not (_is_retryable(error.code) and attempt < attempts - 1):
+                    breaker.record_failure(error.code)
+                    raise
+                delay = _retry_delay(attempt, self.settings)
+                logger.info(
+                    "AI_RETRY scene=%s attempt=%d/%d error=%s delayMs=%d",
+                    scene_id, attempt + 1, attempts, error.code, int(delay * 1000),
+                )
+                await asyncio.sleep(delay)
+                continue
+            breaker.record_success()
+            return result
+        raise AssertionError("unreachable")  # 循环要么 return 要么 raise，兜底防静默
+
+    async def _transact(self, payload: dict, scene, scene_id: str, trace_id: str):
+        """单次 HTTP 事务，不含重试。
+
+        流式请求一旦成功建立连接就返回生成器、退出重试层：正文已经（或即将）产出，
+        不能再无痕重播；生成器内部的错误仍由 `stream` 自行降级。
+        """
         start = time.monotonic()
         client = httpx.AsyncClient(timeout=httpx.Timeout(scene.timeout_seconds, connect=4))
         response = None
@@ -75,7 +158,7 @@ class ModelGateway:
             response = await client.send(request, stream=payload["stream"])
             response.raise_for_status()
             if payload["stream"]:
-                return self.stream(response, client, body["model"], scene, trace_id, start)
+                return self.stream(response, client, scene_id, scene, trace_id, start)
             result = response.json()
             choice = result["choices"][0]
             message = choice.get("message") or {}
@@ -84,19 +167,19 @@ class ModelGateway:
                 raise ModelFailure("empty_response")
             if choice.get("finish_reason") == "length":
                 raise ModelFailure("output_truncated")
-            self.log_result(body["model"], scene, trace_id, start, "success", result.get("usage"))
+            self.log_result(scene_id, scene, trace_id, start, "success", result.get("usage"))
             return result
         except httpx.TimeoutException:
-            self.log_result(body["model"], scene, trace_id, start, "failed", error="upstream_timeout")
+            self.log_result(scene_id, scene, trace_id, start, "failed", error="upstream_timeout")
             raise ModelFailure("upstream_timeout", 504) from None
         except httpx.HTTPStatusError as exc:
-            self.log_result(body["model"], scene, trace_id, start, "failed", error="upstream_http_" + str(exc.response.status_code))
+            self.log_result(scene_id, scene, trace_id, start, "failed", error="upstream_http_" + str(exc.response.status_code))
             raise ModelFailure("upstream_http_" + str(exc.response.status_code)) from None
         except (httpx.HTTPError, ValueError, KeyError, IndexError, TypeError):
-            self.log_result(body["model"], scene, trace_id, start, "failed", error="invalid_upstream_response")
+            self.log_result(scene_id, scene, trace_id, start, "failed", error="invalid_upstream_response")
             raise ModelFailure("invalid_upstream_response") from None
         except ModelFailure as exc:
-            self.log_result(body["model"], scene, trace_id, start, "failed", error=exc.code)
+            self.log_result(scene_id, scene, trace_id, start, "failed", error=exc.code)
             raise
         finally:
             if response is None or not payload["stream"] or response.status_code != 200:

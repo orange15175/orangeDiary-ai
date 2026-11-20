@@ -1,8 +1,44 @@
 # OrangeDiary AI / Python RAG 开发与验收计划
 
-编制日期：2026-11-17。
+编制日期：2026-11-17。架构口径修订：2026-11-19。
 
 用途：交给其他模型或开发者执行的任务说明。从当前迁移后的版本出发，先修复已知问题，再完成第一阶段和第二阶段。本文是目标计划，不代表所列能力已经实现。
+
+## 0. 变更说明（2026-11-19）
+
+本文编制时的架构是"Java 编排 + Python 提供 AI/RAG"的两进程分工。经用户确认，目标已收敛为**单进程架构**：后端全部由 Python（FastAPI）承载，Java 仅作为迁移对照与回滚备份，不再参与运行。前端、运维脚本与容器编排只面向一个后端进程。
+
+因此本文中凡是出现"Java 编排""前端只调 Java""Python 只做 AI""Java 保存会话""Java 映射 DTO"等表述，均应按单进程理解：**职责不变、边界不变，只把执行者从两个进程换成同一个进程内的模块。** 已在正文逐处改写；下表用于查对原口径。
+
+### 0.1 原角色 → 单进程内位置
+
+| 原计划角色（两进程） | 单进程内位置 |
+| --- | --- |
+| Java 公共 API：认证、权限、幂等、会话、业务读写、SSE | `app/main.py`（路由装配）、`app/api/*`、`app/dependencies.py`（JWT 鉴权） |
+| Java 业务数据查询与工具执行 | `app/services/*`、`app/models/*`；AI 只读工具在 `app/services/ai_tools.py` |
+| Python classify：规则 / 语义分类、参数提取、缺参说明 | `app/services/intent_classifier.py`（HTTP 入口 `app/api/intent.py` 保留，供运维脚本与灰度对比） |
+| Python RAG search：改写、向量 + BM25、RRF、Rerank、证据过滤 | `app/rag/*`，运行时单例装配于 `app/rag/runtime.py` |
+| Python 模型网关：凭据、提示词、调用、观测 | `app/services/model_gateway.py` |
+| Java 保存会话与摘要 | `app/services/ai_conversation.py`（表 `ai_conversation`、`ai_conversation_message`） |
+| 跨进程 traceId 传递与 DTO 映射 | 进程内 `trace_id` 贯穿 `app/services/ai_trace_service.py`；`app/schemas/ai.py` 直接产出前端字段，无跨进程 DTO |
+
+### 0.2 失效条目重映射
+
+| 原条目 | 失效原因 | 现对应 |
+| --- | --- | --- |
+| §2.1「Java 编排聊天流程，Python 专注 AI 和 RAG」 | 已收敛为单进程 | 由 `app/services/ai_service.py` 编排配额 → 会话 → 意图 → 工具 → 生成 → 落库 → trace |
+| §2.2-1「前端只调用 Java」 | 不存在独立 Java 后端进程 | 前端只调用 Python 后端，仍不持有内部服务 Token、模型 Key 或 Qdrant Key |
+| §2.2-3「Python 首期只检索公共文献，不直接访问个人业务数据库」 | 同进程必须读写业务库 | 检索层仍不接触个人数据；个人数据只由 `ai_tools` 按登录态查询，且不进入检索请求或第三方 rerank |
+| §2.2-4「动态热量、体重、目标来自 Java 工具」 | 工具执行者变更 | 来自 `app/services/ai_tools.py`，仍为实时查询，不用摘要替代 |
+| §2.2-5「只有 Java 执行业务写入」 | 执行者变更 | 只有确认接口执行业务写入（登录态归属校验 + 幂等键），模型只产出预览 |
+| §2.2-8「会话与摘要由 Java 持久化；Python 不创建第二套」 | 执行者变更 | 系统只有一个会话来源，禁止任何第二套会话历史 |
+| §1.4「Java 将检索接口映射成 DTO」 | 无跨进程边界 | `app/schemas/ai.py` 直接产出 `reply` / `conversationId` / `action` / `sources` |
+| §2.6「Java 到 Python 传递同一 traceId」 | 无跨进程边界 | 进程内 `trace_id` 贯穿分类、业务查询、Embedding、召回、融合、精排、生成、持久化 |
+| §8「Python RAG 本身不意味着把整套后端改写成 Python」 | 与既定目标相反 | 目标即后端全部 Python；该条反向约束作废 |
+
+### 0.3 未变更的部分
+
+安全与质量约束全部保留，仅更换执行主体：身份只从登录态取、业务写入必须经用户确认且幂等、RAG 文本不得覆盖系统规则、单实例并发口径与"扩多实例需改租约方案"的风险说明继续有效。
 
 ## 1. 接手须知与版本边界
 
@@ -10,8 +46,8 @@
 
 | 项目 | 本次开发目录 | 最近确认的分支 / 提交 |
 | --- | --- | --- |
-| Python AI | `J:\develope\橘子rag\orangeDiary-ai` | `codex/final-version` / `e1eac51` |
-| Java 后端 | `J:\develope\橘子rag\orangeDiary` | `codex/graduation` / `50774f7` |
+| Python 后端（唯一运行态） | `J:\develope\橘子rag\orangeDiary-ai` | `codex/final-version` / `e1eac51` |
+| Java 后端（迁移对照，不参与运行） | `J:\develope\橘子rag\orangeDiary` | `codex/graduation` / `50774f7` |
 | Vue 前端 | `J:\develope\橘子rag\orange-diary-web` | `codex/graduation` / `0feef09` |
 | 思路参考 | `J:\develope\ragent-main\ragent-main` | 本地 Ragent 源码，目录为双层嵌套 |
 
@@ -19,55 +55,57 @@
 
 ### 1.2 当前已知实现
 
-- Python FastAPI 提供 `/internal/ai/v1/chat/completions`，负责模型调用与场景提示词。
-- Python 提供 `/internal/ai/v2/classify`，已经有规则优先、大模型兜底的意图识别，不要从零重写。
-- Java 负责 JWT 用户认证、业务数据、会话持久化和工具执行，通过 `PythonIntentClient` 调用意图接口。
-- Java 已有聊天普通响应与 SSE 通道，但最新前端目前通过普通 HTTP 聊天接口请求，不能宣称前端已经完整接入流式聊天。
-- 前端已有饮食、运动确认卡片相关界面；Java 的运动确认响应尚需补齐。
-- 原 Java 版本存在基础 Qdrant + Ollama RAG 实现，但不能假定迁移后的版本仍启用或完整保留。接手时检查类、条件开关和实际调用链。
-- 现有知识资料可从原 Java `src/main/resources/rag` 定向迁移；仅复制经过确认的文献文件，不复制整个旧项目覆盖新项目。
+- 单一 Python 进程承载全部对外端点：JWT 认证、业务读写、SSE、AI 编排与会话持久化都在 `app/` 内，不存在独立的 Java 后端进程。
+- 模型调用与场景提示词在 `app/services/model_gateway.py`；`/internal/ai/v1/chat/completions` 作为兼容入口保留。
+- 意图识别在 `app/services/intent_classifier.py`，规则优先、大模型兜底，不要从零重写；HTTP 入口 `/internal/ai/v2/classify` 保留供运维脚本与灰度对比。
+- 聊天编排在 `app/services/ai_service.py`，普通响应与 SSE 两条通道都已实现，SSE 事件序为 `knowledge` → `sources` → `message` → `done`。
+- 前端已有饮食、运动确认卡片相关界面，仍通过普通 HTTP 聊天接口请求，不能宣称前端已经完整接入流式聊天。
+- 原 Java 版本的 Qdrant + Ollama RAG 只作思路参考；当前检索实现在 `app/rag/*`（版本化集合、BM25、Rerank、证据门槛）。
+- 计划所述 `src/main/resources/rag` 在迁移后的 Java 项目中不存在，文献来源按 `EXECUTION_PLAN.md` §0 的来源决策重新收集。
 
 ### 1.3 最近检查结果及限制
 
+本节为 2026-11-17 编制时快照，仅用于说明当时的基线；当前测试与覆盖率以 `docs/IMPLEMENTATION_STATUS.md` 为准。
+
 - 前端 `npm.cmd run build` 通过。
-- Java `mvn test` 共 88 项，82 项通过、6 项跳过，无失败。跳过项包括 AI 持久化和跨服务测试，不代表完整联调已通过。
-- Python `unittest` 共 17 项通过，但没有充分覆盖规则分类、Java 意图执行和前端确认链路。
+- Java `mvn test` 共 88 项，82 项通过、6 项跳过，无失败。跳过项包括 AI 持久化和跨服务测试。该结果仅作迁移对照，Java 已不在运行链路中。
+- Python `unittest` 共 17 项通过，但没有充分覆盖规则分类、意图执行和前端确认链路。当前用例规模已超出此基线。
 - Python 的 IDE 工作目录与 uvicorn 启动方式已修正，临时启动健康检查返回 200。
 - 前端 `.vscode/launch.json` 已修正到 5173，并新增当前工作目录下的启动项。这些本地修改需保留。
-- 端口占用、IDE 状态、解释器和环境变量可能变化，必须重新验证。不要在检查结束后留下临时服务占用 5173 / 8000 / 8080。
-- Python 项目现在存在 `.venv` 目录，但不要仅凭目录存在判定可用；验证其解释器与依赖。之前验证可用的解释器为 `J:\develope\python\python.exe`。
+- 端口占用、IDE 状态、解释器和环境变量可能变化，必须重新验证。不要在检查结束后留下临时服务占用 5173 / 8000。
+- Python 项目现在存在 `.venv` 目录，但不要仅凭目录存在判定可用；验证其解释器与依赖。
 
 ## 2. 最终目标与职责划分
 
 最终用户能力：用户可查询个人真实健康数据、咨询有来源的饮食知识、进行多轮个性化分析，并对 AI 建议的记录操作确认后保存；系统具备知识更新、故障降级、并发保护、评估与排障能力。
 
-### 2.1 推荐架构
+### 2.1 目标架构（单进程）
 
 ```text
 Vue 前端
-  → Java 公共 API：认证、权限、请求幂等、会话、业务读写、SSE 转发
-      → Python classify：规则 / 语义分类、参数提取、缺参说明
-      → Java 根据意图查询自己的业务数据
-      → Python RAG search：改写、向量 + BM25、RRF、Rerank、证据过滤
-      → Java 将业务数据、历史和 RAG 结果组装为模型输入
-      → Python 模型网关：统一模型凭据、提示词、调用和观测
-      → Java 保存回答及来源快照 → 返回前端
+  → Python 公共 API（单一进程）：认证、权限、请求幂等、会话、业务读写、SSE
+      → 意图识别（intent_classifier）：规则 / 语义分类、参数提取、缺参说明
+      → 业务数据查询（services / ai_tools）：按登录态取个人真实数据
+      → RAG search（rag/*）：改写、向量 + BM25、RRF、Rerank、证据过滤
+      → 上下文装配（ai_service + ai_conversation）：业务数据、会话历史、RAG 结果
+      → 模型网关（model_gateway）：统一模型凭据、提示词、调用和观测
+      → 保存回答及来源快照 → 返回前端
 
-管理员 → Java 鉴权 → Python 入库任务 → 解析 / 切块 / Embedding → Qdrant / BM25
+管理员 → Python 鉴权 → 入库任务（scripts/ingest.py）→ 解析 / 切块 / Embedding → Qdrant / BM25
 ```
 
-第一版继续让 Java 编排已有聊天流程，Python 专注 AI 和 RAG。不要同时把全部聊天、用户鉴权、业务数据库和记忆搬到 Python；否则难以定位问题并且存在双重会话来源。
+单进程不等于单模块：上述职责仍各自独立、可单测、可替换，省掉的只是跨进程序列化、跨进程鉴权和双重会话来源。编排、业务查询、检索、模型调用不得混写在同一个函数里；各模块之间用明确的数据结构传递，不用隐式全局状态。
 
 ### 2.2 必须保持的边界
 
-1. 前端只调用 Java，不持有内部服务 Token、模型 Key 或 Qdrant Key。
-2. Java 从登录态确定用户身份，不信任模型或浏览器传入的任意 userId。
-3. Python 首期只检索经过审核的公共健康文献，不直接访问个人业务数据库。
-4. 动态热量、体重、目标等来自 Java 工具；不能用旧对话摘要替代实时查询。
-5. 只有 Java 执行业务写入。模型返回结构化意图、候选项或建议，不能直接插入数据库。
+1. 前端只调用 Python 后端，不持有内部服务 Token、模型 Key 或 Qdrant Key。
+2. 后端从登录态确定用户身份，不信任模型或浏览器传入的任意 userId。
+3. 检索层只处理经过审核的公共健康文献，不接收个人业务数据；个人数据由 `ai_tools` 按登录态单独查询，且不进入检索请求或第三方 rerank。
+4. 动态热量、体重、目标等来自 `app/services/ai_tools.py` 的实时查询；不能用旧对话摘要替代实时查询。
+5. 只有确认接口执行业务写入。模型返回结构化意图、候选项或建议，不能直接插入数据库。
 6. RAG 文本是外部资料，不能覆盖系统规则、用户权限或工具执行规则。
 7. 前期继续使用 Qdrant，不为模仿 Ragent 引入 Milvus、图数据库、MCP 或消息中间件。
-8. 会话与摘要继续由 Java 持久化；Python 不创建第二套独立聊天历史。
+8. **系统只有一个会话来源，禁止任何第二套会话历史**：会话与摘要统一由 `app/services/ai_conversation.py` 持久化，任何模块不得另建聊天记录表，也不得在进程内维护独立的对话历史。
 
 ## 3. 阶段 0：修复现有链路，建立可运行基线
 
@@ -75,14 +113,14 @@ Vue 前端
 
 ### 0.1 启动与配置
 
-- [ ] 检查 Java / Python / 前端的 IDE 路径及运行目录，工作目录使用项目相对变量。
-- [ ] 明确本地启动命令、端口、解释器版本、Node / JDK 版本；不提交机器专属路径到公共配置。
-- [ ] 统一 Java 与 Python 的 `AI_SERVICE_TOKEN`，删除示例中的真实凭据和不安全的真实默认值。
+- [ ] 检查后端 / 前端的 IDE 路径及运行目录，工作目录使用项目相对变量。
+- [ ] 明确本地启动命令、端口、解释器版本、Node 版本；不提交机器专属路径到公共配置。
+- [ ] 统一应用进程与运维脚本的 `AI_SERVICE_TOKEN`，删除示例中的真实凭据和不安全的真实默认值。
 - [ ] 保留本地密钥但不输出到日志、文档、报告或 Git。若发现凭据曾提交，单独提示轮换，删除当前文本不能消除历史暴露。
-- [ ] 明确 `.env` 是否自动加载。若采用 dotenv，只加载指定本地文件，进程环境变量优先；Java 使用独立、明确的加载方式，不能假定两边自动共用。
-- [ ] Java 本地、Docker、`.env.example` 的聊天 / RAG 开关应有一致说明；明确生产关闭和开发启用的差异。
+- [ ] 明确 `.env` 是否自动加载。若采用 dotenv，只加载指定本地文件，进程环境变量优先；应用进程、后台 worker 与运维脚本共用同一份加载规则，不能各读各的。
+- [ ] 本地、Docker、`.env.example` 的聊天 / RAG 开关应有一致说明；明确生产关闭和开发启用的差异。
 - [ ] 暴露存活检查和就绪检查：存活不调用真实模型，就绪检查配置与必要依赖；避免健康检查消耗模型费用。
-- [ ] 检查 8000 / 8080 / 5173 端口，启动前确认占用进程，不停止无关用户服务。
+- [ ] 检查 8000 / 5173 端口，启动前确认占用进程，不停止无关用户服务。
 
 ### 0.2 修复意图识别与参数协议
 
@@ -94,10 +132,10 @@ Vue 前端
 | 提示词输出 `missing_slots`，校验读取 `missingSlots` | 统一 snake_case 协议；如兼容旧字段，应只在边界兼容，内部只用一个名称 | 语义返回缺重量 / 缺运动时长 |
 | nutrition_metric 与指标白名单语义不同 | 区分食物营养指标与每日汇总指标，统一枚举并归一化中文别名 | 蛋白质、脂肪、碳水、热量 |
 | 规则分支绕过语义校验 | 规则与模型结果都走同一规范化、数值范围、有限值、类型校验 | 负数、0、极大值、NaN、Infinity、布尔值 |
-| Java 只承接部分意图 | 建立显式意图到业务能力映射，不能用今日饮食回答一般食物营养 | 食物营养、运动查询、体重进度 |
-| Java 未完整生成运动确认响应 | 补齐项目匹配、时长、候选项与前端确认卡片所需字段；未完成前必须明确不支持 | 跑步30分钟、未匹配项目、缺少时长 |
-| Java 忽略分类结果的追问含义 | 缺关键参数先追问，不调用最终建议模型假装已知，更不能生成可保存的错误预览 | 我今天跑步了、我吃了鸡蛋 |
-| 意图客户端异常被静默吞掉 | 设置连接 / 读取超时，记录安全错误码与 traceId，限制关键词降级范围 | Python 401、超时、非 JSON、500 |
+| 意图执行只覆盖部分能力 | 建立显式意图到业务能力映射，不能用今日饮食回答一般食物营养 | 食物营养、运动查询、体重进度 |
+| 运动确认响应字段不完整 | 补齐项目匹配、时长、候选项与前端确认卡片所需字段；未完成前必须明确不支持 | 跑步30分钟、未匹配项目、缺少时长 |
+| 编排层忽略分类结果的追问含义 | 缺关键参数先追问，不调用最终建议模型假装已知，更不能生成可保存的错误预览 | 我今天跑步了、我吃了鸡蛋 |
+| 分类异常被静默吞掉 | 设置分类模型超时，记录安全错误码与 traceId，限制关键词降级范围 | 分类超时、模型返回非 JSON、模型 5xx、降级误命中 |
 
 建议统一结果：
 
@@ -115,27 +153,27 @@ Vue 前端
 }
 ```
 
-这是目标示例，新增 quantity / unit 前要同时更新 Python 校验、Java DTO 和测试，不能只修改提示词。不要把模型自报 confidence 当作经过校准的概率。
+这是目标示例，新增 quantity / unit 前要同时更新意图校验、响应 schema 和测试，不能只修改提示词。不要把模型自报 confidence 当作经过校准的概率。
 
 ### 0.3 规划意图执行规则
 
 | 意图 | 数据来源 / 行为 |
 | --- | --- |
 | 普通聊天 | 不做知识检索，不查询不必要的个人数据 |
-| daily_summary / diet_detail | Java 当前用户汇总 / 饮食记录 |
-| food_nutrition | Java 食物库与份量换算，不靠通用文献猜具体食物数值 |
-| weight_progress / user_goal | Java 当前用户体重趋势 / 健康目标 |
-| exercise_calorie | Java 运动项目、用户必要参数与现有计算逻辑 |
-| health_advice | Python RAG；个性化分析时补充必要的 Java 用户数据 |
-| food_record / exercise_record | 参数提取 → 候选预览 → 用户确认 → Java 校验与幂等写入 |
+| daily_summary / diet_detail | `services/summary_service.py` 当前用户汇总 / 饮食记录 |
+| food_nutrition | `services/food_service.py` 食物库与份量换算，不靠通用文献猜具体食物数值 |
+| weight_progress / user_goal | `services/weight_service.py` 当前用户体重趋势 / 健康目标 |
+| exercise_calorie | `services/exercise_service.py` 运动项目、用户必要参数与现有计算逻辑 |
+| health_advice | `app/rag/*` 检索；个性化分析时补充必要的个人数据 |
+| food_record / exercise_record | 参数提取 → 候选预览 → 用户确认 → 确认接口校验与幂等写入 |
 | clarification / out_of_scope | 追问或说明能力边界，避免无意义检索 |
 
 多意图需保留互不冲突的任务。例如“我今天吃了多少，还有什么控盐建议”应同时查询每日汇总和知识库。规则只命中一部分时不能永久丢掉剩余诉求；复杂问题允许模型补全，但设置意图数量和模型调用预算。
 
 ### 0.4 基线验收
 
-- [ ] 三个项目分别启动，能登录并完成一次个人数据问答。
-- [ ] 规则识别与模拟语义识别都能走到正确 Java 数据查询。
+- [ ] 后端与前端分别启动，能登录并完成一次个人数据问答。
+- [ ] 规则识别与模拟语义识别都能走到正确的业务数据查询。
 - [ ] 缺参追问不生成错误记录；确认保存仅写一次；取消不写库。
 - [ ] 两个账号不能互查数据、会话或确认任务。
 - [ ] 保留现有全部测试，新增实际错误的回归测试；修复后运行相关测试。
@@ -143,9 +181,9 @@ Vue 前端
 
 交付：基线检查报告、配置说明、意图协议、错误修复清单。
 
-## 4. 第一阶段：Python RAG 可用闭环
+## 4. 第一阶段：RAG 可用闭环
 
-目标：不更换现有聊天架构，实现能检索、能拒绝无依据回答、能展示来源的健康知识问答。
+目标：在单进程后端内接入检索，实现能检索、能拒绝无依据回答、能展示来源的健康知识问答，不新增第二个服务进程。
 
 ### 1.1 文献与结构化切块
 
@@ -192,55 +230,91 @@ Vue 前端
 - [ ] 阈值按具体 Rerank 模型和样例标定，不照搬任意 0.45 或其他项目分值。
 - [ ] “无知识证据”时明确降级 / 追问；只在有可靠个人业务数据时继续回答对应个人数据部分。
 
-### 1.4 Python 内部检索接口
+### 1.4 内部检索接口
 
-保留现有 `/internal/ai/v1/chat/completions` 和 `/internal/ai/v2/classify`。新增建议路径：
+保留现有 `/internal/ai/v1/chat/completions` 和 `/internal/ai/v2/classify`。检索接口：
 
-`POST /internal/rag/v1/search`
+`POST /internal/rag/v1/search`（Bearer 鉴权 + `X-Trace-Id`）
+
+请求：
 
 ```json
 {
   "query": "成年人每天盐应该吃多少",
   "top_k": 5,
-  "context": {"rewritten_query": null}
+  "min_score": null,
+  "user_id": null
 }
 ```
+
+- `top_k`：返回片段数，服务端上限 20（`_MAX_TOP_K`）。
+- `min_score`：可选，证据门槛下限，取值 -1~1；缺省走服务端默认阈值。
+- `user_id`：可选，仅用于限流分组；身份仍由 Bearer Token 与登录态确定，不据此查个人数据。
+
+成功响应（200）：
 
 ```json
 {
   "traceId": "example-trace",
-  "status": "ok",
-  "has_evidence": true,
-  "index_version": "knowledge-v1",
-  "degraded_components": [],
-  "chunks": [{
-    "citation_id": 1,
+  "query": "成年人每天盐应该吃多少",
+  "answerable": true,
+  "cache": "miss",
+  "degraded": {"rerank": "local:bge-reranker-base", "rerank_threshold": 0.75},
+  "timings": {
+    "vector_ms": 12.3,
+    "bm25_ms": 4.1,
+    "payload_fill_ms": 1.2,
+    "rerank_ms": 0.0,
+    "total_ms": 19.8
+  },
+  "candidates": {"vector": 30, "bm25": 30, "fused": 38, "prepared": 12, "dropped": 5},
+  "results": [{
+    "rank": 1,
     "chunk_id": "who-diet-v1-003",
     "document_id": "who-diet",
     "title": "健康饮食",
     "heading_path": ["控制钠的摄入"],
-    "source_url": "https://www.who.int/",
-    "version": "v1",
     "text": "示例证据正文，不代表真实检索结果。",
-    "rerank_score": 0.8
-  }],
-  "timings_ms": {"embedding": 0, "vector": 0, "bm25": 0, "rerank": 0, "total": 0}
+    "source_url": "https://www.who.int/",
+    "needs_review": false,
+    "score": 0.82,
+    "vector_score": 0.71,
+    "bm25_score": 6.4,
+    "rerank_score": null,
+    "vector_rank": 1,
+    "bm25_rank": 2
+  }]
 }
 ```
 
-约定：示例 score 不是目标阈值；不开放让普通调用方任意指定集合、文件路径、Embedding URL 或模型地址。top_k 必须有服务端上限。错误返回安全 error_code 与 traceId，不回传原始上游 body 或堆栈。
+字段语义（与实现 `app/rag/service.py` 一致）：
+
+- `answerable`：false 表示证据不足以作答，此时 `results` 为空。调用方据此拒答，而不是硬凑来源。
+- `degraded`：承载两类信息——`degraded.rerank` 是排序方式标记（正常为 `"<provider>:<model>"`，未接入为 `not_configured`，熔断为 `circuit_open`，失败为 `failed`）；`degraded.reason` 是降级说明（仅降级时出现）。二者不可混用。
+- `cache`：`miss`（真实检索）/ `hit`（命中缓存）/ `shared`（复用并发请求）/ `bypass`（跳过缓存）；命中缓存时 `timings` 只含 `total_ms` / `origin_total_ms` / `cache_age_ms`，调用方不能把 `hit` 的毫秒数当成本次性能。
+- `results[].rerank_score` 为 `null` 表示未接入 rerank，此时排序依据是 RRF 融合分 `score`。
+
+错误响应（非 2xx）：
+
+```json
+{"error": {"type": "unauthorized", "traceId": "example-trace", "detail": "可选说明"}}
+```
+
+`type` 取值：`unauthorized`(401) / `invalid_request`(400) / `busy`(429，带 `Retry-After`) / `upstream_unavailable`(502) / `circuit_open`(503) / `index_not_ready`(503) / `rag_disabled`(503)。
+
+约定：示例 score 不是目标阈值；不开放让普通调用方任意指定集合、文件路径、Embedding URL 或模型地址。错误不返回原始上游 body 或堆栈，只给安全 `type` 与 traceId。
 
 - [ ] 内部 Bearer Token 鉴权与 traceId 校验复用已有能力。
-- [ ] has_evidence=false 时 chunks=[]；依赖失败不能伪装成正常空命中，status 使用 no_evidence / degraded 等明确状态。
-- [ ] Java 将检索接口映射成 DTO，保持前端现有 reply / conversationId / action 等字段兼容，新增可选 sources。
-- [ ] 内部入库接口必须由 Java 管理员权限保护或只提供受控 CLI，不能仅凭“已登录”调用。
+- [ ] `answerable=false` 时 `results=[]`；依赖失败走错误响应（`type` 区分），不伪装成正常空命中。
+- [ ] 检索结果由 `app/schemas/ai.py` 直接组装为前端字段，保持现有 reply / conversationId / action 兼容，新增可选 sources；不引入中间 DTO 层。
+- [ ] 入库入口必须由管理员权限保护，或只提供受控 CLI（`scripts/ingest.py`），不能仅凭“已登录”调用。
 
 ### 1.5 查询理解与意图整合
 
 - [ ] 对“那一天最多吃多少”这样的指代问题，使用受限近期对话改写为独立查询，同时保留原问题。
 - [ ] 不对每句话都调用改写模型；普通聊天与明确个人数据查询跳过 RAG。
 - [ ] 禁止改写时擅自添加疾病、年龄、妊娠等用户未提供的事实。
-- [ ] 为组合咨询支持 Java 数据 + RAG 证据，但不将完整个人档案发给检索引擎或第三方 rerank。
+- [ ] 为组合咨询支持个人业务数据 + RAG 证据，但不将完整个人档案发给检索引擎或第三方 rerank。
 - [ ] 为输入长度、子问题数、改写调用次数和检索次数设预算，避免请求扇出失控。
 
 ### 1.6 来源展示与健康回答约束
@@ -248,7 +322,7 @@ Vue 前端
 - [ ] 模型只引用本次真实存在的 citation_id，服务端核验引用 ID，不允许伪造来源。
 - [ ] 返回来源标题、章节、URL 与版本；前端安全渲染来源，不拼不可信 HTML。
 - [ ] 健康知识引用与个人实时数据依据分开标识，不能把用户今天的热量标成 WHO 文献数字。
-- [ ] Java 保存回答使用的来源快照 / 片段快照及版本，文档更新后仍能解释旧回答。
+- [ ] 保存回答使用的来源快照 / 片段快照及版本（落在 `ai_chat_trace`），文档更新后仍能解释旧回答。
 - [ ] 不以引用存在代替内容正确性检查；测试引用是否真正支撑对应结论。
 - [ ] 不做疾病诊断或药物治疗建议；证据不足与超出能力范围时说明边界，不编造具体医学结论。
 
@@ -271,7 +345,7 @@ Vue 前端
 - [ ] 普通聊天、个人数据问答、饮食确认、运动确认仍正常，不因加入 RAG 退化。
 - [ ] 模拟端到端测试通过；真实模型联调结果单独记录，不能把模拟结果当实际服务效果。
 
-交付：可运行 Python RAG、Java 对接、来源 UI、第一阶段测试报告、接口与配置文档。
+交付：可运行的单进程 RAG、来源 UI、第一阶段测试报告、接口与配置文档。
 
 ## 5. 第二阶段：稳定性、更新与评估闭环
 
@@ -322,7 +396,7 @@ Vue 前端
 - [ ] Redis 不可用时明确采用保守本地限额或拒绝，不无限放开流量。把部署实例数纳入风险说明。
 - [ ] 并发测试覆盖取消 / 授予竞争、worker 崩溃、租约过期与 Redis 短暂失败。
 
-### 2.5 会话记忆改进（Java 持久化）
+### 2.5 会话记忆改进（单进程持久化）
 
 - [ ] 保留“近期完整消息 + 已覆盖历史的摘要”，用明确消息序号 / 游标说明摘要覆盖范围。
 - [ ] 摘要在回复完成后异步生成，使用有界执行器，不在数据库长事务中等待模型。
@@ -335,7 +409,7 @@ Vue 前端
 
 ### 2.6 Trace、管理端与反馈
 
-- [ ] Java 到 Python 传递同一 traceId，记录分类、业务查询、Embedding、召回、融合、精排、生成、持久化节点。
+- [ ] 同一 traceId 贯穿一次请求，记录分类、业务查询、Embedding、召回、融合、精排、生成、持久化节点。
 - [ ] 明确统计起止：排队耗时、检索耗时、用户首字延迟、模型首字延迟和完整响应时间分开。
 - [ ] 每次任务记录配置版本、索引版本、场景、模型、状态、重试次数、降级原因与 usage。
 - [ ] 指标标签保持低基数，不用 userId / query / traceId 做监控标签；这些放受控日志 / Trace 属性。
@@ -410,9 +484,9 @@ docs/                  # 接口、配置、安全边界、验收报告
 
 ## 7. 推荐执行顺序与每次交付格式
 
-1. **M0**：启动配置与凭据边界、意图字段 / 单位错误、Java 意图承接、确认链路及回归。
+1. **M0**：启动配置与凭据边界、意图字段 / 单位错误、意图执行、确认链路及回归。
 2. **M1**：文献清单、结构化切块、批 Embedding、Qdrant 和 BM25，跑通受控入库。
-3. **M2**：混合检索、RRF、Rerank、证据过滤、Java 搜索调用和来源展示。
+3. **M2**：混合检索、RRF、Rerank、证据过滤、检索接入和来源展示。
 4. **M3**：第一阶段联调、负面场景与基线评估；通过后进入第二阶段。
 5. **M4**：增量版本发布、缓存与失效、任务重跑 / 回滚。
 6. **M5**：模型错误分类、重试 / 熔断、Redis 并发与取消资源回收。
@@ -424,9 +498,9 @@ docs/                  # 接口、配置、安全边界、验收报告
 ## 8. 给执行模型的约束
 
 - 先读各项目实际源码与适用 AGENTS.md；本计划中的版本是编制时快照，不假设目录一直不变。
-- 优先实现 M0，再逐里程碑开发；不要一次重写三个项目或替换全部框架。
-- 只有设计文件和配置示例不算完成，接口要有调用方，字段变更必须同步两端和测试。
-- 修复范围内可以调整 Java 与前端；Python RAG 本身不意味着把整套后端改写成 Python。
+- 优先实现 M0，再逐里程碑开发；不要在一次改动中替换全部框架。
+- 只有设计文件和配置示例不算完成，接口要有调用方，字段变更必须同步 schema、调用方和测试。
+- 后端只保留 Python 一套实现；Java 仅作迁移对照与回滚备份，不再新增功能，也不得让两套实现同时对外提供服务。
 - 测试使用独立 / 可回滚测试数据，不自动对用户数据库执行 schema.sql、清表或未知迁移。
 - 不自行切换其他版本、不强推、不提交密钥、不删除用户产物，不启动无人接管的常驻验证服务。
 - 不以“参考项目支持”替代本项目已经实现，也不把文件 / 缓存中存在的旧代码当当前运行能力。
@@ -438,7 +512,7 @@ docs/                  # 接口、配置、安全边界、验收报告
 
 以下只能在对应功能验收后使用：
 
-1. 基于 FastAPI 构建独立健康饮食 RAG 服务，支持结构化切块、批量 Embedding、Qdrant 检索和版本化增量入库。
+1. 基于 FastAPI 构建健康饮食后端（单进程），内含结构化切块、批量 Embedding、Qdrant 检索和版本化增量入库。
 2. 构建向量与 BM25 混合召回、RRF、Rerank 与证据过滤链路，结合意图识别和来源引用实现有依据的个性化健康问答。
 3. 设计近期消息与持久化摘要结合的会话上下文管理，支持缺参追问、用户确认与幂等记录，控制上下文开销和会话并发一致性。
 4. 通过缓存、超时 / 熔断降级、Redis 并发控制、用户权限隔离及 Trace / 评估反馈完善可靠性与可维护性。

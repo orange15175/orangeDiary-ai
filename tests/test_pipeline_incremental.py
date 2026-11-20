@@ -158,3 +158,114 @@ class IncrementalIngestTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+NUTRITION_DOC = "# 膳食指南\n\n## 食盐\n\n成人每天食盐不超过 5 克。\n"
+COOKING_DOC = "# 番茄炒蛋\n\n## 食材\n\n番茄 2 个、鸡蛋 3 个。\n\n## 做法\n\n先炒蛋再炒番茄。\n"
+
+
+class DomainIndexTests(unittest.TestCase):
+    """入库必须同时产出分域 BM25，否则域过滤只剩向量一半能用。"""
+
+    def setUp(self) -> None:
+        self.temp = tempfile.TemporaryDirectory()
+        root = Path(self.temp.name)
+        self.sources = root / "sources"
+        (self.sources / "cooking").mkdir(parents=True)
+        (self.sources / "diet.md").write_text(NUTRITION_DOC, encoding="utf-8")
+        (self.sources / "cooking" / "recipe.md").write_text(COOKING_DOC, encoding="utf-8")
+        self.manifest = root / "manifest.json"
+        self.manifest.write_text(
+            json.dumps(
+                {
+                    "version": "test-v1",
+                    "documents": [
+                        {"document_id": "diet", "title": "膳食指南", "file": "diet.md",
+                         "domain": "nutrition"},
+                        {"document_id": "recipe-fanqie", "title": "番茄炒蛋",
+                         "file": "cooking/recipe.md", "domain": "cooking",
+                         "recipe_key": "fanqiechaodan", "chunk_strategy": "recipe"},
+                    ],
+                },
+                ensure_ascii=False,
+            ),
+            encoding="utf-8",
+        )
+        self.index_dir = root / "index"
+        self.store = FakeStore()
+
+    def tearDown(self) -> None:
+        self.temp.cleanup()
+
+    def build(self):
+        pipeline = IngestPipeline(
+            sources_dir=self.sources,
+            manifest_path=self.manifest,
+            index_dir=self.index_dir,
+            embedder=FakeEmbedder(),
+            store=self.store,
+            collection="test_collection",
+            chunk_size=200,
+            overlap=20,
+        )
+        return pipeline.run(index_version="test-v1", rebuild=True)
+
+    def test_per_domain_bm25_files_are_written(self):
+        self.build()
+        bm25_dir = self.index_dir / "bm25"
+        self.assertTrue((bm25_dir / "test-v1.json").is_file(), "合并索引要保留给运维接口")
+        self.assertTrue((bm25_dir / "nutrition.test-v1.json").is_file())
+        self.assertTrue((bm25_dir / "cooking.test-v1.json").is_file())
+
+    def test_payload_carries_knowledge_domain(self):
+        self.build()
+        by_domain = {}
+        for point in self.store.upserted:
+            by_domain.setdefault(point["payload"]["knowledge_domain"], []).append(point)
+        self.assertEqual({"nutrition", "cooking"}, set(by_domain))
+        cooking = by_domain["cooking"][0]["payload"]
+        self.assertEqual("fanqiechaodan", cooking["recipe_key"])
+
+    def test_manifest_records_domain_counts(self):
+        self.build()
+        manifest = json.loads((self.index_dir / "manifest.json").read_text(encoding="utf-8"))
+        self.assertEqual(1, manifest["domains"]["nutrition"])
+        self.assertEqual(1, manifest["domains"]["cooking"])
+
+    def test_unknown_domain_is_rejected(self):
+        self.manifest.write_text(
+            json.dumps(
+                {"version": "t", "documents": [
+                    {"document_id": "x", "title": "x", "file": "diet.md", "domain": "cookng"}
+                ]},
+                ensure_ascii=False,
+            ),
+            encoding="utf-8",
+        )
+        from app.rag.ingestion.manifest import ManifestError
+        with self.assertRaises(ManifestError):
+            self.build()
+
+    def test_schema_version_change_triggers_rebuild(self):
+        """新增 knowledge_domain 属于 payload 结构变更，旧点必须重建而不是跳过。"""
+        self.build()
+        original = pipeline_module.SCHEMA_VERSION
+        try:
+            pipeline_module.SCHEMA_VERSION = original + "-next"
+            result = self.build_without_rebuild()
+        finally:
+            pipeline_module.SCHEMA_VERSION = original
+        self.assertEqual(2, result.documents_processed)
+
+    def build_without_rebuild(self):
+        pipeline = IngestPipeline(
+            sources_dir=self.sources,
+            manifest_path=self.manifest,
+            index_dir=self.index_dir,
+            embedder=FakeEmbedder(),
+            store=self.store,
+            collection="test_collection",
+            chunk_size=200,
+            overlap=20,
+        )
+        return pipeline.run(index_version="test-v1", rebuild=False)

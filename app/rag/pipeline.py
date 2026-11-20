@@ -161,6 +161,8 @@ class IngestPipeline:
         log.info("Embedding 维度实测 %s，集合 %s 就绪", dimension, self.collection)
 
         all_chunks: list[tuple[str, str]] = []
+        # 每个域单独一份 BM25：候选阶段就要按域限定，混搜后再过滤会把相关菜谱挤掉。
+        chunks_by_domain: dict[str, list[tuple[str, str]]] = {}
         for meta in documents:
             path = self.sources_dir / meta.file
             try:
@@ -179,14 +181,17 @@ class IngestPipeline:
                 # 切块或索引文本策略变化后，旧片段必须重建，不能沿用缓存。
                 and recorded.get("chunker_version") == CHUNKER_VERSION
                 and recorded.get("index_text_version") == INDEX_TEXT_VERSION
+                # 新增 knowledge_domain 属于 payload 结构变更：旧点没有这个字段，
+                # 继续跳过就会留下"过滤永远不命中"的索引。
+                and recorded.get("schema_version") == SCHEMA_VERSION
             )
             if unchanged:
                 cached = self._load_cached_chunks(meta.document_id)
                 if cached:
                     result.documents_skipped += 1
-                    all_chunks.extend(
-                        (item["chunk_id"], _cached_index_text(item)) for item in cached
-                    )
+                    items = [(item["chunk_id"], _cached_index_text(item)) for item in cached]
+                    all_chunks.extend(items)
+                    chunks_by_domain.setdefault(meta.domain, []).extend(items)
                     log.info("跳过未变化文档 %s（%s 片段）", meta.document_id, len(cached))
                     continue
 
@@ -209,16 +214,20 @@ class IngestPipeline:
             state.setdefault("documents", {})[meta.document_id] = {
                 "content_hash": current_hash,
                 "version": meta.version,
+                "domain": meta.domain,
                 "chunk_count": len(chunks),
                 "embedding_model": self.embedder.model,
                 "chunker_version": CHUNKER_VERSION,
                 "index_text_version": INDEX_TEXT_VERSION,
+                "schema_version": SCHEMA_VERSION,
                 "built_at": datetime.now(timezone.utc).isoformat(),
             }
             result.documents_processed += 1
             result.chunks_written += written
-            all_chunks.extend((chunk.chunk_id, chunk.index_text) for chunk in chunks)
-            log.info("已入库 %s：%s 片段", meta.document_id, written)
+            items = [(chunk.chunk_id, chunk.index_text) for chunk in chunks]
+            all_chunks.extend(items)
+            chunks_by_domain.setdefault(meta.domain, []).extend(items)
+            log.info("已入库 %s（%s）：%s 片段", meta.document_id, meta.domain, written)
 
         # 源文件被删除（或从清单里移除）后，旧片段必须清掉，否则它会一直出现在检索结果里。
         current_ids = {meta.document_id for meta in documents}
@@ -236,6 +245,13 @@ class IngestPipeline:
         bm25.build(all_chunks)
         bm25_path = self.bm25_dir / f"{index_version}.json"
         bm25.save(bm25_path)
+        # 分域索引文件名必须与 `runtime.service_for` 的约定一致：`<domain>.<version>.json`。
+        # 合并文件保留，供不指定域的运维接口与运行态统计使用。
+        for domain, items in chunks_by_domain.items():
+            domain_bm25 = BM25Index()
+            domain_bm25.build(items)
+            domain_bm25.save(self.bm25_dir / f"{domain}.{index_version}.json")
+            log.info("已生成 %s 域 BM25：%s 片段", domain, len(items))
         result.bm25_chunks = len(all_chunks)
         result.points_in_collection = self.store.count(self.collection)
 
@@ -265,6 +281,8 @@ class IngestPipeline:
                     "document_id": meta.document_id,
                     "title": meta.title,
                     "version": meta.version,
+                    "domain": meta.domain,
+                    "recipe_key": meta.recipe_key,
                     "source_url": meta.source_url,
                     "needs_review": meta.needs_review,
                     "content_hash": (state.get("documents", {}).get(meta.document_id) or {}).get("content_hash"),
@@ -272,6 +290,15 @@ class IngestPipeline:
                 }
                 for meta in documents
             ],
+            # 每域片段数写进发布清单：检索前就能判断某个域是否已建索引。
+            "domains": {
+                domain: sum(
+                    (state.get("documents", {}).get(meta.document_id) or {}).get("chunk_count") or 0
+                    for meta in documents
+                    if meta.domain == domain
+                )
+                for domain in sorted({meta.domain for meta in documents})
+            },
             "errors": result.errors,
         }
         path = self.index_dir / "manifest.json"

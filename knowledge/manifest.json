@@ -1,7 +1,7 @@
 {
-  "version": "knowledge-v2",
-  "updated_at": "2026-11-17",
-  "notes": "来源清单由人工审核维护。source_url 为空表示尚未核实官方链接，needs_review=true；不得在回答中把未核实链接当作引用展示。v2 在 v1 基础上补充 6 篇官方资料（WHO 身体活动、游离糖、非糖甜味剂；中国营养学会膳食指南 2022 八准则；国家卫健委成人肥胖食养指南、高血糖症营养和运动指导原则）。",
+  "version": "knowledge-v4",
+  "updated_at": "2026-11-19",
+  "notes": "来源清单由人工审核维护。source_url 为空表示尚未核实官方链接，needs_review=true；不得在回答中把未核实链接当作引用展示。v4 起每篇文档带 domain（nutrition/cooking）：nutrition 为 WHO/中国营养学会/国家卫健委文献；cooking 为项目整理的家常菜谱与搭配经验，不冒充权威来源，营养值由食物库按克重计算。",
   "documents": [
     {
       "document_id": "who-healthy-diet",
@@ -12,7 +12,8 @@
       "published_at": "",
       "scope": "一般人群健康饮食原则、宏量营养素与钠糖脂摄入建议",
       "version": "v1",
-      "needs_review": false
+      "needs_review": false,
+      "domain": "nutrition"
     },
     {
       "document_id": "who-sodium",
@@ -23,7 +24,8 @@
       "published_at": "",
       "scope": "成人钠摄入上限、减钠的健康收益与政策建议",
       "version": "v1",
-      "needs_review": false
+      "needs_review": false,
+      "domain": "nutrition"
     },
     {
       "document_id": "who-trans-fat",
@@ -34,7 +36,8 @@
       "published_at": "",
       "scope": "工业反式脂肪来源、健康风险与每日摄入上限",
       "version": "v1",
-      "needs_review": false
+      "needs_review": false,
+      "domain": "nutrition"
     },
     {
       "document_id": "who-obesity",
@@ -45,7 +48,8 @@
       "published_at": "",
       "scope": "超重与肥胖的判定标准、流行情况与预防",
       "version": "v1",
-      "needs_review": false
+      "needs_review": false,
+      "domain": "nutrition"
     },
     {
       "document_id": "who-malnutrition",
@@ -56,7 +60,8 @@
       "published_at": "",
       "scope": "营养不良的分类、成因与干预",
       "version": "v1",
-      "needs_review": false
+      "needs_review": false,
+      "domain": "nutrition"
     },
     {
       "document_id": "cns-pagoda-2022",
@@ -67,7 +72,8 @@
       "published_at": "2022-04-28",
       "scope": "中国居民各层食物推荐摄入量，适用于 2 岁以上一般人群",
       "version": "v1",
-      "needs_review": true
+      "needs_review": true,
+      "domain": "nutrition"
     },
     {
       "document_id": "who-wpro-nudge-2023",
@@ -78,7 +84,8 @@
       "published_at": "2023",
       "scope": "食品环境、政策、数据与传播四个维度的减盐干预案例，非个体膳食指南",
       "version": "v1",
-      "needs_review": true
+      "needs_review": true,
+      "domain": "nutrition"
     },
     {
       "document_id": "who-physical-activity",
@@ -89,7 +96,8 @@
       "published_at": "2024-06-26",
       "scope": "各年龄段身体活动推荐量、久坐风险与健康收益，含每周150分钟中等强度下限",
       "version": "v1",
-      "needs_review": false
+      "needs_review": false,
+      "domain": "nutrition"
     },
     {
       "document_id": "cns-cdg-2022-eight",
@@ -100,7 +108,8 @@
       "published_at": "2022-04-26",
       "scope": "八条平衡膳食准则原文与量化推荐（谷类、蔬果、鱼禽蛋肉、盐油糖上限、饮水、饮酒）",
       "version": "v1",
-      "needs_review": false
+      "needs_review": false,
+      "domain": "nutrition"
     },
     {
       "document_id": "who-free-sugars-2015",
@@ -111,7 +120,8 @@
       "published_at": "2015-03-04",
       "scope": "游离糖定义、总能量 10% 上限与 5% 附加收益、含糖饮料与隐形糖来源",
       "version": "v1",
-      "needs_review": false
+      "needs_review": false,
+      "domain": "nutrition"
     },
     {
       "document_id": "who-non-sugar-sweeteners-2023",
@@ -122,7 +132,8 @@
       "published_at": "2023-05-15",
       "scope": "不建议用非糖甜味剂控制体重的有条件建议、适用人群与代糖范围；正文据 WHO 指南与官方发布整理",
       "version": "v1",
-      "needs_review": true
+      "needs_review": true,
+      "domain": "nutrition"
     },
     {
       "document_id": "nhc-obesity-diet-2024",
@@ -133,7 +144,8 @@
       "published_at": "2024-02",
       "scope": "成人减重六条食养原则、限能量平衡膳食能量区间、各类食物每日克数推荐",
       "version": "v1",
-      "needs_review": false
+      "needs_review": false,
+      "domain": "nutrition"
     },
     {
       "document_id": "nhc-hyperglycemia-2024",
@@ -144,7 +156,293 @@
       "published_at": "2024-07",
       "scope": "高血糖症膳食指导、低/高 GI 食物举例、升糖负荷与餐后运动建议",
       "version": "v1",
-      "needs_review": false
+      "needs_review": false,
+      "domain": "nutrition"
+    },
+    {
+      "document_id": "recipe-hongshaorou",
+      "title": "红烧肉（家常焖烧）",
+      "file": "cooking/红烧肉.md",
+      "publisher": "OrangeDiary 项目整理",
+      "source_url": "",
+      "published_at": "",
+      "scope": "家常做法参考：红烧肉（家常焖烧）。用量为参考值，营养以食物库计算为准",
+      "version": "v1",
+      "needs_review": true,
+      "domain": "cooking",
+      "recipe_key": "hongshaorou",
+      "chunk_strategy": "recipe",
+      "license": "项目自撰，随项目分发"
+    },
+    {
+      "document_id": "recipe-lajiaochaowuhuarou",
+      "title": "辣椒炒五花肉",
+      "file": "cooking/辣椒炒五花肉.md",
+      "publisher": "OrangeDiary 项目整理",
+      "source_url": "",
+      "published_at": "",
+      "scope": "家常做法参考：辣椒炒五花肉。用量为参考值，营养以食物库计算为准",
+      "version": "v1",
+      "needs_review": true,
+      "domain": "cooking",
+      "recipe_key": "lajiaochaowuhuarou",
+      "chunk_strategy": "recipe",
+      "license": "项目自撰，随项目分发"
+    },
+    {
+      "document_id": "recipe-fanqiechaodan",
+      "title": "番茄炒蛋",
+      "file": "cooking/番茄炒蛋.md",
+      "publisher": "OrangeDiary 项目整理",
+      "source_url": "",
+      "published_at": "",
+      "scope": "家常做法参考：番茄炒蛋。用量为参考值，营养以食物库计算为准",
+      "version": "v1",
+      "needs_review": true,
+      "domain": "cooking",
+      "recipe_key": "fanqiechaodan",
+      "chunk_strategy": "recipe",
+      "license": "项目自撰，随项目分发"
+    },
+    {
+      "document_id": "recipe-kelejichi",
+      "title": "可乐鸡翅",
+      "file": "cooking/可乐鸡翅.md",
+      "publisher": "OrangeDiary 项目整理",
+      "source_url": "",
+      "published_at": "",
+      "scope": "家常做法参考：可乐鸡翅。用量为参考值，营养以食物库计算为准",
+      "version": "v1",
+      "needs_review": true,
+      "domain": "cooking",
+      "recipe_key": "kelejichi",
+      "chunk_strategy": "recipe",
+      "license": "项目自撰，随项目分发"
+    },
+    {
+      "document_id": "recipe-xiangguhuaji",
+      "title": "香菇滑鸡（蒸）",
+      "file": "cooking/香菇滑鸡.md",
+      "publisher": "OrangeDiary 项目整理",
+      "source_url": "",
+      "published_at": "",
+      "scope": "家常做法参考：香菇滑鸡（蒸）。用量为参考值，营养以食物库计算为准",
+      "version": "v1",
+      "needs_review": true,
+      "domain": "cooking",
+      "recipe_key": "xiangguhuaji",
+      "chunk_strategy": "recipe",
+      "license": "项目自撰，随项目分发"
+    },
+    {
+      "document_id": "recipe-hongshaojitui",
+      "title": "红烧鸡腿",
+      "file": "cooking/红烧鸡腿.md",
+      "publisher": "OrangeDiary 项目整理",
+      "source_url": "",
+      "published_at": "",
+      "scope": "家常做法参考：红烧鸡腿。用量为参考值，营养以食物库计算为准",
+      "version": "v1",
+      "needs_review": true,
+      "domain": "cooking",
+      "recipe_key": "hongshaojitui",
+      "chunk_strategy": "recipe",
+      "license": "项目自撰，随项目分发"
+    },
+    {
+      "document_id": "recipe-gongbaojiding",
+      "title": "宫保鸡丁",
+      "file": "cooking/宫保鸡丁.md",
+      "publisher": "OrangeDiary 项目整理",
+      "source_url": "",
+      "published_at": "",
+      "scope": "家常做法参考：宫保鸡丁。用量为参考值，营养以食物库计算为准",
+      "version": "v1",
+      "needs_review": true,
+      "domain": "cooking",
+      "recipe_key": "gongbaojiding",
+      "chunk_strategy": "recipe",
+      "license": "项目自撰，随项目分发"
+    },
+    {
+      "document_id": "recipe-qingjiaotudousi",
+      "title": "青椒土豆丝",
+      "file": "cooking/青椒土豆丝.md",
+      "publisher": "OrangeDiary 项目整理",
+      "source_url": "",
+      "published_at": "",
+      "scope": "家常做法参考：青椒土豆丝。用量为参考值，营养以食物库计算为准",
+      "version": "v1",
+      "needs_review": true,
+      "domain": "cooking",
+      "recipe_key": "qingjiaotudousi",
+      "chunk_strategy": "recipe",
+      "license": "项目自撰，随项目分发"
+    },
+    {
+      "document_id": "recipe-suanrongxilanhua",
+      "title": "蒜蓉西兰花",
+      "file": "cooking/蒜蓉西兰花.md",
+      "publisher": "OrangeDiary 项目整理",
+      "source_url": "",
+      "published_at": "",
+      "scope": "家常做法参考：蒜蓉西兰花。用量为参考值，营养以食物库计算为准",
+      "version": "v1",
+      "needs_review": true,
+      "domain": "cooking",
+      "recipe_key": "suanrongxilanhua",
+      "chunk_strategy": "recipe",
+      "license": "项目自撰，随项目分发"
+    },
+    {
+      "document_id": "recipe-mapodoufu",
+      "title": "麻婆豆腐",
+      "file": "cooking/麻婆豆腐.md",
+      "publisher": "OrangeDiary 项目整理",
+      "source_url": "",
+      "published_at": "",
+      "scope": "家常做法参考：麻婆豆腐。用量为参考值，营养以食物库计算为准",
+      "version": "v1",
+      "needs_review": true,
+      "domain": "cooking",
+      "recipe_key": "mapodoufu",
+      "chunk_strategy": "recipe",
+      "license": "项目自撰，随项目分发"
+    },
+    {
+      "document_id": "recipe-jiachangdoufu",
+      "title": "家常豆腐（煎烧）",
+      "file": "cooking/家常豆腐.md",
+      "publisher": "OrangeDiary 项目整理",
+      "source_url": "",
+      "published_at": "",
+      "scope": "家常做法参考：家常豆腐（煎烧）。用量为参考值，营养以食物库计算为准",
+      "version": "v1",
+      "needs_review": true,
+      "domain": "cooking",
+      "recipe_key": "jiachangdoufu",
+      "chunk_strategy": "recipe",
+      "license": "项目自撰，随项目分发"
+    },
+    {
+      "document_id": "recipe-qingzhengluyu",
+      "title": "清蒸鲈鱼",
+      "file": "cooking/清蒸鲈鱼.md",
+      "publisher": "OrangeDiary 项目整理",
+      "source_url": "",
+      "published_at": "",
+      "scope": "家常做法参考：清蒸鲈鱼。用量为参考值，营养以食物库计算为准",
+      "version": "v1",
+      "needs_review": true,
+      "domain": "cooking",
+      "recipe_key": "qingzhengluyu",
+      "chunk_strategy": "recipe",
+      "license": "项目自撰，随项目分发"
+    },
+    {
+      "document_id": "recipe-xihuashijidantang",
+      "title": "西红柿鸡蛋汤",
+      "file": "cooking/西红柿鸡蛋汤.md",
+      "publisher": "OrangeDiary 项目整理",
+      "source_url": "",
+      "published_at": "",
+      "scope": "家常做法参考：西红柿鸡蛋汤。用量为参考值，营养以食物库计算为准",
+      "version": "v1",
+      "needs_review": true,
+      "domain": "cooking",
+      "recipe_key": "xihuashijidantang",
+      "chunk_strategy": "recipe",
+      "license": "项目自撰，随项目分发"
+    },
+    {
+      "document_id": "recipe-culiubaicai",
+      "title": "醋溜白菜",
+      "file": "cooking/醋溜白菜.md",
+      "publisher": "OrangeDiary 项目整理",
+      "source_url": "",
+      "published_at": "",
+      "scope": "家常做法参考：醋溜白菜。用量为参考值，营养以食物库计算为准",
+      "version": "v1",
+      "needs_review": true,
+      "domain": "cooking",
+      "recipe_key": "culiubaicai",
+      "chunk_strategy": "recipe",
+      "license": "项目自撰，随项目分发"
+    },
+    {
+      "document_id": "recipe-suanxiangqiezi",
+      "title": "蒜香茄子",
+      "file": "cooking/蒜香茄子.md",
+      "publisher": "OrangeDiary 项目整理",
+      "source_url": "",
+      "published_at": "",
+      "scope": "家常做法参考：蒜香茄子。用量为参考值，营养以食物库计算为准",
+      "version": "v1",
+      "needs_review": true,
+      "domain": "cooking",
+      "recipe_key": "suanxiangqiezi",
+      "chunk_strategy": "recipe",
+      "license": "项目自撰，随项目分发"
+    },
+    {
+      "document_id": "recipe-congbaoniurou",
+      "title": "葱爆牛肉",
+      "file": "cooking/葱爆牛肉.md",
+      "publisher": "OrangeDiary 项目整理",
+      "source_url": "",
+      "published_at": "",
+      "scope": "家常做法参考：葱爆牛肉。用量为参考值，营养以食物库计算为准",
+      "version": "v1",
+      "needs_review": true,
+      "domain": "cooking",
+      "recipe_key": "congbaoniurou",
+      "chunk_strategy": "recipe",
+      "license": "项目自撰，随项目分发"
+    },
+    {
+      "document_id": "recipe-jiucaichaodan",
+      "title": "韭菜炒鸡蛋",
+      "file": "cooking/韭菜炒鸡蛋.md",
+      "publisher": "OrangeDiary 项目整理",
+      "source_url": "",
+      "published_at": "",
+      "scope": "家常做法参考：韭菜炒鸡蛋。用量为参考值，营养以食物库计算为准",
+      "version": "v1",
+      "needs_review": true,
+      "domain": "cooking",
+      "recipe_key": "jiucaichaodan",
+      "chunk_strategy": "recipe",
+      "license": "项目自撰，随项目分发"
+    },
+    {
+      "document_id": "recipe-liangbanhuanggua",
+      "title": "凉拌黄瓜",
+      "file": "cooking/凉拌黄瓜.md",
+      "publisher": "OrangeDiary 项目整理",
+      "source_url": "",
+      "published_at": "",
+      "scope": "家常做法参考：凉拌黄瓜。用量为参考值，营养以食物库计算为准",
+      "version": "v1",
+      "needs_review": true,
+      "domain": "cooking",
+      "recipe_key": "liangbanhuanggua",
+      "chunk_strategy": "recipe",
+      "license": "项目自撰，随项目分发"
+    },
+    {
+      "document_id": "cooking-pairing-guide",
+      "title": "常见食材搭配与替换",
+      "file": "cooking/常见食材搭配与替换.md",
+      "publisher": "OrangeDiary 项目整理",
+      "source_url": "",
+      "published_at": "",
+      "scope": "常见食材搭配、调料替换与搭配原则，供食材推荐和缺料替代使用",
+      "version": "v1",
+      "needs_review": true,
+      "domain": "cooking",
+      "recipe_key": "",
+      "chunk_strategy": "heading",
+      "license": "项目自撰，随项目分发"
     }
   ]
 }

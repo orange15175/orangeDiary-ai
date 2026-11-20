@@ -108,15 +108,19 @@ class QdrantStore:
             except httpx.TransportError as second:
                 raise VectorStoreError(f"Qdrant 连接失败（已重试一次）: {second}") from first
 
-    def search(self, name: str, vector: list[float], limit: int = 20) -> list[dict]:
+    def search(self, name: str, vector: list[float], limit: int = 20, domain: str | None = None) -> list[dict]:
         """向量检索；返回 [{chunk_id, score, payload}]，按分数降序。
 
         不设 score_threshold：阈值判断交给上层证据过滤，避免这里悄悄吞掉候选。
+        `domain` 非空时在 Qdrant 侧过滤 `knowledge_domain`，**在候选阶段就限定**——
+        先混搜再过滤会让相关菜谱在 Top-K 阶段就被营养文献挤掉。
         """
-        response = self._post(
-            f"{self.base_url}/collections/{name}/points/search",
-            {"vector": vector, "limit": max(1, limit), "with_payload": True},
-        )
+        body: dict = {"vector": vector, "limit": max(1, limit), "with_payload": True}
+        if domain:
+            body["filter"] = {
+                "must": [{"key": "knowledge_domain", "match": {"value": domain}}]
+            }
+        response = self._post(f"{self.base_url}/collections/{name}/points/search", body)
         if response.status_code == 404:
             raise VectorStoreError(f"集合不存在: {name}")
         if response.status_code != 200:
